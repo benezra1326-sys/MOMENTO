@@ -64,7 +64,7 @@ export function AppShell({ viewer, unread, children }: { viewer: Viewer | null; 
           </div>
         )}
 
-        {viewer && !viewer.isDemo && !viewer.emailVerifiedAt && <VerifyEmailBanner required={emailVerificationRequired()} />}
+        {viewer && !viewer.isDemo && !viewer.emailVerifiedAt && emailVerificationRequired() && <VerifyEmailBanner required />}
 
         <main id="contenu" className="mx-auto w-full max-w-6xl px-4 pb-28 pt-5 sm:px-6 lg:px-10 lg:pb-16 lg:pt-8">
           {children}
