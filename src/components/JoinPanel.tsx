@@ -95,7 +95,7 @@ export function JoinPanel({ moment, signedIn, readOnly = false }: { moment: Mome
   }
   if (ms?.status === "DECLINED") {
     return ms.kind === "REQUEST"
-      ? box("off", "L'hôte n'a pas pu accepter ta demande", "Ça arrive : le groupe était peut-être déjà constitué. D'autres Moments t'attendent.", <Link href="/" className="btn-secondary w-full">Voir d'autres Moments</Link>)
+      ? box("off", "L'hôte n'a pas pu accepter ta demande", "Ça arrive : le groupe était peut-être déjà constitué. D'autres Moments t'attendent.", <Link href="/" className="btn-secondary w-full">Voir d&apos;autres Moments</Link>)
       : box("off", "Tu as décliné cette invitation");
   }
   if (moment.visibility === "INVITE_ONLY") return box("lock", "Sur invitation uniquement", "Seul l'hôte peut inviter des participants.");
