@@ -38,6 +38,16 @@ Navigateur ──> pages React (src/app, src/components)
 - **Jetons** : 32 octets aléatoires, hachés en sha256, usage unique (réclamé de façon atomique), un nouveau jeton invalide les précédents du même type, 3 envois maximum par compte et par heure.
 - **Exigence de confirmation** : `REQUIRE_EMAIL_VERIFICATION=true` bloque la création, la publication, les demandes, les invitations et l'acceptation d'invitation tant que l'adresse n'est pas confirmée. Les comptes Google et démo sont considérés comme confirmés. Voir DECISIONS.md pour la raison de ce drapeau.
 
+## Accès connecté obligatoire
+
+Toute l'app exige une session. `src/middleware.ts` renvoie vers `/connexion?suite=…` sans cookie de session ; le layout racine refait la vérification (session invalide ou expirée) ; les routes API de lecture renvoient 401. Pages publiques : `src/lib/public-paths.ts`.
+
+## Langues
+
+La langue suit celle du téléphone ou du navigateur (`Accept-Language`) : français pour un navigateur en français, anglais sinon. Pas de sélecteur visible. Le lien caché `?lang=en` (ou `fr`, `auto`) force une langue via le cookie `momento_lang`.
+
+Les textes français du code servent de clés (`t("…")`). Ajouter une langue : un dictionnaire dans `src/lib/i18n/` déclaré dans `core.ts`. `npm run i18n:check` liste les textes sans traduction anglaise.
+
 ## Matrice d'accès à un Moment
 
 « Membre accepté » = membership au statut ACCEPTED. Le blocage, dans un sens ou dans l'autre, rend le Moment introuvable (`NOT_FOUND`) pour les deux personnes.

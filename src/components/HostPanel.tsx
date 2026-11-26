@@ -8,6 +8,7 @@ import type { MemberRow, MomentDetailDTO } from "@/server/types";
 import { api } from "@/lib/client";
 import { formatRelative } from "@/lib/time";
 import { Avatar } from "./Avatar";
+import { useLocale, useT } from "./I18nProvider";
 
 const statusText: Record<string, string> = {
   ACCEPTED: "Confirmé",
@@ -18,6 +19,8 @@ const statusText: Record<string, string> = {
 
 export function HostPanel({ moment }: { moment: MomentDetailDTO }) {
   const router = useRouter();
+  const t = useT();
+  const locale = useLocale();
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [invitee, setInvitee] = useState("");
@@ -55,9 +58,9 @@ export function HostPanel({ moment }: { moment: MomentDetailDTO }) {
       <Link href={`/u/${m.user.username}`}><Avatar person={m.user} size="md" /></Link>
       <div className="min-w-0 flex-1">
         <Link href={`/u/${m.user.username}`} className="block truncate font-semibold hover:underline">{m.user.name}</Link>
-        {m.message ? <p className="line-clamp-2 text-sm text-ink-soft">« {m.message} »</p> : <p className="text-xs text-muted">{m.kind === "INVITE" ? "Invité·e" : "Demande"} {formatRelative(m.createdAt)}</p>}
+        {m.message ? <p className="line-clamp-2 text-sm text-ink-soft">« {t(m.message)} »</p> : <p className="text-xs text-muted">{m.kind === "INVITE" ? t("Invité·e") : t("Demande")} {formatRelative(m.createdAt, locale)}</p>}
       </div>
-      {actions ?? <span className="pill bg-sand text-ink-soft">{statusText[m.status]}</span>}
+      {actions ?? <span className="pill bg-sand text-ink-soft">{t(statusText[m.status])}</span>}
     </li>
   );
 
@@ -65,16 +68,16 @@ export function HostPanel({ moment }: { moment: MomentDetailDTO }) {
     <div className="space-y-6">
       <div className="flex flex-wrap gap-2">
         {moment.phase === "draft" && (
-          <button type="button" className="btn-accent" disabled={!!busy} onClick={() => run("publish", `/api/moments/${moment.id}/publish`, {}, "Moment publié.")}>
-            {busy === "publish" && <Loader2 size={16} className="animate-spin" />} Publier
+          <button type="button" className="btn-accent" disabled={!!busy} onClick={() => run("publish", `/api/moments/${moment.id}/publish`, {}, t("Moment publié."))}>
+            {busy === "publish" && <Loader2 size={16} className="animate-spin" />} {t("Publier")}
           </button>
         )}
         {(open || moment.phase === "draft") && (
-          <Link href={`/moments/${moment.id}/modifier`} className="btn-secondary"><Pencil size={16} /> Modifier</Link>
+          <Link href={`/moments/${moment.id}/modifier`} className="btn-secondary"><Pencil size={16} /> {t("Modifier")}</Link>
         )}
         {open && (
           <button type="button" className="btn-danger" onClick={() => setShowCancel((v) => !v)} aria-expanded={showCancel}>
-            <Ban size={16} /> Annuler le Moment
+            <Ban size={16} /> {t("Annuler le Moment")}
           </button>
         )}
       </div>
@@ -88,14 +91,14 @@ export function HostPanel({ moment }: { moment: MomentDetailDTO }) {
           }}
         >
           <p className="text-sm">
-            Les {confirmed.length} participant{confirmed.length > 1 ? "s" : ""} et les demandes en attente seront prévenus. Cette action est définitive.
+            {t(confirmed.length > 1 ? "Les {n} participants et les demandes en attente seront prévenus. Cette action est définitive." : "Les {n} participant et les demandes en attente seront prévenus. Cette action est définitive.", { n: confirmed.length })}
           </p>
-          <label htmlFor="cancel-reason" className="field-label">Motif (facultatif, visible par les participants)</label>
-          <input id="cancel-reason" className="input" maxLength={280} value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Ex. : météo, imprévu…" />
+          <label htmlFor="cancel-reason" className="field-label">{t("Motif (facultatif, visible par les participants)")}</label>
+          <input id="cancel-reason" className="input" maxLength={280} value={reason} onChange={(e) => setReason(e.target.value)} placeholder={t("Ex. : météo, imprévu…")} />
           <div className="flex gap-2">
-            <button type="button" className="btn-ghost" onClick={() => setShowCancel(false)}>Garder le Moment</button>
+            <button type="button" className="btn-ghost" onClick={() => setShowCancel(false)}>{t("Garder le Moment")}</button>
             <button type="submit" className="btn bg-danger text-white hover:bg-danger/90 inline-flex min-h-11 items-center gap-2 rounded-full px-5 font-semibold" disabled={!!busy}>
-              {busy === "cancel" && <Loader2 size={16} className="animate-spin" />} Confirmer l&apos;annulation
+              {busy === "cancel" && <Loader2 size={16} className="animate-spin" />} {t("Confirmer l'annulation")}
             </button>
           </div>
         </form>
@@ -105,62 +108,62 @@ export function HostPanel({ moment }: { moment: MomentDetailDTO }) {
       {error && <p role="alert" className="rounded-2xl bg-danger-soft px-4 py-2.5 text-sm text-danger">{error}</p>}
 
       <section aria-labelledby="req-title">
-        <h3 id="req-title" className="font-semibold">Demandes à traiter <span className="text-muted">({requests.length})</span></h3>
+        <h3 id="req-title" className="font-semibold">{t("Demandes à traiter")} <span className="text-muted">({requests.length})</span></h3>
         {requests.length === 0 ? (
-          <p className="mt-1 text-sm text-muted">Aucune demande en attente.</p>
+          <p className="mt-1 text-sm text-muted">{t("Aucune demande en attente.")}</p>
         ) : (
           <ul className="divide-y divide-line">
             {requests.map((m) =>
               row(
                 m,
                 <div className="flex shrink-0 gap-1.5">
-                  <button type="button" className="btn-secondary !min-h-9 !px-3 text-sm" disabled={!!busy} onClick={() => run(`d-${m.id}`, `/api/requests/${m.id}/decline`, {}, undefined, () => setOverrides((o) => ({ ...o, [m.id]: "DECLINED" })))} aria-label={`Refuser la demande de ${m.user.name}`}>
-                    {busy === `d-${m.id}` ? <Loader2 size={14} className="animate-spin" /> : "Refuser"}
+                  <button type="button" className="btn-secondary !min-h-9 !px-3 text-sm" disabled={!!busy} onClick={() => run(`d-${m.id}`, `/api/requests/${m.id}/decline`, {}, undefined, () => setOverrides((o) => ({ ...o, [m.id]: "DECLINED" })))} aria-label={t("Refuser la demande de {name}", { name: m.user.name })}>
+                    {busy === `d-${m.id}` ? <Loader2 size={14} className="animate-spin" /> : t("Refuser")}
                   </button>
-                  <button type="button" className="btn-primary !min-h-9 !px-3 text-sm" disabled={!!busy || spotsLeft === 0} onClick={() => run(`a-${m.id}`, `/api/requests/${m.id}/accept`, {}, undefined, () => setOverrides((o) => ({ ...o, [m.id]: "ACCEPTED" })))} aria-label={`Accepter la demande de ${m.user.name}`}>
-                    {busy === `a-${m.id}` ? <Loader2 size={14} className="animate-spin" /> : "Accepter"}
+                  <button type="button" className="btn-primary !min-h-9 !px-3 text-sm" disabled={!!busy || spotsLeft === 0} onClick={() => run(`a-${m.id}`, `/api/requests/${m.id}/accept`, {}, undefined, () => setOverrides((o) => ({ ...o, [m.id]: "ACCEPTED" })))} aria-label={t("Accepter la demande de {name}", { name: m.user.name })}>
+                    {busy === `a-${m.id}` ? <Loader2 size={14} className="animate-spin" /> : t("Accepter")}
                   </button>
                 </div>,
               ),
             )}
           </ul>
         )}
-        {requests.length > 0 && spotsLeft === 0 && <p className="mt-2 text-sm text-warn">Le Moment est complet : augmente la capacité pour accepter d&apos;autres personnes.</p>}
+        {requests.length > 0 && spotsLeft === 0 && <p className="mt-2 text-sm text-warn">{t("Le Moment est complet : augmente la capacité pour accepter d'autres personnes.")}</p>}
       </section>
 
       {open && (
         <section aria-labelledby="inv-title">
-          <h3 id="inv-title" className="font-semibold">Inviter quelqu&apos;un</h3>
+          <h3 id="inv-title" className="font-semibold">{t("Inviter quelqu'un")}</h3>
           <form
             className="mt-2 flex gap-2"
             onSubmit={async (e) => {
               e.preventDefault();
-              if (await run("invite", `/api/moments/${moment.id}/invitations`, { username: invitee }, `Invitation envoyée à @${invitee.replace(/^@/, "")}.`)) setInvitee("");
+              if (await run("invite", `/api/moments/${moment.id}/invitations`, { username: invitee }, t("Invitation envoyée à @{u}.", { u: invitee.replace(/^@/, "") }))) setInvitee("");
             }}
           >
-            <label htmlFor="invitee" className="sr-only">Pseudo de la personne à inviter</label>
+            <label htmlFor="invitee" className="sr-only">{t("Pseudo de la personne à inviter")}</label>
             <div className="relative flex-1">
               <UserPlus size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted" aria-hidden />
-              <input id="invitee" className="input !pl-10" placeholder="@pseudo" value={invitee} onChange={(e) => setInvitee(e.target.value)} autoComplete="off" autoCapitalize="none" />
+              <input id="invitee" className="input !pl-10" placeholder={t("@pseudo")} value={invitee} onChange={(e) => setInvitee(e.target.value)} autoComplete="off" autoCapitalize="none" />
             </div>
             <button type="submit" className="btn-primary" disabled={!invitee.trim() || !!busy}>
               {busy === "invite" ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-              <span className="hidden sm:inline">Inviter</span>
+              <span className="hidden sm:inline">{t("Inviter")}</span>
             </button>
           </form>
-          <p className="field-help">Ou partage le lien du Moment : les personnes demanderont à le rejoindre.</p>
+          <p className="field-help">{t("Ou partage le lien du Moment : les personnes demanderont à le rejoindre.")}</p>
         </section>
       )}
 
       {invited.length > 0 && (
         <section>
-          <h3 className="font-semibold">Invitations en attente</h3>
+          <h3 className="font-semibold">{t("Invitations en attente")}</h3>
           <ul className="divide-y divide-line">
             {invited.map((m) =>
               row(
                 m,
                 <button type="button" className="btn-ghost !min-h-9 !px-3 text-sm text-muted" disabled={!!busy} onClick={() => run(`w-${m.id}`, `/api/requests/${m.id}/cancel`, {}, undefined, () => setOverrides((o) => ({ ...o, [m.id]: "CANCELLED" })))}>
-                  Retirer
+                  {t("Retirer")}
                 </button>,
               ),
             )}
@@ -169,13 +172,13 @@ export function HostPanel({ moment }: { moment: MomentDetailDTO }) {
       )}
 
       <section>
-        <h3 className="font-semibold">Participants confirmés <span className="text-muted">({confirmed.length}/{moment.capacity})</span></h3>
-        {confirmed.length === 0 ? <p className="mt-1 text-sm text-muted">Personne pour l&apos;instant.</p> : <ul className="divide-y divide-line">{confirmed.map((m) => row(m))}</ul>}
+        <h3 className="font-semibold">{t("Participants confirmés")} <span className="text-muted">({confirmed.length}/{moment.capacity})</span></h3>
+        {confirmed.length === 0 ? <p className="mt-1 text-sm text-muted">{t("Personne pour l'instant.")}</p> : <ul className="divide-y divide-line">{confirmed.map((m) => row(m))}</ul>}
       </section>
 
       {others.length > 0 && (
         <details>
-          <summary className="cursor-pointer text-sm font-medium text-muted">Historique ({others.length})</summary>
+          <summary className="cursor-pointer text-sm font-medium text-muted">{t("Historique")} ({others.length})</summary>
           <ul className="divide-y divide-line">{others.map((m) => row(m))}</ul>
         </details>
       )}

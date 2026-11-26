@@ -6,12 +6,14 @@ import { Loader2, Sparkles } from "lucide-react";
 import type { FeedPage, MomentCardDTO } from "@/server/types";
 import { api } from "@/lib/client";
 import { MomentCard } from "./MomentCard";
+import { useT } from "./I18nProvider";
 
 export function FeedList({ initial, query, autoplay, signedIn }: { initial: FeedPage; query: string; autoplay: boolean; signedIn: boolean }) {
   const [items, setItems] = useState<MomentCardDTO[]>(initial.items);
   const [cursor, setCursor] = useState<string | null>(initial.nextCursor);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const t = useT();
 
   async function more() {
     if (!cursor) return;
@@ -32,11 +34,11 @@ export function FeedList({ initial, query, autoplay, signedIn }: { initial: Feed
         <span className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full bg-violet-soft text-violet">
           <Sparkles size={26} />
         </span>
-        <h2 className="font-display text-2xl">Aucun Moment pour ces filtres</h2>
-        <p className="mt-2 max-w-sm text-muted">Élargis la date ou la ville… ou lance le tien : il suffit d&apos;une idée et de quelques places.</p>
+        <h2 className="font-display text-2xl">{t("Aucun Moment pour ces filtres")}</h2>
+        <p className="mt-2 max-w-sm text-muted">{t("Élargis la date ou la ville… ou lance le tien : il suffit d'une idée et de quelques places.")}</p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <Link href="/" className="btn-secondary">Voir tous les Moments</Link>
-          <Link href={signedIn ? "/moments/nouveau" : "/connexion?suite=/moments/nouveau"} className="btn-accent">Créer un Moment</Link>
+          <Link href="/" className="btn-secondary">{t("Voir tous les Moments")}</Link>
+          <Link href={signedIn ? "/moments/nouveau" : "/connexion?suite=/moments/nouveau"} className="btn-accent">{t("Créer un Moment")}</Link>
         </div>
       </div>
     );
@@ -55,10 +57,10 @@ export function FeedList({ initial, query, autoplay, signedIn }: { initial: Feed
         {error && <p role="alert" className="text-sm text-danger">{error}</p>}
         {cursor ? (
           <button type="button" onClick={more} disabled={loading} className="btn-secondary">
-            {loading && <Loader2 size={16} className="animate-spin" />} Voir plus de Moments
+            {loading && <Loader2 size={16} className="animate-spin" />} {t("Voir plus de Moments")}
           </button>
         ) : (
-          <p className="text-sm text-muted">Tu as tout vu pour l&apos;instant. Et si tu créais le prochain ?</p>
+          <p className="text-sm text-muted">{t("Tu as tout vu pour l'instant. Et si tu créais le prochain ?")}</p>
         )}
       </div>
     </>

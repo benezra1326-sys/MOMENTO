@@ -3,8 +3,9 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { categories, productConfig } from "@/config/product";
 import { PageTitle } from "@/components/States";
+import { getT, pageTitle } from "@/lib/i18n/server";
 
-export const metadata = { title: "Explorer" };
+export const generateMetadata = pageTitle("Explorer");
 export const dynamic = "force-dynamic";
 
 const covers: Record<string, string> = {
@@ -14,6 +15,7 @@ const covers: Record<string, string> = {
 
 export default async function ExplorePage({ searchParams }: { searchParams: Promise<{ city?: string }> }) {
   const { city } = await searchParams;
+  const t = await getT();
   const counts = await prisma.moment
     .groupBy({
       by: ["category"],
@@ -31,9 +33,9 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
 
   return (
     <>
-      <PageTitle eyebrow="Explorer" title="Trouve ton prochain Moment" />
-      <div className="scroll-row -mx-4 mb-6 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0" aria-label="Ville">
-        <Link href="/explorer" className={`chip ${!city ? "chip-active" : ""}`}>Partout</Link>
+      <PageTitle eyebrow={t("Explorer")} title={t("Trouve ton prochain Moment")} />
+      <div className="scroll-row -mx-4 mb-6 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0" aria-label={t("Ville")}>
+        <Link href="/explorer" className={`chip ${!city ? "chip-active" : ""}`}>{t("Partout")}</Link>
         {productConfig.cities.map((c) => (
           <Link key={c} href={`/explorer?city=${encodeURIComponent(c)}`} className={`chip ${city === c ? "chip-active" : ""}`}>{c}</Link>
         ))}
@@ -47,8 +49,8 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
                 <Image src={`/demo/moments/${covers[c.id]}.webp`} alt="" fill sizes="(min-width: 1024px) 22vw, 45vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
                 <span className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
                 <span className="absolute inset-x-0 bottom-0 p-4 text-white">
-                  <span className="font-display block text-2xl leading-tight">{c.label}</span>
-                  <span className="text-sm text-white/80">{n === 0 ? "Aucun pour l'instant" : `${n} à venir`}</span>
+                  <span className="font-display block text-2xl leading-tight">{t(c.label)}</span>
+                  <span className="text-sm text-white/80">{n === 0 ? t("Aucun pour l'instant") : t("{n} à venir", { n })}</span>
                 </span>
               </Link>
             </li>

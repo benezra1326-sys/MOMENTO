@@ -1,37 +1,40 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { AppError, isDatabaseUnavailable } from "./errors";
+import { getT } from "./i18n/server";
 
 export function ok<T>(data: T, status = 200) {
   return NextResponse.json({ ok: true, data }, { status });
 }
 
 /** Convertit toute erreur en réponse JSON stable { ok:false, error:{ code, message } }. */
-export function fail(err: unknown) {
+export async function fail(err: unknown) {
+  const t = await getT();
+  const tr = (d?: Record<string, string>) => d && Object.fromEntries(Object.entries(d).map(([k, v]) => [k, t(v)]));
   if (err instanceof AppError) {
     return NextResponse.json(
-      { ok: false, error: { code: err.code, message: err.message, details: err.details } },
+      { ok: false, error: { code: err.code, message: t(err.message), details: tr(err.details) } },
       { status: err.status },
     );
   }
   if (err instanceof ZodError) {
     const details: Record<string, string> = {};
-    for (const issue of err.issues) details[issue.path.join(".") || "_"] = issue.message;
+    for (const issue of err.issues) details[issue.path.join(".") || "_"] = t(issue.message);
     return NextResponse.json(
-      { ok: false, error: { code: "VALIDATION", message: "Certains champs sont invalides.", details } },
+      { ok: false, error: { code: "VALIDATION", message: t("Certains champs sont invalides."), details } },
       { status: 400 },
     );
   }
   if (isDatabaseUnavailable(err)) {
     console.error("[db] base de données injoignable", err);
     return NextResponse.json(
-      { ok: false, error: { code: "DATABASE_UNAVAILABLE", message: "Service momentanément indisponible. Réessaie dans un instant." } },
+      { ok: false, error: { code: "DATABASE_UNAVAILABLE", message: t("Service momentanément indisponible. Réessaie dans un instant.") } },
       { status: 503 },
     );
   }
   console.error("[api] erreur inattendue", err);
   return NextResponse.json(
-    { ok: false, error: { code: "INTERNAL", message: "Une erreur inattendue est survenue." } },
+    { ok: false, error: { code: "INTERNAL", message: t("Une erreur inattendue est survenue.") } },
     { status: 500 },
   );
 }

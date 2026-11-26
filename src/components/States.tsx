@@ -1,13 +1,16 @@
+"use client";
+
 import Link from "next/link";
+import { useT } from "./I18nProvider";
 import { CloudOff, Lock, SearchX } from "lucide-react";
 
 export function OfflineDemoNotice() {
+  const t = useT();
   return (
     <div role="status" className="flex items-start gap-3 rounded-2xl border border-warn/20 bg-warn-soft px-4 py-3 text-sm text-warn">
       <CloudOff size={18} className="mt-0.5 shrink-0" />
       <p>
-        <strong>Mode démo hors ligne.</strong> La base de données ne répond pas : tu vois les Moments de démonstration en lecture seule.
-        Créer ou rejoindre un Moment sera possible dès que la base sera de retour.
+        <strong>{t("Mode démo hors ligne.")}</strong> {t("La base de données ne répond pas : tu vois les Moments de démonstration en lecture seule. Créer ou rejoindre un Moment sera possible dès que la base sera de retour.")}
       </p>
     </div>
   );

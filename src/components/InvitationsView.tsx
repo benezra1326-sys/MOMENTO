@@ -9,6 +9,7 @@ import { api } from "@/lib/client";
 import { formatMomentDate, formatMomentTime, formatRelative } from "@/lib/time";
 import { Avatar } from "./Avatar";
 import { MomentMedia } from "./MomentMedia";
+import { useLocale, useT } from "./I18nProvider";
 
 type Row = {
   id: string;
@@ -47,6 +48,8 @@ const statusPill: Record<Row["status"], { text: string; cls: string }> = {
 
 export function InvitationsView({ data: raw, initialTab }: { data: InvitationsData; initialTab?: string }) {
   const router = useRouter();
+  const t = useT();
+  const locale = useLocale();
   const [overrides, setOverrides] = useState<Record<string, Row["status"]>>({});
   const fix = (rows: Row[]) => rows.map((r) => (overrides[r.id] ? { ...r, status: overrides[r.id] } : r));
   const data: InvitationsData = {
@@ -62,7 +65,7 @@ export function InvitationsView({ data: raw, initialTab }: { data: InvitationsDa
     envoyees: data.requestsSent.filter((r) => r.status === "PENDING").length,
     hote: data.requestsToReview.length,
   };
-  const first: Tab = (tabs.find((t) => t.id === initialTab)?.id as Tab) ?? (counts.hote ? "hote" : counts.recues ? "recues" : "agenda");
+  const first: Tab = (tabs.find((x) => x.id === initialTab)?.id as Tab) ?? (counts.hote ? "hote" : counts.recues ? "recues" : "agenda");
   const [tab, setTab] = useState<Tab>(first);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -79,7 +82,7 @@ export function InvitationsView({ data: raw, initialTab }: { data: InvitationsDa
 
   const btn = (id: string, action: "accept" | "decline" | "cancel", label: string, cls: string, disabled = false) => (
     <button type="button" className={`${cls} !min-h-9 !px-3.5 text-sm`} disabled={!!busy || disabled} onClick={() => act(id, action)}>
-      {busy === `${id}-${action}` && <Loader2 size={14} className="animate-spin" />} {label}
+      {busy === `${id}-${action}` && <Loader2 size={14} className="animate-spin" />} {t(label)}
     </button>
   );
 
@@ -87,25 +90,25 @@ export function InvitationsView({ data: raw, initialTab }: { data: InvitationsDa
     const m = r.moment;
     return (
       <li key={r.id} className="card flex gap-4 p-3 sm:p-4">
-        <Link href={`/moments/${m.id}`} className="relative aspect-[4/5] w-20 shrink-0 overflow-hidden rounded-2xl bg-ink sm:w-24" aria-label={m.title}>
+        <Link href={`/moments/${m.id}`} className="relative aspect-[4/5] w-20 shrink-0 overflow-hidden rounded-2xl bg-ink sm:w-24" aria-label={t(m.title)}>
           <MomentMedia moment={m} autoplay={false} sizes="96px" />
         </Link>
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="flex items-start justify-between gap-2">
-            <Link href={`/moments/${m.id}`} className="font-semibold leading-snug hover:underline">{m.title}</Link>
-            <span className={`pill shrink-0 ${statusPill[r.status].cls}`}>{m.phase === "cancelled" ? "Annulé" : statusPill[r.status].text}</span>
+            <Link href={`/moments/${m.id}`} className="font-semibold leading-snug hover:underline">{t(m.title)}</Link>
+            <span className={`pill shrink-0 ${statusPill[r.status].cls}`}>{m.phase === "cancelled" ? t("Annulé") : t(statusPill[r.status].text)}</span>
           </div>
           <p className="mt-0.5 text-sm text-muted">
-            <span className="capitalize">{formatMomentDate(m.startsAt, m.timezone)}</span> · {formatMomentTime(m.startsAt, m.timezone)} · {m.area || m.city}
+            <span className="capitalize">{formatMomentDate(m.startsAt, m.timezone, locale)}</span> · {formatMomentTime(m.startsAt, m.timezone, locale)} · {t(m.area) || m.city}
           </p>
           {opts.person && (
             <div className="mt-2 flex items-center gap-2 text-sm">
               <Avatar person={r.user} size="xs" />
               <Link href={`/u/${r.user.username}`} className="font-medium hover:underline">{r.user.name}</Link>
-              <span className="text-muted">· {formatRelative(r.createdAt)}</span>
+              <span className="text-muted">· {formatRelative(r.createdAt, locale)}</span>
             </div>
           )}
-          {r.message && <p className="mt-1.5 line-clamp-2 text-sm text-ink-soft">« {r.message} »</p>}
+          {r.message && <p className="mt-1.5 line-clamp-2 text-sm text-ink-soft">« {t(r.message)} »</p>}
           {opts.actions && <div className="mt-3 flex flex-wrap gap-2">{opts.actions}</div>}
         </div>
       </li>
@@ -114,18 +117,18 @@ export function InvitationsView({ data: raw, initialTab }: { data: InvitationsDa
 
   const empty = (text: string, cta?: { href: string; label: string }) => (
     <div className="card px-6 py-10 text-center">
-      <p className="text-muted">{text}</p>
-      {cta && <Link href={cta.href} className="btn-primary mt-4">{cta.label}</Link>}
+      <p className="text-muted">{t(text)}</p>
+      {cta && <Link href={cta.href} className="btn-primary mt-4">{t(cta.label)}</Link>}
     </div>
   );
 
   return (
     <div>
-      <div role="tablist" aria-label="Invitations" className="scroll-row -mx-4 mb-5 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-        {tabs.map((t) => (
-          <button key={t.id} role="tab" type="button" aria-selected={tab === t.id} onClick={() => setTab(t.id)} className={`chip ${tab === t.id ? "chip-active" : ""}`}>
-            {t.label}
-            {counts[t.id] > 0 && <span className={`rounded-full px-1.5 text-xs ${tab === t.id ? "bg-white text-ink" : "bg-rose text-white"}`}>{counts[t.id]}</span>}
+      <div role="tablist" aria-label={t("Invitations")} className="scroll-row -mx-4 mb-5 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+        {tabs.map((x) => (
+          <button key={x.id} role="tab" type="button" aria-selected={tab === x.id} onClick={() => setTab(x.id)} className={`chip ${tab === x.id ? "chip-active" : ""}`}>
+            {t(x.label)}
+            {counts[x.id] > 0 && <span className={`rounded-full px-1.5 text-xs ${tab === x.id ? "bg-white text-ink" : "bg-rose text-white"}`}>{counts[x.id]}</span>}
           </button>
         ))}
       </div>
@@ -175,7 +178,7 @@ export function InvitationsView({ data: raw, initialTab }: { data: InvitationsDa
         {tab === "hote" && (
           <div className="space-y-6">
             <section>
-              <h2 className="mb-3 font-semibold">Demandes à traiter</h2>
+              <h2 className="mb-3 font-semibold">{t("Demandes à traiter")}</h2>
               {data.requestsToReview.length ? (
                 <ul className="space-y-3">
                   {data.requestsToReview.map((r) =>
@@ -196,7 +199,7 @@ export function InvitationsView({ data: raw, initialTab }: { data: InvitationsDa
             </section>
             {data.hostActivity.length > 0 && (
               <section>
-                <h2 className="mb-3 font-semibold">Activité récente</h2>
+                <h2 className="mb-3 font-semibold">{t("Activité récente")}</h2>
                 <ul className="space-y-3">
                   {data.hostActivity.slice(0, 20).map((r) =>
                     card(r, { person: true, actions: r.kind === "INVITE" && r.status === "PENDING" ? btn(r.id, "cancel", "Retirer l'invitation", "btn-ghost text-muted") : undefined }),

@@ -4,18 +4,20 @@ import { productConfig } from "@/config/product";
 import { utcToZonedLocal } from "@/lib/time";
 import { MomentForm } from "@/components/MomentForm";
 import { PageTitle } from "@/components/States";
+import { getT, pageTitle } from "@/lib/i18n/server";
 
-export const metadata = { title: "Créer un Moment" };
+export const generateMetadata = pageTitle("Créer un Moment");
 export const dynamic = "force-dynamic";
 
 export default async function NewMomentPage() {
   const viewer = await getViewerSafe();
   if (!viewer) redirect("/connexion?suite=/moments/nouveau");
   const tz = productConfig.defaultTimezone;
+  const t = await getT();
   const tomorrow = utcToZonedLocal(new Date(Date.now() + 86400_000), tz).slice(0, 10);
   return (
     <>
-      <PageTitle eyebrow="Nouveau" title="Crée ton Moment" />
+      <PageTitle eyebrow={t("Nouveau")} title={t("Crée ton Moment")} />
       <MomentForm
         mode="create"
         host={{ id: viewer.id, name: viewer.name, username: viewer.username, photoUrl: viewer.photoUrl, isDemo: viewer.isDemo }}

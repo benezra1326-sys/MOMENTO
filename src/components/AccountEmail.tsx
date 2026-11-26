@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CheckCircle2, Loader2, MailWarning } from "lucide-react";
 import { api } from "@/lib/client";
+import { useT } from "./I18nProvider";
 
 /** Mot de passe oublié : le message de réponse est le même que l'adresse ait un compte ou non. */
 export function ForgotPasswordForm() {
+  const t = useT();
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<string | null>(null);
@@ -15,7 +17,7 @@ export function ForgotPasswordForm() {
   if (done) {
     return (
       <p role="status" className="rounded-2xl bg-success-soft px-4 py-3 text-sm text-success">
-        {done} Pense à regarder dans les indésirables.
+        {t(done)} {t("Pense à regarder dans les indésirables.")}
       </p>
     );
   }
@@ -33,12 +35,12 @@ export function ForgotPasswordForm() {
       }}
     >
       <div>
-        <label htmlFor="forgot-email" className="field-label">Ton adresse e-mail</label>
+        <label htmlFor="forgot-email" className="field-label">{t("Ton adresse e-mail")}</label>
         <input id="forgot-email" type="email" autoComplete="email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} required />
       </div>
       {error && <p role="alert" className="field-error">{error}</p>}
       <button type="submit" className="btn-primary w-full !min-h-12" disabled={busy}>
-        {busy && <Loader2 size={16} className="animate-spin" />} Recevoir un lien
+        {busy && <Loader2 size={16} className="animate-spin" />} {t("Recevoir un lien")}
       </button>
     </form>
   );
@@ -46,6 +48,7 @@ export function ForgotPasswordForm() {
 
 export function ResetPasswordForm({ token }: { token: string }) {
   const router = useRouter();
+  const t = useT();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [busy, setBusy] = useState(false);
@@ -53,7 +56,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
   if (!token) {
     return (
       <p role="alert" className="rounded-2xl bg-danger-soft px-4 py-3 text-sm text-danger">
-        Lien incomplet. <Link href="/mot-de-passe-oublie" className="font-semibold underline">Refais une demande</Link>.
+        {t("Lien incomplet.")} <Link href="/mot-de-passe-oublie" className="font-semibold underline">{t("Refais une demande")}</Link>.
       </p>
     );
   }
@@ -62,7 +65,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
       className="space-y-4"
       onSubmit={async (e) => {
         e.preventDefault();
-        if (password !== confirm) return setError("Les deux mots de passe ne sont pas identiques.");
+        if (password !== confirm) return setError(t("Les deux mots de passe ne sont pas identiques."));
         setBusy(true);
         setError(null);
         const res = await api("/api/auth/password/reset", { body: { token, password } });
@@ -73,21 +76,21 @@ export function ResetPasswordForm({ token }: { token: string }) {
       }}
     >
       <div>
-        <label htmlFor="new-password" className="field-label">Nouveau mot de passe</label>
+        <label htmlFor="new-password" className="field-label">{t("Nouveau mot de passe")}</label>
         <input id="new-password" type="password" autoComplete="new-password" minLength={8} className="input" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        <p className="field-help">8 caractères minimum.</p>
+        <p className="field-help">{t("8 caractères minimum.")}</p>
       </div>
       <div>
-        <label htmlFor="confirm-password" className="field-label">Confirme-le</label>
+        <label htmlFor="confirm-password" className="field-label">{t("Confirme-le")}</label>
         <input id="confirm-password" type="password" autoComplete="new-password" className="input" value={confirm} onChange={(e) => setConfirm(e.target.value)} required />
       </div>
       {error && (
         <p role="alert" className="field-error">
-          {error} {error.includes("Refais") && <Link href="/mot-de-passe-oublie" className="font-semibold underline">Nouveau lien</Link>}
+          {error} {/(Refais|Request)/.test(error) && <Link href="/mot-de-passe-oublie" className="font-semibold underline">{t("Nouveau lien")}</Link>}
         </p>
       )}
       <button type="submit" className="btn-primary w-full !min-h-12" disabled={busy}>
-        {busy && <Loader2 size={16} className="animate-spin" />} Enregistrer et me connecter
+        {busy && <Loader2 size={16} className="animate-spin" />} {t("Enregistrer et me connecter")}
       </button>
     </form>
   );
@@ -99,15 +102,16 @@ export function ResetPasswordForm({ token }: { token: string }) {
  */
 export function ConfirmEmail({ token }: { token: string }) {
   const router = useRouter();
+  const t = useT();
   const [state, setState] = useState<"idle" | "busy" | "done">("idle");
-  const [error, setError] = useState<string | null>(token ? null : "Lien incomplet.");
+  const [error, setError] = useState<string | null>(token ? null : t("Lien incomplet."));
   if (state === "done") {
     return (
       <div className="space-y-4">
         <p role="status" className="flex items-center gap-2 rounded-2xl bg-success-soft px-4 py-3 text-sm text-success">
-          <CheckCircle2 size={18} /> Adresse confirmée. Tu peux créer et rejoindre des Moments.
+          <CheckCircle2 size={18} /> {t("Adresse confirmée. Tu peux créer et rejoindre des Moments.")}
         </p>
-        <Link href="/" className="btn-primary w-full">Aller au feed</Link>
+        <Link href="/" className="btn-primary w-full">{t("Aller au feed")}</Link>
       </div>
     );
   }
@@ -130,7 +134,7 @@ export function ConfirmEmail({ token }: { token: string }) {
           router.refresh();
         }}
       >
-        {state === "busy" && <Loader2 size={16} className="animate-spin" />} Confirmer mon adresse
+        {state === "busy" && <Loader2 size={16} className="animate-spin" />} {t("Confirmer mon adresse")}
       </button>
     </div>
   );
@@ -138,16 +142,17 @@ export function ConfirmEmail({ token }: { token: string }) {
 
 /** Bandeau pour un compte dont l'adresse n'est pas encore confirmée. */
 export function VerifyEmailBanner({ required }: { required: boolean }) {
+  const t = useT();
   const [state, setState] = useState<"idle" | "busy" | "sent">("idle");
   const [error, setError] = useState<string | null>(null);
   return (
     <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 border-b border-violet/15 bg-violet-soft px-4 py-2 text-center text-sm text-violet">
       <MailWarning size={16} aria-hidden />
       <span>
-        {required ? "Confirme ton adresse e-mail pour créer ou rejoindre des Moments." : "Pense à confirmer ton adresse e-mail."}
+        {required ? t("Confirme ton adresse e-mail pour créer ou rejoindre des Moments.") : t("Pense à confirmer ton adresse e-mail.")}
       </span>
       {state === "sent" ? (
-        <span className="font-semibold">Lien envoyé.</span>
+        <span className="font-semibold">{t("Lien envoyé.")}</span>
       ) : (
         <button
           type="button"
@@ -164,7 +169,7 @@ export function VerifyEmailBanner({ required }: { required: boolean }) {
             setState("sent");
           }}
         >
-          Renvoyer le lien
+          {t("Renvoyer le lien")}
         </button>
       )}
       {error && <span role="alert" className="w-full text-danger">{error}</span>}

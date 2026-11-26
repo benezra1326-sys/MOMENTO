@@ -16,6 +16,7 @@ import { HostPanel } from "@/components/HostPanel";
 import { SafetyActions } from "@/components/SafetyActions";
 import { EmptyState, OfflineDemoNotice } from "@/components/States";
 import { spotsLabel } from "@/components/moment-labels";
+import { getLocale, getT } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
@@ -34,10 +35,11 @@ async function load(id: string) {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
+  const t = await getT();
   try {
     const r = await load(id);
-    if (r.denied) return { title: "Moment privé" };
-    return { title: r.moment.title, description: r.moment.description.slice(0, 160) };
+    if (r.denied) return { title: t("Moment privé") };
+    return { title: t(r.moment.title), description: t(r.moment.description).slice(0, 160) };
   } catch {
     return { title: "Moment" };
   }
@@ -46,21 +48,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function MomentPage({ params }: Props) {
   const { id } = await params;
   const r = await load(id);
+  const t = await getT();
+  const locale = await getLocale();
   if (r.denied) {
     return (
       <div className="mx-auto mt-6 max-w-lg">
-        <EmptyState icon="lock" title="Moment sur invitation" text="Ce Moment n'est visible que par les personnes invitées par l'hôte." action={{ href: "/", label: "Découvrir d'autres Moments" }} />
+        <EmptyState icon="lock" title={t("Moment sur invitation")} text={t("Ce Moment n'est visible que par les personnes invitées par l'hôte.")} action={{ href: "/", label: t("Découvrir d'autres Moments") }} />
       </div>
     );
   }
   const { moment: m, viewer, source } = r;
   const vis = visibilityInfo[m.visibility];
-  const time = `${formatMomentTime(m.startsAt, m.timezone)}${m.endsAt ? ` – ${formatMomentTime(m.endsAt, m.timezone)}` : ""}`;
+  const time = `${formatMomentTime(m.startsAt, m.timezone, locale)}${m.endsAt ? ` – ${formatMomentTime(m.endsAt, m.timezone, locale)}` : ""}`;
+  const title = t(m.title);
 
   return (
     <div className="space-y-5">
       <Link href="/" className="inline-flex items-center gap-1.5 text-sm font-medium text-muted hover:text-ink">
-        <ArrowLeft size={16} /> Retour au feed
+        <ArrowLeft size={16} /> {t("Retour au feed")}
       </Link>
       {source === "demo-fallback" && <OfflineDemoNotice />}
 
@@ -70,7 +75,7 @@ export default async function MomentPage({ params }: Props) {
             <MomentMedia moment={m} priority sizes="(min-width: 1024px) 45vw, 100vw" />
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
             <div className="absolute left-4 top-4 flex gap-1.5">
-              <span className="pill bg-white/90 text-ink">{categoryLabel(m.category)}</span>
+              <span className="pill bg-white/90 text-ink">{t(categoryLabel(m.category))}</span>
               {m.isDemo && <DemoBadge />}
             </div>
           </div>
@@ -78,15 +83,15 @@ export default async function MomentPage({ params }: Props) {
 
         <div className="space-y-6">
           <header>
-            {m.phase === "cancelled" && <p className="pill mb-3 bg-danger-soft text-danger">Annulé</p>}
-            {m.phase === "ended" && <p className="pill mb-3 bg-sand text-muted">Terminé</p>}
-            {m.phase === "ongoing" && <p className="pill mb-3 bg-success-soft text-success">En cours</p>}
-            {m.phase === "draft" && <p className="pill mb-3 bg-warn-soft text-warn">Brouillon, visible par toi seul</p>}
-            <h1 className="font-display text-[clamp(2rem,5.5vw,3.1rem)] leading-[1.04] [text-wrap:balance]">{m.title}</h1>
+            {m.phase === "cancelled" && <p className="pill mb-3 bg-danger-soft text-danger">{t("Annulé")}</p>}
+            {m.phase === "ended" && <p className="pill mb-3 bg-sand text-muted">{t("Terminé")}</p>}
+            {m.phase === "ongoing" && <p className="pill mb-3 bg-success-soft text-success">{t("En cours")}</p>}
+            {m.phase === "draft" && <p className="pill mb-3 bg-warn-soft text-warn">{t("Brouillon, visible par toi seul")}</p>}
+            <h1 className="font-display text-[clamp(2rem,5.5vw,3.1rem)] leading-[1.04] [text-wrap:balance]">{title}</h1>
             {m.vibeTags.length > 0 && (
-              <ul className="mt-3 flex flex-wrap gap-1.5" aria-label="Ambiance">
-                {m.vibeTags.map((t) => (
-                  <li key={t} className="pill bg-violet-soft text-violet">#{t}</li>
+              <ul className="mt-3 flex flex-wrap gap-1.5" aria-label={t("Ambiance")}>
+                {m.vibeTags.map((tag) => (
+                  <li key={tag} className="pill bg-violet-soft text-violet">#{t(tag)}</li>
                 ))}
               </ul>
             )}
@@ -96,28 +101,28 @@ export default async function MomentPage({ params }: Props) {
             <div className="flex items-start gap-3 px-5 py-4">
               <CalendarDays size={20} className="mt-0.5 shrink-0 text-rose" aria-hidden />
               <div>
-                <dt className="sr-only">Date</dt>
-                <dd className="font-semibold first-letter:uppercase">{formatLongDate(m.startsAt, m.timezone)}</dd>
-                <dd className="flex items-center gap-1 text-sm text-muted"><Clock size={13} aria-hidden /> {time} · heure de {m.city}</dd>
+                <dt className="sr-only">{t("Date")}</dt>
+                <dd className="font-semibold first-letter:uppercase">{formatLongDate(m.startsAt, m.timezone, locale)}</dd>
+                <dd className="flex items-center gap-1 text-sm text-muted"><Clock size={13} aria-hidden /> {time} · {t("heure de {city}", { city: m.city })}</dd>
               </div>
             </div>
             <div className="flex items-start gap-3 px-5 py-4">
               <MapPin size={20} className="mt-0.5 shrink-0 text-rose" aria-hidden />
               <div>
-                <dt className="sr-only">Lieu</dt>
-                <dd className="font-semibold">{m.placeName || m.area}</dd>
-                <dd className="text-sm text-muted">{[m.area, m.city].filter(Boolean).join(", ")}</dd>
-                {m.address && <dd className="mt-1 text-sm font-medium text-ink">{m.address}</dd>}
+                <dt className="sr-only">{t("Lieu")}</dt>
+                <dd className="font-semibold">{t(m.placeName || m.area)}</dd>
+                <dd className="text-sm text-muted">{[t(m.area), m.city].filter(Boolean).join(", ")}</dd>
+                {m.address && <dd className="mt-1 text-sm font-medium text-ink">{t(m.address)}</dd>}
                 {m.addressHidden && (
-                  <dd className="mt-1 flex items-center gap-1 text-sm text-muted"><Lock size={13} aria-hidden /> Adresse exacte communiquée aux participants confirmés</dd>
+                  <dd className="mt-1 flex items-center gap-1 text-sm text-muted"><Lock size={13} aria-hidden /> {t("Adresse exacte communiquée aux participants confirmés")}</dd>
                 )}
               </div>
             </div>
             <div className="flex items-start gap-3 px-5 py-4">
               <Users size={20} className="mt-0.5 shrink-0 text-rose" aria-hidden />
               <div className="min-w-0 flex-1">
-                <dt className="sr-only">Places</dt>
-                <dd className="font-semibold">{spotsLabel(m)}</dd>
+                <dt className="sr-only">{t("Places")}</dt>
+                <dd className="font-semibold">{spotsLabel(m, t)}</dd>
                 <dd className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-sand" aria-hidden>
                   <span className="block h-full rounded-full bg-gradient-to-r from-rose to-violet" style={{ width: `${Math.min(100, (m.acceptedCount / m.capacity) * 100)}%` }} />
                 </dd>
@@ -126,9 +131,9 @@ export default async function MomentPage({ params }: Props) {
             <div className="flex items-start gap-3 px-5 py-4">
               <Eye size={20} className="mt-0.5 shrink-0 text-rose" aria-hidden />
               <div>
-                <dt className="sr-only">Accès</dt>
-                <dd className="font-semibold">{vis.label}</dd>
-                <dd className="text-sm text-muted">{vis.help}</dd>
+                <dt className="sr-only">{t("Accès")}</dt>
+                <dd className="font-semibold">{t(vis.label)}</dd>
+                <dd className="text-sm text-muted">{t(vis.help)}</dd>
               </div>
             </div>
           </dl>
@@ -136,7 +141,7 @@ export default async function MomentPage({ params }: Props) {
           <section className="card p-5">
             {m.isHost ? (
               <>
-                <h2 className="mb-4 font-display text-xl">Gérer mon Moment</h2>
+                <h2 className="mb-4 font-display text-xl">{t("Gérer mon Moment")}</h2>
                 <HostPanel moment={m} />
               </>
             ) : (
@@ -145,29 +150,29 @@ export default async function MomentPage({ params }: Props) {
           </section>
 
           <section>
-            <h2 className="font-display text-xl">L&apos;ambiance</h2>
-            <p className="mt-2 whitespace-pre-line leading-relaxed text-ink-soft">{m.description}</p>
+            <h2 className="font-display text-xl">{t("L'ambiance")}</h2>
+            <p className="mt-2 whitespace-pre-line leading-relaxed text-ink-soft">{t(m.description)}</p>
           </section>
 
           <section className="flex items-center gap-3">
             <Link href={`/u/${m.host.username}`} className="flex min-w-0 flex-1 items-center gap-3 rounded-2xl p-1 hover:bg-sand/60">
               <Avatar person={m.host} size="lg" />
               <span className="min-w-0">
-                <span className="eyebrow">Hôte</span>
+                <span className="eyebrow">{t("Hôte")}</span>
                 <span className="flex items-center gap-2 font-semibold">{m.host.name} {m.host.isDemo && <DemoBadge />}</span>
                 <span className="text-sm text-muted">@{m.host.username}</span>
               </span>
             </Link>
-            <ShareButton path={`/moments/${m.id}`} title={m.title} />
+            <ShareButton path={`/moments/${m.id}`} title={title} />
           </section>
 
           {!m.isHost && (
             <section>
-              <h2 className="font-display text-xl">Participants</h2>
+              <h2 className="font-display text-xl">{t("Participants")}</h2>
               {!m.showAttendees ? (
-                <p className="mt-2 text-sm text-muted">L&apos;hôte a choisi de ne pas afficher la liste des participants.</p>
+                <p className="mt-2 text-sm text-muted">{t("L'hôte a choisi de ne pas afficher la liste des participants.")}</p>
               ) : m.attendees.length === 0 ? (
-                <p className="mt-2 text-sm text-muted">Aucun participant visible pour l&apos;instant.</p>
+                <p className="mt-2 text-sm text-muted">{t("Aucun participant visible pour l'instant.")}</p>
               ) : (
                 <ul className="mt-3 flex flex-wrap gap-3">
                   {m.attendees.map((p) => (
@@ -180,14 +185,14 @@ export default async function MomentPage({ params }: Props) {
                 </ul>
               )}
               {m.attendees.length < m.acceptedCount && m.showAttendees && (
-                <p className="mt-2 text-xs text-muted">Certains participants ont choisi de ne pas apparaître.</p>
+                <p className="mt-2 text-xs text-muted">{t("Certains participants ont choisi de ne pas apparaître.")}</p>
               )}
             </section>
           )}
 
           {viewer && !m.isHost && source === "database" && (
             <div className="border-t border-line pt-4">
-              <SafetyActions username={m.host.username} momentId={m.id} label="ce Moment" />
+              <SafetyActions username={m.host.username} momentId={m.id} label={t("ce Moment")} />
             </div>
           )}
         </div>

@@ -4,6 +4,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
 import { MapPin } from "lucide-react";
 import { categories, productConfig } from "@/config/product";
+import { useT } from "./I18nProvider";
 
 const whenOptions = [
   { id: "", label: "À venir" },
@@ -18,6 +19,7 @@ export function FeedFilters({ showCategories = true }: { showCategories?: boolea
   const pathname = usePathname();
   const params = useSearchParams();
   const [pending, start] = useTransition();
+  const t = useT();
 
   function set(key: string, value: string) {
     const next = new URLSearchParams(params.toString());
@@ -36,21 +38,21 @@ export function FeedFilters({ showCategories = true }: { showCategories?: boolea
     <div className={`space-y-3 transition-opacity ${pending ? "opacity-60" : ""}`} aria-busy={pending}>
       <div className="flex flex-wrap items-center gap-2">
         <label className="relative inline-flex items-center">
-          <span className="sr-only">Ville</span>
+          <span className="sr-only">{t("Ville")}</span>
           <MapPin size={16} className="pointer-events-none absolute left-3 text-muted" aria-hidden />
           <select
             value={city}
             onChange={(e) => set("city", e.target.value)}
             className="min-h-10 appearance-none rounded-full border border-line bg-paper py-2 pl-9 pr-8 text-sm font-semibold"
           >
-            <option value="">Toutes les villes</option>
+            <option value="">{t("Toutes les villes")}</option>
             {productConfig.cities.map((c) => (
               <option key={c} value={c}>{c}</option>
             ))}
           </select>
           <span className="pointer-events-none absolute right-3 text-xs text-muted" aria-hidden>▾</span>
         </label>
-        <div className="ml-auto inline-flex rounded-full border border-line bg-paper p-1 text-sm" role="group" aria-label="Trier">
+        <div className="ml-auto inline-flex rounded-full border border-line bg-paper p-1 text-sm" role="group" aria-label={t("Trier")}>
           {[
             { id: "date", label: "Par date" },
             { id: "recent", label: "Nouveautés" },
@@ -62,26 +64,26 @@ export function FeedFilters({ showCategories = true }: { showCategories?: boolea
               onClick={() => set("sort", o.id === "date" ? "" : o.id)}
               className={`rounded-full px-3 py-1.5 font-medium ${sort === o.id ? "bg-ink text-white" : "text-muted hover:text-ink"}`}
             >
-              {o.label}
+              {t(o.label)}
             </button>
           ))}
         </div>
       </div>
-      <div className="scroll-row -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0" role="group" aria-label="Quand">
+      <div className="scroll-row -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0" role="group" aria-label={t("Quand")}>
         {whenOptions.map((o) => (
           <button key={o.id} type="button" aria-pressed={when === o.id} onClick={() => set("when", o.id)} className={`chip ${when === o.id ? "chip-active" : ""}`}>
-            {o.label}
+            {t(o.label)}
           </button>
         ))}
       </div>
       {showCategories && (
-        <div className="scroll-row -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0" role="group" aria-label="Catégorie">
+        <div className="scroll-row -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0" role="group" aria-label={t("Catégorie")}>
           <button type="button" aria-pressed={!category} onClick={() => set("category", "")} className={`chip ${!category ? "chip-active" : ""}`}>
-            Tout
+            {t("Tout")}
           </button>
           {categories.map((c) => (
             <button key={c.id} type="button" aria-pressed={category === c.id} onClick={() => set("category", c.id)} className={`chip ${category === c.id ? "chip-active" : ""}`}>
-              {c.label}
+              {t(c.label)}
             </button>
           ))}
         </div>

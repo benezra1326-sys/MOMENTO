@@ -5,6 +5,7 @@ import { Pause, Play } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { MomentCardDTO } from "@/server/types";
 import { categoryLabel } from "@/config/product";
+import { useT } from "./I18nProvider";
 
 /**
  * Visuel d'un Moment : image, vidéo ou carte texte.
@@ -24,6 +25,7 @@ export function MomentMedia({
   sizes?: string;
   className?: string;
 }) {
+  const t = useT();
   if (moment.mediaType === "VIDEO" && moment.mediaUrl) {
     return <VideoMedia src={moment.mediaUrl} poster={moment.posterUrl} autoplay={autoplay} className={className} />;
   }
@@ -42,14 +44,15 @@ export function MomentMedia({
   return (
     <div className={`absolute inset-0 text-cover-${moment.textTheme ?? "dusk"} ${className}`} aria-hidden>
       <div className="absolute inset-0 flex flex-col justify-center px-7 pb-24 pt-14">
-        <span className="eyebrow !text-white/70">{categoryLabel(moment.category)}</span>
-        <p className="font-display mt-2 text-[clamp(1.8rem,7vw,2.6rem)] leading-[1.05] text-white">{moment.title}</p>
+        <span className="eyebrow !text-white/70">{t(categoryLabel(moment.category))}</span>
+        <p className="font-display mt-2 text-[clamp(1.8rem,7vw,2.6rem)] leading-[1.05] text-white">{t(moment.title)}</p>
       </div>
     </div>
   );
 }
 
 function VideoMedia({ src, poster, autoplay, className }: { src: string; poster: string | null; autoplay: boolean; className: string }) {
+  const t = useT();
   const ref = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
   const [allowed, setAllowed] = useState(false);
@@ -100,7 +103,7 @@ function VideoMedia({ src, poster, autoplay, className }: { src: string; poster:
           else el.pause();
         }}
         className="absolute right-3 top-3 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur hover:bg-black/60"
-        aria-label={playing ? "Mettre la vidéo en pause" : "Lire la vidéo (sans son)"}
+        aria-label={playing ? t("Mettre la vidéo en pause") : t("Lire la vidéo (sans son)")}
       >
         {playing ? <Pause size={16} /> : <Play size={16} />}
       </button>

@@ -1,3 +1,5 @@
+import { intlLocale, type Locale } from "./i18n/core";
+
 /**
  * Utilitaires de date avec fuseau horaire, sans dépendance externe.
  * Les dates sont stockées en UTC ; chaque Moment garde son fuseau (IANA).
@@ -55,9 +57,9 @@ export function utcToZonedLocal(date: Date, timeZone: string): string {
   return `${p.year}-${pad(p.month)}-${pad(p.day)}T${pad(p.hour)}:${pad(p.minute)}`;
 }
 
-export function formatMomentDate(date: Date | string, timeZone: string): string {
+export function formatMomentDate(date: Date | string, timeZone: string, locale: Locale = "fr"): string {
   const d = typeof date === "string" ? new Date(date) : date;
-  return new Intl.DateTimeFormat("fr-FR", {
+  return new Intl.DateTimeFormat(intlLocale(locale), {
     timeZone,
     weekday: "short",
     day: "numeric",
@@ -65,14 +67,14 @@ export function formatMomentDate(date: Date | string, timeZone: string): string 
   }).format(d);
 }
 
-export function formatMomentTime(date: Date | string, timeZone: string): string {
+export function formatMomentTime(date: Date | string, timeZone: string, locale: Locale = "fr"): string {
   const d = typeof date === "string" ? new Date(date) : date;
-  return new Intl.DateTimeFormat("fr-FR", { timeZone, hour: "2-digit", minute: "2-digit" }).format(d);
+  return new Intl.DateTimeFormat(intlLocale(locale), { timeZone, hour: "2-digit", minute: "2-digit" }).format(d);
 }
 
-export function formatLongDate(date: Date | string, timeZone: string): string {
+export function formatLongDate(date: Date | string, timeZone: string, locale: Locale = "fr"): string {
   const d = typeof date === "string" ? new Date(date) : date;
-  return new Intl.DateTimeFormat("fr-FR", {
+  return new Intl.DateTimeFormat(intlLocale(locale), {
     timeZone,
     weekday: "long",
     day: "numeric",
@@ -82,12 +84,12 @@ export function formatLongDate(date: Date | string, timeZone: string): string {
   }).format(d);
 }
 
-export function formatRelative(date: Date | string): string {
+export function formatRelative(date: Date | string, locale: Locale = "fr"): string {
   const d = typeof date === "string" ? new Date(date) : date;
   const diff = (d.getTime() - Date.now()) / 1000;
-  const rtf = new Intl.RelativeTimeFormat("fr", { numeric: "auto" });
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
   const abs = Math.abs(diff);
-  if (abs < 60) return "à l'instant";
+  if (abs < 60) return locale === "fr" ? "à l'instant" : "just now";
   if (abs < 3600) return rtf.format(Math.round(diff / 60), "minute");
   if (abs < 86400) return rtf.format(Math.round(diff / 3600), "hour");
   return rtf.format(Math.round(diff / 86400), "day");

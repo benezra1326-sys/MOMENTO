@@ -1,5 +1,6 @@
 import { getViewer, type Viewer } from "./auth";
 import { assertSameOrigin, fail, ok, readJson } from "./api";
+import { AppError } from "./errors";
 
 type Ctx<P> = { params: Promise<P> };
 
@@ -10,6 +11,8 @@ export function readRoute<P = Record<string, string>>(
   return async (req: Request, ctx: Ctx<P>) => {
     try {
       const viewer = await getViewer();
+      // L'app est réservée aux membres connectés : aucune lecture sans session.
+      if (!viewer) throw new AppError("UNAUTHENTICATED", "Connecte-toi pour continuer.");
       return ok(await fn({ req, viewer, params: await ctx.params }));
     } catch (e) {
       return fail(e);

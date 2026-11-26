@@ -6,13 +6,33 @@ import { Avatar } from "./Avatar";
 import { VerifyEmailBanner } from "./AccountEmail";
 import { Logo } from "./Logo";
 import { BottomNav, SideNav } from "./Nav";
+import { getT } from "@/lib/i18n/server";
 
-export function AppShell({ viewer, unread, children }: { viewer: Viewer | null; unread: number; children: React.ReactNode }) {
+export async function AppShell({ viewer, unread, children }: { viewer: Viewer | null; unread: number; children: React.ReactNode }) {
   const demo = isDemoMode();
+  const t = await getT();
+  if (!viewer) {
+    // Non connecté : seulement les pages de connexion et d'inscription, sans navigation dans l'app.
+    return (
+      <div className="min-h-dvh">
+        <header className="flex h-16 items-center justify-center border-b border-line/70 bg-cream/85 px-4">
+          <Link href="/connexion" aria-label={t("Momento, accueil")}><Logo id="mlogo-top" /></Link>
+        </header>
+        {demo && (
+          <div className="border-b border-warn/15 bg-warn-soft px-4 py-2 text-center text-[13px] text-warn">
+            {t("Version de démonstration : les profils et Moments marqués « Démo » sont fictifs.")}
+          </div>
+        )}
+        <main id="contenu" className="mx-auto w-full max-w-6xl px-4 pb-16 pt-6 sm:px-6 lg:px-10 lg:pt-10">
+          {children}
+        </main>
+      </div>
+    );
+  }
   return (
     <div className="min-h-dvh lg:flex">
       <a href="#contenu" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-white">
-        Aller au contenu
+        {t("Aller au contenu")}
       </a>
 
       {/* Barre latérale (ordinateur) */}
@@ -22,7 +42,7 @@ export function AppShell({ viewer, unread, children }: { viewer: Viewer | null; 
         <div className="mt-auto space-y-3">
           {viewer?.role === "ADMIN" && (
             <Link href="/admin" className="flex items-center gap-2 rounded-2xl px-3 py-2 text-sm font-medium text-muted hover:bg-sand">
-              <Shield size={16} /> Modération
+              <Shield size={16} /> {t("Modération")}
             </Link>
           )}
           {viewer ? (
@@ -35,8 +55,8 @@ export function AppShell({ viewer, unread, children }: { viewer: Viewer | null; 
             </Link>
           ) : (
             <div className="space-y-2">
-              <Link href="/connexion" className="btn-primary w-full">Se connecter</Link>
-              <Link href="/inscription" className="btn-secondary w-full">Créer un compte</Link>
+              <Link href="/connexion" className="btn-primary w-full">{t("Se connecter")}</Link>
+              <Link href="/inscription" className="btn-secondary w-full">{t("Créer un compte")}</Link>
             </div>
           )}
         </div>
@@ -45,22 +65,22 @@ export function AppShell({ viewer, unread, children }: { viewer: Viewer | null; 
       <div className="min-w-0 flex-1">
         {/* En-tête (mobile et tablette) */}
         <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-line/70 bg-cream/85 px-4 backdrop-blur-md lg:hidden">
-          <Link href="/" aria-label="Momento, accueil"><Logo id="mlogo-top" /></Link>
+          <Link href="/" aria-label={t("Momento, accueil")}><Logo id="mlogo-top" /></Link>
           <div className="flex items-center gap-1">
             {viewer ? (
-              <Link href="/notifications" className="relative inline-flex h-11 w-11 items-center justify-center rounded-full hover:bg-sand" aria-label={unread ? `Notifications, ${unread} non lues` : "Notifications"}>
+              <Link href="/notifications" className="relative inline-flex h-11 w-11 items-center justify-center rounded-full hover:bg-sand" aria-label={unread ? t("Notifications, {n} non lues", { n: unread }) : t("Notifications")}>
                 <Bell size={21} />
                 {unread > 0 && <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-rose ring-2 ring-cream" />}
               </Link>
             ) : (
-              <Link href="/connexion" className="btn-primary !min-h-9 !px-4 text-sm">Se connecter</Link>
+              <Link href="/connexion" className="btn-primary !min-h-9 !px-4 text-sm">{t("Se connecter")}</Link>
             )}
           </div>
         </header>
 
         {demo && (
           <div className="border-b border-warn/15 bg-warn-soft px-4 py-2 text-center text-[13px] text-warn">
-            Version de démonstration : les profils et Moments marqués « Démo » sont fictifs.
+            {t("Version de démonstration : les profils et Moments marqués « Démo » sont fictifs.")}
           </div>
         )}
 

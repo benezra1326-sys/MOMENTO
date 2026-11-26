@@ -6,9 +6,11 @@ import { startTransition, useState } from "react";
 import { CheckCircle2, Clock, Loader2, Lock, XCircle } from "lucide-react";
 import type { MomentDetailDTO, ViewerMembership } from "@/server/types";
 import { api } from "@/lib/client";
+import { useT } from "./I18nProvider";
 
 export function JoinPanel({ moment, signedIn, readOnly = false }: { moment: MomentDetailDTO; signedIn: boolean; readOnly?: boolean }) {
   const router = useRouter();
+  const t = useT();
   const [message, setMessage] = useState("");
   const [showOnMoment, setShowOnMoment] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
@@ -38,8 +40,8 @@ export function JoinPanel({ moment, signedIn, readOnly = false }: { moment: Mome
         <div className={`flex items-start gap-3 rounded-2xl px-4 py-3.5 ${color}`}>
           <Icon size={20} className="mt-0.5 shrink-0" />
           <div>
-            <p className="font-semibold text-ink">{title}</p>
-            {text && <p className="mt-0.5 text-sm text-ink-soft">{text}</p>}
+            <p className="font-semibold text-ink">{t(title)}</p>
+            {text && <p className="mt-0.5 text-sm text-ink-soft">{t(text)}</p>}
           </div>
         </div>
         {actions}
@@ -57,9 +59,9 @@ export function JoinPanel({ moment, signedIn, readOnly = false }: { moment: Mome
     return (
       <div className="space-y-3">
         <Link href={`/connexion?suite=/moments/${moment.id}`} className="btn-accent w-full">
-          {moment.visibility === "PUBLIC" ? "Rejoindre ce Moment" : "Demander à rejoindre"}
+          {moment.visibility === "PUBLIC" ? t("Rejoindre ce Moment") : t("Demander à rejoindre")}
         </Link>
-        <p className="text-center text-sm text-muted">Connecte-toi ou crée un compte en 30 secondes.</p>
+        <p className="text-center text-sm text-muted">{t("Connecte-toi ou crée un compte en 30 secondes.")}</p>
       </div>
     );
   }
@@ -69,8 +71,8 @@ export function JoinPanel({ moment, signedIn, readOnly = false }: { moment: Mome
       "ok",
       "Ta place est confirmée",
       moment.address ? "L'adresse exacte est visible ci-dessous." : "À bientôt sur place !",
-      <button type="button" className="btn-ghost w-full text-muted" disabled={!!busy} onClick={() => confirm("Libérer ta place ? L'hôte sera prévenu.") && run("leave", `/api/requests/${ms.id}/cancel`)}>
-        {busy === "leave" && <Loader2 size={16} className="animate-spin" />} Je ne peux plus venir
+      <button type="button" className="btn-ghost w-full text-muted" disabled={!!busy} onClick={() => confirm(t("Libérer ta place ? L'hôte sera prévenu.")) && run("leave", `/api/requests/${ms.id}/cancel`)}>
+        {busy === "leave" && <Loader2 size={16} className="animate-spin" />} {t("Je ne peux plus venir")}
       </button>,
     );
   }
@@ -80,28 +82,28 @@ export function JoinPanel({ moment, signedIn, readOnly = false }: { moment: Mome
       "Demande envoyée",
       "L'hôte te répondra ici et par notification. Aucune relance automatique ne lui est envoyée.",
       <button type="button" className="btn-secondary w-full" disabled={!!busy} onClick={() => run("withdraw", `/api/requests/${ms.id}/cancel`)}>
-        {busy === "withdraw" && <Loader2 size={16} className="animate-spin" />} Retirer ma demande
+        {busy === "withdraw" && <Loader2 size={16} className="animate-spin" />} {t("Retirer ma demande")}
       </button>,
     );
   }
   if (ms?.status === "PENDING" && ms.kind === "INVITE") {
     return box(
       "wait",
-      `${moment.host.name} t'invite`,
+      t("{name} t'invite", { name: moment.host.name }),
       "Tu es libre d'accepter ou non, l'hôte ne verra qu'un simple « décliné ».",
       <div className="grid grid-cols-2 gap-2">
         <button type="button" className="btn-secondary" disabled={!!busy} onClick={() => run("decline", `/api/requests/${ms.id}/decline`)}>
-          {busy === "decline" && <Loader2 size={16} className="animate-spin" />} Décliner
+          {busy === "decline" && <Loader2 size={16} className="animate-spin" />} {t("Décliner")}
         </button>
         <button type="button" className="btn-accent" disabled={!!busy || moment.spotsLeft === 0} onClick={() => run("accept", `/api/requests/${ms.id}/accept`)}>
-          {busy === "accept" && <Loader2 size={16} className="animate-spin" />} Accepter
+          {busy === "accept" && <Loader2 size={16} className="animate-spin" />} {t("Accepter")}
         </button>
       </div>,
     );
   }
   if (ms?.status === "DECLINED") {
     return ms.kind === "REQUEST"
-      ? box("off", "L'hôte n'a pas pu accepter ta demande", "Ça arrive : le groupe était peut-être déjà constitué. D'autres Moments t'attendent.", <Link href="/" className="btn-secondary w-full">Voir d&apos;autres Moments</Link>)
+      ? box("off", "L'hôte n'a pas pu accepter ta demande", "Ça arrive : le groupe était peut-être déjà constitué. D'autres Moments t'attendent.", <Link href="/" className="btn-secondary w-full">{t("Voir d'autres Moments")}</Link>)
       : box("off", "Tu as décliné cette invitation");
   }
   if (moment.visibility === "INVITE_ONLY") return box("lock", "Sur invitation uniquement", "Seul l'hôte peut inviter des participants.");
@@ -118,20 +120,20 @@ export function JoinPanel({ moment, signedIn, readOnly = false }: { moment: Mome
     >
       {!instant && (
         <div>
-          <label htmlFor="join-msg" className="field-label">Un mot pour l&apos;hôte <span className="font-normal text-muted">(facultatif)</span></label>
-          <textarea id="join-msg" className="input min-h-24" maxLength={280} value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Présente-toi en une phrase…" />
+          <label htmlFor="join-msg" className="field-label">{t("Un mot pour l'hôte")} <span className="font-normal text-muted">{t("(facultatif)")}</span></label>
+          <textarea id="join-msg" className="input min-h-24" maxLength={280} value={message} onChange={(e) => setMessage(e.target.value)} placeholder={t("Présente-toi en une phrase…")} />
         </div>
       )}
       <label className="flex items-start gap-3 text-sm">
         <input type="checkbox" className="mt-0.5 h-5 w-5 accent-[var(--color-violet)]" checked={showOnMoment} onChange={(e) => setShowOnMoment(e.target.checked)} />
-        <span>Apparaître dans la liste des participants visible par les autres</span>
+        <span>{t("Apparaître dans la liste des participants visible par les autres")}</span>
       </label>
       <button type="submit" className="btn-accent w-full" disabled={!!busy}>
         {busy === "join" && <Loader2 size={16} className="animate-spin" />}
-        {instant ? "Rejoindre ce Moment" : "Demander à rejoindre"}
+        {instant ? t("Rejoindre ce Moment") : t("Demander à rejoindre")}
       </button>
       <p className="text-center text-xs text-muted">
-        {instant ? "Accès ouvert : ta place est confirmée tout de suite." : "Ta place sera confirmée seulement si l'hôte accepte."}
+        {instant ? t("Accès ouvert : ta place est confirmée tout de suite.") : t("Ta place sera confirmée seulement si l'hôte accepte.")}
       </p>
       {error && <p role="alert" className="field-error text-center">{error}</p>}
     </form>

@@ -8,6 +8,7 @@ import { api } from "@/lib/client";
 import { shrinkForUpload } from "@/lib/image-client";
 import type { MomentCardDTO } from "@/server/types";
 import { MomentCard } from "./MomentCard";
+import { useT } from "./I18nProvider";
 
 export type MomentFormValues = {
   title: string;
@@ -52,6 +53,7 @@ export function MomentForm({
   host: MomentCardDTO["host"];
 }) {
   const router = useRouter();
+  const t = useT();
   const [v, setV] = useState<MomentFormValues>(initial);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
@@ -68,8 +70,8 @@ export function MomentForm({
     });
   };
 
-  function addTag(t: string) {
-    const tag = t.trim().toLowerCase().replace(/^#/, "");
+  function addTag(raw: string) {
+    const tag = raw.trim().toLowerCase().replace(/^#/, "");
     if (tag.length < 2 || v.vibeTags.includes(tag) || v.vibeTags.length >= 6) return;
     set("vibeTags", [...v.vibeTags, tag]);
     setTagInput("");
@@ -87,7 +89,7 @@ export function MomentForm({
       if (!json.ok) setErrors((e) => ({ ...e, mediaUrl: json.error.message }));
       else setV((p) => ({ ...p, mediaType: "IMAGE", mediaUrl: json.data.url, posterUrl: null }));
     } catch {
-      setErrors((e) => ({ ...e, mediaUrl: "Envoi impossible. Vérifie ta connexion." }));
+      setErrors((e) => ({ ...e, mediaUrl: t("Envoi impossible. Vérifie ta connexion.") }));
     }
     setBusy(null);
   }
@@ -113,7 +115,7 @@ export function MomentForm({
 
   const preview: MomentCardDTO = {
     id: "apercu",
-    title: v.title || "Titre de ton Moment",
+    title: v.title || t("Titre de ton Moment"),
     description: v.description,
     category: v.category,
     vibeTags: v.vibeTags,
@@ -121,7 +123,7 @@ export function MomentForm({
     mediaUrl: v.mediaUrl,
     posterUrl: v.posterUrl,
     textTheme: v.textTheme,
-    city: v.city || "Ville",
+    city: v.city || t("Ville"),
     area: v.area,
     placeName: v.placeName,
     startsAt: safeIso(v.startsAtLocal),
@@ -157,35 +159,35 @@ export function MomentForm({
           <div role="alert" className="rounded-2xl bg-danger-soft px-4 py-3 text-sm text-danger">{formError}</div>
         )}
 
-        <Section n={1} title="L'idée">
+        <Section n={1} title={t("L'idée")}>
           <div>
-            <span className="field-label">Type de Moment</span>
-            <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Catégorie">
+            <span className="field-label">{t("Type de Moment")}</span>
+            <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={t("Catégorie")}>
               {categories.map((c) => (
                 <button key={c.id} type="button" role="radio" aria-checked={v.category === c.id} onClick={() => set("category", c.id)} className={`chip ${v.category === c.id ? "chip-active" : ""}`}>
-                  {c.label}
+                  {t(c.label)}
                 </button>
               ))}
             </div>
             {err("category")}
           </div>
           <div>
-            <label htmlFor="title" className="field-label">Titre</label>
-            <input id="title" className="input" maxLength={80} value={v.title} onChange={(e) => set("title", e.target.value)} placeholder="Ex. : Sunset + verre sur la plage" aria-invalid={!!errors.title} />
+            <label htmlFor="title" className="field-label">{t("Titre")}</label>
+            <input id="title" className="input" maxLength={80} value={v.title} onChange={(e) => set("title", e.target.value)} placeholder={t("Ex. : Sunset + verre sur la plage")} aria-invalid={!!errors.title} />
             {err("title")}
           </div>
           <div>
-            <label htmlFor="description" className="field-label">Description et ambiance</label>
-            <textarea id="description" className="input min-h-32" maxLength={2000} value={v.description} onChange={(e) => set("description", e.target.value)} placeholder="Ce qu'on va faire, pour qui c'est, ce qu'il faut apporter…" aria-invalid={!!errors.description} />
+            <label htmlFor="description" className="field-label">{t("Description et ambiance")}</label>
+            <textarea id="description" className="input min-h-32" maxLength={2000} value={v.description} onChange={(e) => set("description", e.target.value)} placeholder={t("Ce qu'on va faire, pour qui c'est, ce qu'il faut apporter…")} aria-invalid={!!errors.description} />
             <p className="field-help">{v.description.length}/2000</p>
             {err("description")}
           </div>
           <div>
-            <label htmlFor="tags" className="field-label">Tags d&apos;ambiance <span className="font-normal text-muted">(6 max.)</span></label>
+            <label htmlFor="tags" className="field-label">{t("Tags d'ambiance")} <span className="font-normal text-muted">{t("(6 max.)")}</span></label>
             <div className="flex flex-wrap gap-1.5">
-              {v.vibeTags.map((t) => (
-                <button key={t} type="button" onClick={() => set("vibeTags", v.vibeTags.filter((x) => x !== t))} className="pill bg-violet-soft text-violet" aria-label={`Retirer le tag ${t}`}>
-                  #{t} <X size={12} />
+              {v.vibeTags.map((tag) => (
+                <button key={tag} type="button" onClick={() => set("vibeTags", v.vibeTags.filter((x) => x !== tag))} className="pill bg-violet-soft text-violet" aria-label={t("Retirer le tag {tag}", { tag })}>
+                  #{t(tag)} <X size={12} />
                 </button>
               ))}
             </div>
@@ -200,96 +202,96 @@ export function MomentForm({
                   addTag(tagInput);
                 }
               }}
-              placeholder="Écris un tag puis Entrée"
+              placeholder={t("Écris un tag puis Entrée")}
             />
             <div className="mt-2 flex flex-wrap gap-1.5">
               {vibeSuggestions.filter((s) => !v.vibeTags.includes(s)).slice(0, 8).map((s) => (
-                <button key={s} type="button" className="chip !min-h-8 text-xs" onClick={() => addTag(s)}>+ {s}</button>
+                <button key={s} type="button" className="chip !min-h-8 text-xs" onClick={() => addTag(t(s))}>+ {t(s)}</button>
               ))}
             </div>
           </div>
         </Section>
 
-        <Section n={2} title="Quand">
+        <Section n={2} title={t("Quand")}>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label htmlFor="startsAt" className="field-label">Début</label>
+              <label htmlFor="startsAt" className="field-label">{t("Début")}</label>
               <input id="startsAt" type="datetime-local" className="input" value={v.startsAtLocal} onChange={(e) => set("startsAtLocal", e.target.value)} aria-invalid={!!errors.startsAtLocal} />
               {err("startsAtLocal")}
             </div>
             <div>
-              <label htmlFor="endsAt" className="field-label">Fin <span className="font-normal text-muted">(facultatif)</span></label>
+              <label htmlFor="endsAt" className="field-label">{t("Fin")} <span className="font-normal text-muted">{t("(facultatif)")}</span></label>
               <input id="endsAt" type="datetime-local" className="input" value={v.endsAtLocal} onChange={(e) => set("endsAtLocal", e.target.value)} aria-invalid={!!errors.endsAtLocal} />
               {err("endsAtLocal")}
             </div>
           </div>
-          <p className="field-help">Heure locale du lieu ({v.timezone.replace("_", " ")}).</p>
+          <p className="field-help">{t("Heure locale du lieu ({tz}).", { tz: v.timezone.replace("_", " ") })}</p>
         </Section>
 
-        <Section n={3} title="Où">
+        <Section n={3} title={t("Où")}>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label htmlFor="city" className="field-label">Ville</label>
+              <label htmlFor="city" className="field-label">{t("Ville")}</label>
               <input id="city" list="cities" className="input" value={v.city} onChange={(e) => set("city", e.target.value)} aria-invalid={!!errors.city} />
               <datalist id="cities">{productConfig.cities.map((c) => <option key={c} value={c} />)}</datalist>
               {err("city")}
             </div>
             <div>
-              <label htmlFor="area" className="field-label">Quartier ou zone</label>
-              <input id="area" className="input" value={v.area} onChange={(e) => set("area", e.target.value)} placeholder="Ex. : Puerto Banús" />
+              <label htmlFor="area" className="field-label">{t("Quartier ou zone")}</label>
+              <input id="area" className="input" value={v.area} onChange={(e) => set("area", e.target.value)} placeholder={t("Ex. : Puerto Banús")} />
             </div>
           </div>
           <div>
-            <label htmlFor="placeName" className="field-label">Nom du lieu <span className="font-normal text-muted">(visible par tous)</span></label>
-            <input id="placeName" className="input" value={v.placeName} onChange={(e) => set("placeName", e.target.value)} placeholder="Ex. : Rooftop du Golden Mile, ou « Chez moi »" />
+            <label htmlFor="placeName" className="field-label">{t("Nom du lieu")} <span className="font-normal text-muted">{t("(visible par tous)")}</span></label>
+            <input id="placeName" className="input" value={v.placeName} onChange={(e) => set("placeName", e.target.value)} placeholder={t("Ex. : Rooftop du Golden Mile, ou « Chez moi »")} />
           </div>
           <div>
-            <label htmlFor="address" className="field-label">Adresse exacte <span className="font-normal text-muted">(facultatif)</span></label>
-            <input id="address" className="input" value={v.address ?? ""} onChange={(e) => set("address", e.target.value)} placeholder="Rue, numéro, étage…" />
+            <label htmlFor="address" className="field-label">{t("Adresse exacte")} <span className="font-normal text-muted">{t("(facultatif)")}</span></label>
+            <input id="address" className="input" value={v.address ?? ""} onChange={(e) => set("address", e.target.value)} placeholder={t("Rue, numéro, étage…")} />
             <label className="mt-3 flex items-start gap-3 text-sm">
               <input type="checkbox" className="mt-0.5 h-5 w-5 accent-[var(--color-violet)]" checked={v.addressMembersOnly} onChange={(e) => set("addressMembersOnly", e.target.checked)} />
               <span>
-                <strong>Ne révéler l&apos;adresse qu&apos;aux participants confirmés</strong>
-                <span className="block text-muted">Recommandé pour un lieu privé. Les autres voient seulement la zone et le nom du lieu, y compris dans les liens partagés.</span>
+                <strong>{t("Ne révéler l'adresse qu'aux participants confirmés")}</strong>
+                <span className="block text-muted">{t("Recommandé pour un lieu privé. Les autres voient seulement la zone et le nom du lieu, y compris dans les liens partagés.")}</span>
               </span>
             </label>
           </div>
         </Section>
 
-        <Section n={4} title="Qui et combien">
+        <Section n={4} title={t("Qui et combien")}>
           <div className="max-w-xs">
-            <label htmlFor="capacity" className="field-label">Places pour les invités</label>
+            <label htmlFor="capacity" className="field-label">{t("Places pour les invités")}</label>
             <input id="capacity" type="number" inputMode="numeric" min={1} max={productConfig.limits.maxCapacity} className="input" value={v.capacity} onChange={(e) => set("capacity", Number(e.target.value))} aria-invalid={!!errors.capacity} />
-            <p className="field-help">Toi non compris. La capacité n&apos;est jamais dépassée.</p>
+            <p className="field-help">{t("Toi non compris. La capacité n'est jamais dépassée.")}</p>
             {err("capacity")}
           </div>
           <fieldset>
-            <legend className="field-label">Qui peut voir et rejoindre</legend>
+            <legend className="field-label">{t("Qui peut voir et rejoindre")}</legend>
             <div className="grid gap-2 sm:grid-cols-2">
               {productConfig.enabledVisibilities.map((key) => (
                 <label key={key} className={`cursor-pointer rounded-2xl border p-4 transition-colors ${v.visibility === key ? "border-ink bg-sand/60" : "border-line bg-paper hover:border-ink/30"}`}>
                   <input type="radio" name="visibility" className="sr-only" checked={v.visibility === key} onChange={() => set("visibility", key)} />
-                  <span className="font-semibold">{visibilityInfo[key].label}</span>
-                  <span className="mt-1 block text-sm text-muted">{visibilityInfo[key].help}</span>
+                  <span className="font-semibold">{t(visibilityInfo[key].label)}</span>
+                  <span className="mt-1 block text-sm text-muted">{t(visibilityInfo[key].help)}</span>
                 </label>
               ))}
             </div>
           </fieldset>
           <label className="flex items-start gap-3 text-sm">
             <input type="checkbox" className="mt-0.5 h-5 w-5 accent-[var(--color-violet)]" checked={v.showAttendees} onChange={(e) => set("showAttendees", e.target.checked)} />
-            <span>Afficher les participants confirmés <span className="block text-muted">Chacun peut aussi choisir de ne pas apparaître.</span></span>
+            <span>{t("Afficher les participants confirmés")} <span className="block text-muted">{t("Chacun peut aussi choisir de ne pas apparaître.")}</span></span>
           </label>
         </Section>
 
-        <Section n={5} title="Visuel">
+        <Section n={5} title={t("Visuel")}>
           <div className="flex flex-wrap gap-2">
-            <button type="button" className={`chip ${v.mediaType === "TEXT" ? "chip-active" : ""}`} onClick={() => set("mediaType", "TEXT")}><Type size={15} /> Carte texte</button>
-            <button type="button" className={`chip ${v.mediaType === "IMAGE" ? "chip-active" : ""}`} onClick={() => setV((p) => ({ ...p, mediaType: "IMAGE", mediaUrl: p.mediaUrl ?? `/demo/moments/${galleryCovers[0]}.webp` }))}><ImagePlus size={15} /> Image</button>
+            <button type="button" className={`chip ${v.mediaType === "TEXT" ? "chip-active" : ""}`} onClick={() => set("mediaType", "TEXT")}><Type size={15} /> {t("Carte texte")}</button>
+            <button type="button" className={`chip ${v.mediaType === "IMAGE" ? "chip-active" : ""}`} onClick={() => setV((p) => ({ ...p, mediaType: "IMAGE", mediaUrl: p.mediaUrl ?? `/demo/moments/${galleryCovers[0]}.webp` }))}><ImagePlus size={15} /> {t("Image")}</button>
           </div>
           {v.mediaType === "TEXT" ? (
-            <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Couleur de la carte">
-              {themes.map((t) => (
-                <button key={t} type="button" role="radio" aria-checked={v.textTheme === t} aria-label={`Thème ${t}`} onClick={() => set("textTheme", t)} className={`text-cover-${t} h-12 w-12 rounded-2xl ring-offset-2 ${v.textTheme === t ? "ring-2 ring-ink" : ""}`} />
+            <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={t("Couleur de la carte")}>
+              {themes.map((th) => (
+                <button key={th} type="button" role="radio" aria-checked={v.textTheme === th} aria-label={t("Thème {name}", { name: th })} onClick={() => set("textTheme", th)} className={`text-cover-${th} h-12 w-12 rounded-2xl ring-offset-2 ${v.textTheme === th ? "ring-2 ring-ink" : ""}`} />
               ))}
             </div>
           ) : (
@@ -298,7 +300,7 @@ export function MomentForm({
                 {galleryCovers.map((c) => {
                   const url = `/demo/moments/${c}.webp`;
                   return (
-                    <button key={c} type="button" onClick={() => setV((p) => ({ ...p, mediaType: "IMAGE", mediaUrl: url, posterUrl: null }))} className={`relative aspect-[4/5] overflow-hidden rounded-xl ring-offset-2 ${v.mediaUrl === url ? "ring-2 ring-ink" : ""}`} aria-label={`Choisir l'illustration ${c}`}>
+                    <button key={c} type="button" onClick={() => setV((p) => ({ ...p, mediaType: "IMAGE", mediaUrl: url, posterUrl: null }))} className={`relative aspect-[4/5] overflow-hidden rounded-xl ring-offset-2 ${v.mediaUrl === url ? "ring-2 ring-ink" : ""}`} aria-label={t("Choisir l'illustration {name}", { name: c })}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={url} alt="" className="h-full w-full object-cover" loading="lazy" />
                     </button>
@@ -308,9 +310,9 @@ export function MomentForm({
               <div className="flex flex-wrap items-center gap-3">
                 <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
                 <button type="button" className="btn-secondary" onClick={() => fileRef.current?.click()} disabled={busy === "upload"}>
-                  {busy === "upload" ? <Loader2 size={16} className="animate-spin" /> : <ImagePlus size={16} />} Importer ma photo
+                  {busy === "upload" ? <Loader2 size={16} className="animate-spin" /> : <ImagePlus size={16} />} {t("Importer ma photo")}
                 </button>
-                <p className="text-xs text-muted">JPEG, PNG ou WebP, 8 Mo max. La localisation GPS de la photo est supprimée.</p>
+                <p className="text-xs text-muted">{t("JPEG, PNG ou WebP. Les photos lourdes sont réduites automatiquement. La localisation GPS de la photo est supprimée.")}</p>
               </div>
             </div>
           )}
@@ -320,19 +322,19 @@ export function MomentForm({
         <div className="sticky bottom-20 z-10 flex flex-wrap gap-2 rounded-3xl border border-line bg-paper/95 p-3 shadow-[var(--shadow-lift)] backdrop-blur lg:bottom-4">
           {!isPublished && (
             <button type="button" className="btn-secondary flex-1" disabled={!!busy} onClick={() => submit(false)}>
-              {busy === "draft" && <Loader2 size={16} className="animate-spin" />} Enregistrer le brouillon
+              {busy === "draft" && <Loader2 size={16} className="animate-spin" />} {t("Enregistrer le brouillon")}
             </button>
           )}
           <button type="submit" className="btn-accent flex-1" disabled={!!busy}>
             {busy === "publish" && <Loader2 size={16} className="animate-spin" />}
-            {isPublished ? "Enregistrer les modifications" : "Publier le Moment"}
+            {isPublished ? t("Enregistrer les modifications") : t("Publier le Moment")}
           </button>
         </div>
       </form>
 
       <aside className="hidden lg:block">
         <div className="sticky top-8 space-y-3">
-          <p className="eyebrow">Aperçu dans le feed</p>
+          <p className="eyebrow">{t("Aperçu dans le feed")}</p>
           <div className="pointer-events-none max-w-sm" aria-hidden inert>
             <MomentCard moment={preview} autoplay={false} />
           </div>
