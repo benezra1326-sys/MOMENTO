@@ -5,6 +5,12 @@ import type { Pattern } from "./core";
  * Les {variables} sont gardées telles quelles. Vérifier les textes manquants : `npm run i18n:check`.
  */
 export const en: Record<string, string> = {
+  Organisateurs: "Hosts",
+  "Participants (aucun Moment créé)": "Guests (no Moment created)",
+  "Aucun Moment créé": "No Moment created",
+  "Arrivée il y a un mois, je cherche des sorties sympas.": "Moved here a month ago, looking for fun things to do.",
+  "En télétravail, je découvre la ville.": "Working remotely, getting to know the city.",
+  "Étudiant, curieux de tout.": "Student, curious about everything.",
   // ——— Général, navigation
   "Momento — Moins de scroll. Plus de moments vécus.": "Momento — Less scrolling. More moments lived.",
   "Découvre un Moment près de toi, demande à le rejoindre ou crée le tien, puis rencontre les participants en vrai.":

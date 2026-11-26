@@ -65,12 +65,14 @@ export async function demoLogin(username: string) {
 
 export async function listDemoAccounts() {
   if (!isDemoMode()) return [];
-  return prisma.user.findMany({
-    where: { isDemo: true, status: "ACTIVE" },
-    select: { username: true, name: true, photoUrl: true, city: true, role: true, _count: { select: { hostedMoments: true } } },
-    orderBy: { hostedMoments: { _count: "desc" } },
-    take: 8,
-  });
+  const select = { username: true, name: true, photoUrl: true, city: true, role: true, _count: { select: { hostedMoments: true } } } as const;
+  const where = { isDemo: true, status: "ACTIVE" } as const;
+  const [hosts, guests, admins] = await Promise.all([
+    prisma.user.findMany({ where: { ...where, role: "USER", hostedMoments: { some: {} } }, select, orderBy: { hostedMoments: { _count: "desc" } }, take: 6 }),
+    prisma.user.findMany({ where: { ...where, role: "USER", hostedMoments: { none: {} } }, select, orderBy: { createdAt: "asc" }, take: 4 }),
+    prisma.user.findMany({ where: { ...where, role: "ADMIN" }, select, take: 1 }),
+  ]);
+  return [...hosts, ...guests, ...admins];
 }
 
 export async function logout() {

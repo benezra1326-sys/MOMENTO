@@ -10,6 +10,14 @@ export const LOCALES = ["fr", "en"] as const;
 export type Locale = (typeof LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = "en";
 export const LOCALE_COOKIE = "momento_lang";
+/** En-tête interne posé par le middleware quand la langue est imposée (adresse dédiée ou ?lang=). */
+export const LOCALE_HEADER = "x-momento-locale";
+
+/** Adresse de démo dans une langue : un nom d'hôte qui commence par « momento-en » est toujours en anglais. */
+export function localeFromHost(host: string | null): Locale | null {
+  const h = (host ?? "").toLowerCase();
+  return h.startsWith("momento-en") || h.startsWith("en.") ? "en" : null;
+}
 
 type Dict = Record<string, string>;
 /** Motifs pour les textes construits côté serveur (messages avec un titre, un nombre…). */

@@ -6,7 +6,7 @@ import type { MediaType, MembershipStatus, MomentVisibility } from "@prisma/clie
 
 export const DEMO_TZ = "Europe/Madrid";
 
-export type Person = { slug: string; name: string; city: string; bio: string; interests: string[]; admin?: boolean };
+export type Person = { slug: string; name: string; city: string; bio: string; interests: string[]; admin?: boolean; guestOnly?: boolean };
 
 export const people: Person[] = [
   { slug: "lea", name: "Léa M.", city: "Marbella", bio: "Designer, toujours partante pour un sunset ou une expo.", interests: ["design", "sunset", "vin nature"] },
@@ -25,6 +25,10 @@ export const people: Person[] = [
   { slug: "jules", name: "Jules F.", city: "Marbella", bio: "Étudiant en Erasmus, partant pour tout.", interests: ["foot", "plage", "langues"] },
   { slug: "maya", name: "Maya C.", city: "Marbella", bio: "Illustratrice. Carnet à la main, partout.", interests: ["dessin", "café", "expos"] },
   { slug: "david", name: "David A.", city: "Tel Aviv", bio: "Fondateur d'une app de voyage. Brunchs et networking.", interests: ["startups", "brunch", "voyage"] },
+  // Participants uniquement : aucun Moment créé, pour tester l'expérience de celui qui rejoint.
+  { slug: "clara", name: "Clara B.", city: "Marbella", bio: "Arrivée il y a un mois, je cherche des sorties sympas.", interests: ["plage", "brunch", "expos"], guestOnly: true },
+  { slug: "sam", name: "Sam O.", city: "Marbella", bio: "En télétravail, je découvre la ville.", interests: ["running", "café", "tapas"], guestOnly: true },
+  { slug: "rafael", name: "Rafael G.", city: "Málaga", bio: "Étudiant, curieux de tout.", interests: ["musique", "foot", "cinéma"], guestOnly: true },
   { slug: "moderation", name: "Équipe modération (démo)", city: "Marbella", bio: "Compte de démonstration avec le rôle administrateur.", interests: [], admin: true },
 ];
 

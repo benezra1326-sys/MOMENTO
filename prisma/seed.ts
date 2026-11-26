@@ -39,7 +39,7 @@ async function main() {
       city: p.city,
       bio: p.bio,
       interests: p.interests,
-      photoUrl: p.admin ? null : `/demo/people/${p.slug}.webp`,
+      photoUrl: p.admin || p.guestOnly ? null : `/demo/people/${p.slug}.webp`,
       isDemo: true,
       role: p.admin ? ("ADMIN" as const) : ("USER" as const),
       status: "ACTIVE" as const,

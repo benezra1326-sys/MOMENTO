@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { isLocale, LOCALE_COOKIE } from "@/lib/i18n/core";
+import { isLocale, LOCALE_COOKIE, LOCALE_HEADER, localeFromHost } from "@/lib/i18n/core";
 
 import { isPublicPath } from "@/lib/public-paths";
 
@@ -14,25 +14,32 @@ const SESSION_COOKIE = "momento_session";
 export function middleware(req: NextRequest) {
   const url = req.nextUrl;
   const lang = url.searchParams.get("lang");
-  if (lang) {
-    const clean = url.clone();
-    clean.searchParams.delete("lang");
-    const res = NextResponse.redirect(clean);
-    if (isLocale(lang)) res.cookies.set(LOCALE_COOKIE, lang, { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" });
+  // Adresse de démo dédiée (ex. momento-en….vercel.app) : toujours dans cette langue, sans cookie.
+  const hostLocale = localeFromHost(req.headers.get("host"));
+  const linkLocale = isLocale(lang) ? lang : null;
+  const remember = (res: NextResponse) => {
+    if (linkLocale) res.cookies.set(LOCALE_COOKIE, linkLocale, { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" });
     else if (lang === "auto") res.cookies.delete(LOCALE_COOKIE);
     return res;
-  }
+  };
 
   if (!isPublicPath(url.pathname) && !req.cookies.get(SESSION_COOKIE)) {
     const login = url.clone();
     login.pathname = "/connexion";
-    login.search = url.pathname === "/" ? "" : `?suite=${encodeURIComponent(url.pathname + url.search)}`;
-    return NextResponse.redirect(login);
+    const rest = new URLSearchParams(url.search);
+    rest.delete("lang");
+    const back = url.pathname + (rest.size ? `?${rest}` : "");
+    login.search = url.pathname === "/" ? "" : `?suite=${encodeURIComponent(back)}`;
+    return remember(NextResponse.redirect(login));
   }
 
+  // La langue choisie s'applique dès cette page (en-tête) et aux suivantes (cookie).
   const headers = new Headers(req.headers);
   headers.set("x-pathname", url.pathname);
-  return NextResponse.next({ request: { headers } });
+  const forced = hostLocale ?? linkLocale;
+  if (forced) headers.set(LOCALE_HEADER, forced);
+  else headers.delete(LOCALE_HEADER);
+  return remember(NextResponse.next({ request: { headers } }));
 }
 
 export const config = { matcher: ["/((?!api|_next|demo|uploads|favicon.ico|.*\\.(?:png|jpg|webp|svg|mp4|ico)$).*)"] };
