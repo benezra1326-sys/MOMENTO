@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { AppError } from "@/lib/errors";
+import { AppError, isUniqueViolation } from "@/lib/errors";
 import { createSession, destroySession, requireActive, type Viewer } from "@/lib/auth";
 import { hashPassword, verifyPassword } from "@/lib/password";
 import { loginSchema, profileSchema, signupSchema } from "@/lib/validation";
@@ -7,6 +7,8 @@ import { isDemoMode } from "@/lib/env";
 import { isBlockedBetween } from "./safety";
 import { attendedMoments, hostedMoments } from "./moments";
 import { notifyMany } from "./notifications";
+import { deleteStoredFile } from "./storage";
+import { sendVerificationEmail } from "./auth-tokens";
 
 export async function signup(raw: unknown) {
   const input = signupSchema.parse(raw);
@@ -20,17 +22,26 @@ export async function signup(raw: unknown) {
     if (clash.username === input.username) details.username = "Ce pseudo est déjà pris.";
     throw new AppError("CONFLICT", "Compte déjà existant.", details);
   }
-  const user = await prisma.user.create({
-    data: {
-      email: input.email,
-      username: input.username,
-      name: input.name,
-      city: input.city,
-      passwordHash: await hashPassword(input.password),
-    },
-  });
+  let user;
+  try {
+    user = await prisma.user.create({
+      data: {
+        email: input.email,
+        username: input.username,
+        name: input.name,
+        city: input.city,
+        passwordHash: await hashPassword(input.password),
+      },
+    });
+  } catch (e) {
+    // Deux inscriptions simultanées : l'unicité en base tranche, on renvoie une erreur lisible.
+    if (isUniqueViolation(e)) throw new AppError("CONFLICT", "Cet e-mail ou ce pseudo vient d'être pris. Réessaie.");
+    throw e;
+  }
   await createSession(user.id);
-  return { id: user.id, username: user.username };
+  // L'envoi ne doit jamais bloquer l'inscription.
+  const verification = await sendVerificationEmail(user.id).catch(() => ({ sent: false }));
+  return { id: user.id, username: user.username, verificationSent: verification.sent };
 }
 
 export async function login(raw: unknown) {
@@ -88,10 +99,12 @@ export async function getMyProfile(viewerIn: Viewer | null) {
 export async function updateMyProfile(viewerIn: Viewer | null, raw: unknown) {
   const viewer = requireActive(viewerIn);
   const input = profileSchema.parse(raw);
+  const before = await prisma.user.findUnique({ where: { id: viewer.id }, select: { photoUrl: true } });
   await prisma.user.update({
     where: { id: viewer.id },
     data: { ...input, interests: [...new Set(input.interests.map((i) => i.toLowerCase()))] },
   });
+  if (before?.photoUrl && input.photoUrl !== undefined && before.photoUrl !== input.photoUrl) await deleteStoredFile(before.photoUrl);
   return getMyProfile(viewer);
 }
 
@@ -145,6 +158,7 @@ export async function deleteMyAccount(viewerIn: Viewer | null, confirmUsername: 
   if (confirmUsername.trim().toLowerCase() !== viewer.username) {
     throw new AppError("VALIDATION", "Saisis ton pseudo pour confirmer la suppression.");
   }
+  const oldPhoto = (await prisma.user.findUnique({ where: { id: viewer.id }, select: { photoUrl: true } }))?.photoUrl;
   await prisma.$transaction(async (tx) => {
     const upcoming = await tx.moment.findMany({
       where: { hostId: viewer.id, status: { in: ["PUBLISHED", "DRAFT"] }, startsAt: { gt: new Date() } },
@@ -186,6 +200,7 @@ export async function deleteMyAccount(viewerIn: Viewer | null, confirmUsername: 
       },
     });
   });
+  await deleteStoredFile(oldPhoto);
   await destroySession();
   return { deleted: true };
 }

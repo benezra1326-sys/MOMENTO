@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { ImagePlus, Loader2, Type, X } from "lucide-react";
 import { categories, productConfig, vibeSuggestions, visibilityInfo } from "@/config/product";
 import { api } from "@/lib/client";
+import { shrinkForUpload } from "@/lib/image-client";
 import type { MomentCardDTO } from "@/server/types";
 import { MomentCard } from "./MomentCard";
 
@@ -78,7 +79,7 @@ export function MomentForm({
     setBusy("upload");
     setErrors((e) => ({ ...e, mediaUrl: "" }));
     const fd = new FormData();
-    fd.set("file", file);
+    fd.set("file", await shrinkForUpload(file));
     fd.set("purpose", "cover");
     try {
       const res = await fetch("/api/uploads", { method: "POST", body: fd });

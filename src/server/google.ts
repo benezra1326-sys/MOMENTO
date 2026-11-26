@@ -5,7 +5,7 @@
  */
 import { createHash, randomBytes } from "node:crypto";
 import { prisma } from "@/lib/db";
-import { AppError } from "@/lib/errors";
+import { AppError, isUniqueViolation } from "@/lib/errors";
 
 export function googleEnabled(): boolean {
   return !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
@@ -111,18 +111,33 @@ export async function upsertGoogleUser(profile: GoogleProfile): Promise<{ id: st
   if (byEmail) {
     if (byEmail.status === "SUSPENDED") throw new AppError("ACCOUNT_SUSPENDED", "Ce compte est suspendu.");
     if (byEmail.isDemo || byEmail.status === "DELETED") throw new AppError("CONFLICT", "Cette adresse ne peut pas être utilisée.");
-    await prisma.user.update({ where: { id: byEmail.id }, data: { googleId: profile.sub } });
+    await prisma.user.update({
+      where: { id: byEmail.id },
+      data: { googleId: profile.sub, emailVerifiedAt: byEmail.emailVerifiedAt ?? new Date() },
+    });
     return { id: byEmail.id, isNew: false };
   }
   const name = (profile.name ?? profile.email.split("@")[0]).slice(0, 50);
-  const user = await prisma.user.create({
-    data: {
-      email: profile.email,
-      googleId: profile.sub,
-      name: name.length >= 2 ? name : "Membre",
-      username: await uniqueUsername(profile.email.split("@")[0]),
-      // Photo Google non importée automatiquement : la personne choisit sa photo dans son profil.
-    },
-  });
+  const create = async (username: string) =>
+    prisma.user.create({
+      data: {
+        email: profile.email,
+        googleId: profile.sub,
+        emailVerifiedAt: new Date(),
+        name: name.length >= 2 ? name : "Membre",
+        username,
+        // Photo Google non importée automatiquement : la personne choisit sa photo dans son profil.
+      },
+    });
+  let user;
+  try {
+    user = await create(await uniqueUsername(profile.email.split("@")[0]));
+  } catch (e) {
+    if (!isUniqueViolation(e)) throw e;
+    // Course entre deux connexions simultanées : soit le compte vient d'être créé, soit le pseudo a été pris.
+    const again = await prisma.user.findUnique({ where: { googleId: profile.sub } });
+    if (again) return { id: again.id, isNew: false };
+    user = await create(`membre${Date.now().toString(36)}`);
+  }
   return { id: user.id, isNew: true };
 }

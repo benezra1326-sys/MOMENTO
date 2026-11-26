@@ -48,9 +48,14 @@ export const productConfig = {
     requestsPerHour: 20,
     /** Signalements par utilisateur et par heure. */
     reportsPerHour: 10,
+    /** E-mails de vérification ou de réinitialisation envoyés par compte et par heure. */
+    authEmailsPerHour: 3,
     maxCapacity: 200,
     feedPageSize: 12,
-    uploadMaxBytes: 8 * 1024 * 1024,
+    /** Images envoyées par utilisateur et par heure. */
+    uploadsPerHour: 30,
+    /** Sous la limite de 4,5 Mo des fonctions Vercel ; le navigateur réduit les photos plus lourdes avant l'envoi. */
+    uploadMaxBytes: 4 * 1024 * 1024,
     uploadMaxDimension: 6000,
   },
 } as const;

@@ -1,22 +1,12 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
 import sharp, { type Metadata } from "sharp";
 import { AppError } from "@/lib/errors";
 import { requireActive, type Viewer } from "@/lib/auth";
 import { productConfig } from "@/config/product";
+import { prisma } from "@/lib/db";
+import { storageDriver, storeFile } from "./storage";
 
 const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp"]);
-
-/**
- * Stockage des médias. Les métadonnées vivent en base (mediaUrl), les fichiers ici.
- * - « local » : dossier public/uploads, pour le développement uniquement.
- * - En production, brancher un stockage objet (S3, R2, Supabase Storage…) : voir docs/MEDIA.md.
- */
-function storageDriver(): "local" | "none" {
-  const driver = process.env.STORAGE_DRIVER ?? (process.env.NODE_ENV === "production" ? "none" : "local");
-  return driver === "local" ? "local" : "none";
-}
 
 /**
  * Téléverse une image : vérifie type, taille et dimensions, corrige l'orientation,
@@ -24,11 +14,15 @@ function storageDriver(): "local" | "none" {
  * (EXIF, dont la géolocalisation GPS).
  */
 export async function uploadImage(viewerIn: Viewer | null, file: File | null, purpose: "cover" | "avatar") {
-  requireActive(viewerIn);
+  const viewer = requireActive(viewerIn);
   if (!file) throw new AppError("VALIDATION", "Aucun fichier reçu.");
   if (!ALLOWED.has(file.type)) throw new AppError("VALIDATION", "Formats acceptés : JPEG, PNG ou WebP.");
   if (file.size > productConfig.limits.uploadMaxBytes) {
     throw new AppError("VALIDATION", `Image trop lourde (${Math.round(productConfig.limits.uploadMaxBytes / 1024 / 1024)} Mo maximum).`);
+  }
+  const recent = await prisma.upload.count({ where: { userId: viewer.id, createdAt: { gt: new Date(Date.now() - 3600_000) } } });
+  if (recent >= productConfig.limits.uploadsPerHour) {
+    throw new AppError("RATE_LIMITED", "Trop d'images envoyées en une heure. Réessaie plus tard.");
   }
   if (storageDriver() === "none") {
     throw new AppError("INTERNAL", "Le stockage des médias n'est pas configuré sur ce serveur.");
@@ -54,9 +48,13 @@ export async function uploadImage(viewerIn: Viewer | null, file: File | null, pu
   // sharp n'écrit aucune métadonnée sauf appel explicite à withMetadata() : EXIF/GPS supprimés.
   const out = await pipeline.webp({ quality: 82 }).toBuffer();
 
-  const name = `${randomUUID()}.webp`;
-  const dir = path.join(process.cwd(), "public", "uploads", purpose);
-  await mkdir(dir, { recursive: true });
-  await writeFile(path.join(dir, name), out);
-  return { url: `/uploads/${purpose}/${name}`, width: purpose === "avatar" ? 512 : 1080, height: purpose === "avatar" ? 512 : 1350 };
+  let url: string;
+  try {
+    url = await storeFile(`${purpose}/${randomUUID()}.webp`, out, "image/webp");
+  } catch (e) {
+    console.error("[uploads] stockage en échec", (e as Error).message);
+    throw new AppError("INTERNAL", "L'envoi de l'image a échoué. Réessaie dans un instant.");
+  }
+  await prisma.upload.create({ data: { userId: viewer.id, url, purpose, bytes: out.length } });
+  return { url, width: purpose === "avatar" ? 512 : 1080, height: purpose === "avatar" ? 512 : 1350 };
 }

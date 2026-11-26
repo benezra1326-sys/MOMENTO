@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { Camera, Loader2, LogOut, X } from "lucide-react";
 import { api } from "@/lib/client";
+import { shrinkForUpload } from "@/lib/image-client";
 import { Avatar } from "./Avatar";
 
 type Me = {
@@ -52,7 +53,7 @@ export function ProfileSettings({ me, blocks, welcome }: { me: Me; blocks: { use
   async function upload(file: File) {
     setBusy("photo");
     const fd = new FormData();
-    fd.set("file", file);
+    fd.set("file", await shrinkForUpload(file));
     fd.set("purpose", "avatar");
     try {
       const res = await fetch("/api/uploads", { method: "POST", body: fd });

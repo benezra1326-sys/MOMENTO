@@ -80,6 +80,8 @@ model User {
   passwordHash String?
   /// Identifiant Google (claim « sub ») si le compte utilise la connexion Google.
   googleId     String?       @unique
+  /// Date de confirmation de l'adresse e-mail (lien reçu par e-mail, ou e-mail vérifié par Google).
+  emailVerifiedAt DateTime?
   name         String
   username     String        @unique
   bio          String        @default("")
@@ -105,6 +107,8 @@ model User {
   reportsFiled  Report[]           @relation("ReportReporter")
   blocksMade    Block[]            @relation("Blocker")
   blocksGot     Block[]            @relation("Blocked")
+  authTokens    AuthToken[]
+  uploads       Upload[]
 }
 
 model Session {
@@ -242,4 +246,38 @@ model AuditEvent {
   createdAt DateTime @default(now())
 
   @@index([targetType, targetId])
+}
+
+enum AuthTokenKind {
+  VERIFY_EMAIL
+  RESET_PASSWORD
+}
+
+/// Jeton à usage unique envoyé par e-mail. Seul son hachage sha256 est stocké.
+model AuthToken {
+  id        String        @id @default(cuid())
+  userId    String
+  kind      AuthTokenKind
+  tokenHash String        @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime      @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, kind, createdAt])
+}
+
+/// Fichier envoyé par un utilisateur : sert aux quotas et au nettoyage des fichiers.
+model Upload {
+  id        String   @id @default(cuid())
+  userId    String
+  url       String
+  purpose   String
+  bytes     Int
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
 }

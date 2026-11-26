@@ -27,7 +27,10 @@ Toutes sont décrites dans [`.env.example`](.env.example). Les essentielles :
 | `DATABASE_URL` | PostgreSQL. Sur Supabase : chaîne pooler (port 6543), `?pgbouncer=true&sslmode=require`. |
 | `DEMO_MODE` | Active la connexion démo en un clic et le bandeau démo. |
 | `ALLOW_DEMO_IN_PRODUCTION` | Obligatoire pour garder le mode démo en production. Sinon il est coupé. |
-| `APP_URL` | URL publique, utilisée pour le retour Google. |
+| `APP_URL` | URL publique, utilisée pour le retour Google et les liens envoyés par e-mail. |
+| `BLOB_READ_WRITE_TOKEN` | Stockage des photos sur Vercel Blob. Voir [docs/MEDIA.md](docs/MEDIA.md). |
+| `RESEND_API_KEY` (ou `BREVO_API_KEY`), `EMAIL_FROM` | Envoi des e-mails de confirmation d'adresse et de mot de passe oublié. |
+| `REQUIRE_EMAIL_VERIFICATION` | `true` pour exiger une adresse confirmée avant de créer ou rejoindre un Moment. |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Active « Continuer avec Google ». Voir [docs/GOOGLE_SIGN_IN.md](docs/GOOGLE_SIGN_IN.md). |
 | `PILOT_CITY`, `DEFAULT_TIMEZONE` | Ville pilote et fuseau par défaut. |
 | `FEATURE_*` | Fonctions en attente de décision (disponibilités, posts, messagerie, QR). |
@@ -47,11 +50,14 @@ Toutes sont décrites dans [`.env.example`](.env.example). Les essentielles :
 - **Profils**, réglages, suppression de compte (anonymisation), **invitations**, **notifications**.
 - **Sécurité** : blocage, signalement, modération admin avec journal d'audit, limites de fréquence, CSRF même-origine, sessions hachées en base, mots de passe scrypt, médias ré-encodés en WebP (EXIF supprimés).
 - **Connexion Google** (OAuth avec PKCE) : prête, s'active dès que les identifiants sont posés.
+- **Comptes** : confirmation d'adresse par e-mail et mot de passe oublié (jetons à usage unique, hachés, expirants, limités par heure). Exigence de confirmation activable par `REQUIRE_EMAIL_VERIFICATION`.
+- **Photos** : stockage persistant sur Vercel Blob en production, 4 Mo maximum par envoi (le navigateur réduit les photos plus lourdes), 30 envois par heure, anciens fichiers supprimés au remplacement.
 
 ## Limites connues
 
-- Upload de médias : stockage local en dev uniquement. En production, il faut brancher un stockage (Supabase Storage ou Vercel Blob) avant d'ouvrir l'upload.
-- Pas d'e-mails (vérification d'adresse, mot de passe oublié) ni de notifications push.
+- Vidéos : seules les vidéos démo sont acceptées ; l'envoi de vidéos par les membres n'est pas ouvert.
+- E-mails : sans domaine vérifié chez Resend, les e-mails ne partent que vers l'adresse du compte Resend.
+- Pas de notifications push.
 - Pas de messagerie, de carte ni de géolocalisation : en attente de décision produit.
 
 ## Structure
@@ -63,7 +69,9 @@ src/server/        logique métier : moments, participations, sécurité, compte
 src/lib/           auth, erreurs, validation, temps/fuseaux, client API
 src/components/    interface
 src/config/        réglages produit et drapeaux
-tests/             tests d'intégration sur vraie base
+tests/             tests d'intégration sur vraie base de test (jamais la production)
+docs/              ARCHITECTURE, MEDIA, DECISIONS, GOOGLE_SIGN_IN
+.github/workflows/ CI : lint, types, tests, build à chaque PR
 scripts/           diagnostic base, génération des visuels démo
 ```
 
@@ -71,7 +79,6 @@ scripts/           diagnostic base, génération des visuels démo
 
 - Ville pilote (Marbella par défaut, `PILOT_CITY`).
 - Disponibilités « je suis libre ce soir », posts, messagerie, QR d'arrivée (`FEATURE_*`).
-- Stockage des médias en production.
 - Âge minimum et vérification d'identité.
 
 ## Marketing (pour plus tard)

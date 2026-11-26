@@ -1,7 +1,7 @@
 import type { MomentMembership, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { AppError } from "@/lib/errors";
-import { requireActive, type Viewer } from "@/lib/auth";
+import { requireActive, requireVerified, type Viewer } from "@/lib/auth";
 import { productConfig } from "@/config/product";
 import { invitationSchema, joinRequestSchema } from "@/lib/validation";
 import { isBlockedBetween } from "./safety";
@@ -56,7 +56,7 @@ async function assertRate(initiatorId: string, kind: "REQUEST" | "INVITE") {
  * Après un refus de l'hôte, pas de nouvelle demande : un refus ne génère aucune relance.
  */
 export async function requestToJoin(viewerIn: Viewer | null, momentId: string, raw: unknown) {
-  const viewer = requireActive(viewerIn);
+  const viewer = requireVerified(viewerIn);
   const input = joinRequestSchema.parse(raw ?? {});
   await assertRate(viewer.id, "REQUEST");
 
@@ -111,7 +111,7 @@ export async function requestToJoin(viewerIn: Viewer | null, momentId: string, r
 
 /** L'hôte invite une personne par son pseudo. */
 export async function inviteUser(viewerIn: Viewer | null, momentId: string, raw: unknown) {
-  const viewer = requireActive(viewerIn);
+  const viewer = requireVerified(viewerIn);
   const input = invitationSchema.parse(raw ?? {});
   await assertRate(viewer.id, "INVITE");
   const target = await prisma.user.findUnique({ where: { username: input.username.replace(/^@/, "") } });
@@ -166,7 +166,7 @@ export async function inviteUser(viewerIn: Viewer | null, momentId: string, raw:
  * L'acceptation réserve la place de façon transactionnelle.
  */
 export async function respondToMembership(viewerIn: Viewer | null, membershipId: string, decision: "accept" | "decline") {
-  const viewer = requireActive(viewerIn);
+  const viewer = decision === "accept" ? requireVerified(viewerIn) : requireActive(viewerIn);
   const pre = await prisma.momentMembership.findUnique({ where: { id: membershipId } });
   if (!pre) throw new AppError("NOT_FOUND", "Demande introuvable.");
 

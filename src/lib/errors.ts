@@ -10,6 +10,7 @@ export type ErrorCode =
   | "RATE_LIMITED"
   | "BLOCKED"
   | "ACCOUNT_SUSPENDED"
+  | "EMAIL_NOT_VERIFIED"
   | "DATABASE_UNAVAILABLE"
   | "INTERNAL";
 
@@ -24,6 +25,7 @@ const httpStatus: Record<ErrorCode, number> = {
   RATE_LIMITED: 429,
   BLOCKED: 403,
   ACCOUNT_SUSPENDED: 403,
+  EMAIL_NOT_VERIFIED: 403,
   DATABASE_UNAVAILABLE: 503,
   INTERNAL: 500,
 };
@@ -49,4 +51,9 @@ export function isDatabaseUnavailable(err: unknown): boolean {
     name === "PrismaClientInitializationError" ||
     ["P1000", "P1001", "P1002", "P1011", "P1017"].includes(code)
   );
+}
+
+/** Violation d'unicité Prisma (P2002) : deux inscriptions simultanées sur le même e-mail ou pseudo. */
+export function isUniqueViolation(e: unknown): e is { code: "P2002"; meta?: { target?: string[] | string } } {
+  return typeof e === "object" && e !== null && (e as { code?: string }).code === "P2002";
 }

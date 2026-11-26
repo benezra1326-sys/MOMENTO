@@ -8,11 +8,11 @@ let n = 0;
 export async function resetDb() {
   if (!/test/i.test(process.env.DATABASE_URL ?? "")) throw new Error("resetDb refusé : ce n'est pas une base de test.");
   await prisma.$executeRawUnsafe(
-    `TRUNCATE "AuditEvent","Block","Report","Notification","MomentMembership","Moment","Session","User" CASCADE`,
+    `TRUNCATE "Upload","AuthToken","AuditEvent","Block","Report","Notification","MomentMembership","Moment","Session","User" CASCADE`,
   );
 }
 
-export async function makeUser(name = "User", extra: Partial<{ role: "USER" | "ADMIN"; status: "ACTIVE" | "SUSPENDED" }> = {}): Promise<Viewer> {
+export async function makeUser(name = "User", extra: Partial<{ role: "USER" | "ADMIN"; status: "ACTIVE" | "SUSPENDED"; verified: boolean }> = {}): Promise<Viewer> {
   n++;
   const u = await prisma.user.create({
     data: {
@@ -21,9 +21,10 @@ export async function makeUser(name = "User", extra: Partial<{ role: "USER" | "A
       name: `${name} ${n}`,
       role: extra.role ?? "USER",
       status: extra.status ?? "ACTIVE",
+      emailVerifiedAt: extra.verified === false ? null : new Date(),
     },
   });
-  return { id: u.id, role: u.role, status: u.status, name: u.name, username: u.username, photoUrl: null, isDemo: false, city: "" };
+  return { id: u.id, role: u.role, status: u.status, name: u.name, username: u.username, photoUrl: null, isDemo: false, city: "", emailVerifiedAt: u.emailVerifiedAt };
 }
 
 export function localIn(days: number, tz = "Europe/Madrid") {

@@ -1,11 +1,12 @@
 import type { Moment, MomentMembership, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { AppError } from "@/lib/errors";
-import { requireActive, type Viewer } from "@/lib/auth";
+import { requireActive, requireVerified, type Viewer } from "@/lib/auth";
 import { productConfig } from "@/config/product";
 import { cancelMomentSchema, feedQuerySchema, momentInputSchema, type FeedQuery } from "@/lib/validation";
 import { momentEnd, utcToZonedLocal, zonedLocalToUtc } from "@/lib/time";
 import { blockedUserIds, isBlockedBetween } from "./safety";
+import { deleteStoredFile } from "./storage";
 import { notifyMany } from "./notifications";
 import { momentPhase, personSelect, toCard, toPerson } from "./mappers";
 import type { FeedPage, MemberRow, MomentCardDTO, MomentDetailDTO } from "./types";
@@ -253,7 +254,7 @@ function toMomentData(input: ReturnType<typeof momentInputSchema.parse>) {
 }
 
 export async function createMoment(viewerIn: Viewer | null, raw: unknown) {
-  const viewer = requireActive(viewerIn);
+  const viewer = requireVerified(viewerIn);
   const input = momentInputSchema.parse(raw);
   const data = toMomentData(input);
   if (input.publish && data.startsAt < new Date()) {
@@ -311,7 +312,8 @@ export async function updateMoment(viewerIn: Viewer | null, id: string, raw: unk
   const input = momentInputSchema.parse(raw);
   const data = toMomentData(input);
 
-  return prisma.$transaction(async (tx) => {
+  let replacedMedia: string | null = null;
+  const result = await prisma.$transaction(async (tx) => {
     await tx.$queryRaw`SELECT id FROM "Moment" WHERE id = ${id} FOR UPDATE`;
     const m = await tx.moment.findUnique({ where: { id } });
     if (!m) throw new AppError("NOT_FOUND", "Moment introuvable.");
@@ -355,12 +357,16 @@ export async function updateMoment(viewerIn: Viewer | null, id: string, raw: unk
         { type: "MOMENT_UPDATED", momentId: id, actorId: viewer.id, body: `L'horaire ou le lieu de « ${updated.title} » a changé.` },
       );
     }
+    if (m.mediaUrl && m.mediaUrl !== updated.mediaUrl) replacedMedia = m.mediaUrl;
     return { id: updated.id, status: updated.status };
   });
+  // Après validation de la transaction seulement : l'ancien visuel n'est plus référencé.
+  if (replacedMedia) await deleteStoredFile(replacedMedia);
+  return result;
 }
 
 export async function publishMoment(viewerIn: Viewer | null, id: string) {
-  const viewer = requireActive(viewerIn);
+  const viewer = requireVerified(viewerIn);
   const m = await loadOwnMoment(viewer, id);
   if (m.status !== "DRAFT") throw new AppError("CONFLICT", "Ce Moment est déjà publié ou annulé.");
   if (m.startsAt < new Date()) throw new AppError("VALIDATION", "La date de ce brouillon est passée : modifie-la avant de publier.");

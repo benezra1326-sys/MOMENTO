@@ -1,13 +1,14 @@
 import { z } from "zod";
 import { categories, productConfig } from "@/config/product";
 import { isValidTimeZone } from "./time";
+import { isAllowedVideoUrl, isAllowedMediaUrl } from "./media";
 
 const categoryIds = categories.map((c) => c.id) as [string, ...string[]];
 
 const mediaUrl = z
   .string()
   .max(500)
-  .refine((v) => v.startsWith("/") || v.startsWith("https://"), "URL de média invalide.");
+  .refine(isAllowedMediaUrl, "Ce média doit être envoyé depuis Momento.");
 
 export const textThemes = ["dusk", "ocean", "citrus", "plum", "forest", "ink"] as const;
 
@@ -47,6 +48,9 @@ export const momentInputSchema = z
   .superRefine((v, ctx) => {
     if (v.mediaType !== "TEXT" && !v.mediaUrl) {
       ctx.addIssue({ code: "custom", path: ["mediaUrl"], message: "Ajoute un visuel ou choisis une carte texte." });
+    }
+    if (v.mediaType === "VIDEO" && v.mediaUrl && !isAllowedVideoUrl(v.mediaUrl)) {
+      ctx.addIssue({ code: "custom", path: ["mediaUrl"], message: "L'envoi de vidéos n'est pas encore ouvert : choisis une image." });
     }
     if (!productConfig.enabledVisibilities.includes(v.visibility)) {
       ctx.addIssue({ code: "custom", path: ["visibility"], message: "Ce mode d'accès n'est pas disponible." });

@@ -59,7 +59,10 @@ export function LoginForm({ next }: { next?: string | null }) {
         <input id="email" type="email" autoComplete="email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} required />
       </div>
       <div>
-        <label htmlFor="password" className="field-label">Mot de passe</label>
+        <div className="flex items-baseline justify-between gap-2">
+          <label htmlFor="password" className="field-label">Mot de passe</label>
+          <Link href="/mot-de-passe-oublie" className="text-sm font-medium text-muted underline-offset-2 hover:text-ink hover:underline">Mot de passe oublié ?</Link>
+        </div>
         <input id="password" type="password" autoComplete="current-password" className="input" value={password} onChange={(e) => setPassword(e.target.value)} required />
       </div>
       {error && <p role="alert" className="field-error">{error}</p>}

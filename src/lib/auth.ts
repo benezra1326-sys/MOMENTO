@@ -7,15 +7,17 @@ import { AppError } from "./errors";
 export const SESSION_COOKIE = "momento_session";
 const SESSION_DAYS = 30;
 
-export type Viewer = Pick<User, "id" | "role" | "status" | "name" | "username" | "photoUrl" | "isDemo" | "city">;
+export type Viewer = Pick<User, "id" | "role" | "status" | "name" | "username" | "photoUrl" | "isDemo" | "city" | "emailVerifiedAt">;
 
 const viewerSelect = {
-  id: true, role: true, status: true, name: true, username: true, photoUrl: true, isDemo: true, city: true,
+  id: true, role: true, status: true, name: true, username: true, photoUrl: true, isDemo: true, city: true, emailVerifiedAt: true,
 } as const;
 
-function hashToken(token: string) {
+export function hashSecret(token: string) {
   return createHash("sha256").update(token).digest("hex");
 }
+
+const hashToken = hashSecret;
 
 export async function createSession(userId: string) {
   const token = randomBytes(32).toString("base64url");
@@ -66,4 +68,27 @@ export function requireActive(viewer: Viewer | null): Viewer {
   if (viewer.status === "SUSPENDED") throw new AppError("ACCOUNT_SUSPENDED", "Ton compte est suspendu.");
   if (viewer.status !== "ACTIVE") throw new AppError("FORBIDDEN", "Compte indisponible.");
   return viewer;
+}
+
+/**
+ * Vérification d'adresse exigée pour créer, rejoindre ou inviter. Activée explicitement par
+ * REQUIRE_EMAIL_VERIFICATION=true, une fois l'envoi d'e-mails configuré vers tous les destinataires
+ * (domaine vérifié chez le fournisseur) : sinon des personnes resteraient bloquées sans lien.
+ */
+export function emailVerificationRequired(): boolean {
+  return process.env.REQUIRE_EMAIL_VERIFICATION === "true";
+}
+
+/** Comme requireActive, plus l'adresse e-mail confirmée quand la vérification est exigée. */
+export function requireVerified(viewer: Viewer | null): Viewer {
+  const v = requireActive(viewer);
+  if (!v.isDemo && !v.emailVerifiedAt && emailVerificationRequired()) {
+    throw new AppError("EMAIL_NOT_VERIFIED", "Confirme ton adresse e-mail pour continuer : le lien est dans ta boîte de réception.");
+  }
+  return v;
+}
+
+/** Ferme toutes les sessions d'un compte (après un changement de mot de passe). */
+export async function destroyAllSessions(userId: string) {
+  await prisma.session.deleteMany({ where: { userId } });
 }
