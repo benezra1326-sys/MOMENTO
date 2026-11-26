@@ -1,36 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Momento
 
-## Getting Started
+Le réseau social des Moments réels : on découvre un Moment, on demande à le rejoindre (ou on est invité), l'hôte accepte, et on se retrouve en vrai.
 
-First, run the development server:
+Stack : Next.js 15 (App Router) · React 19 · TypeScript · Tailwind v4 · Prisma 6 · PostgreSQL · zod · vitest.
+
+## Démarrer en local
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env          # puis remplis DATABASE_URL
+npm run db:deploy             # applique les migrations
+npm run db:seed               # 17 profils et 27 Moments fictifs (marqués "démo")
+npm run dev                   # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Comptes démo : bouton « Essayer avec un compte démo » sur la page de connexion, ou mot de passe `momento-demo`. Le compte `moderation` est administrateur (page `/admin`).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Vérifications : `npm run lint`, `npm run typecheck`, `npm test` (base `momento_test` dédiée, jamais la base principale), `npm run build`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Variables d'environnement
 
-## Learn More
+Toutes sont décrites dans [`.env.example`](.env.example). Les essentielles :
 
-To learn more about Next.js, take a look at the following resources:
+| Variable | Rôle |
+| --- | --- |
+| `DATABASE_URL` | PostgreSQL. Sur Supabase : chaîne pooler (port 6543), `?pgbouncer=true&sslmode=require`. |
+| `DEMO_MODE` | Active la connexion démo en un clic et le bandeau démo. |
+| `ALLOW_DEMO_IN_PRODUCTION` | Obligatoire pour garder le mode démo en production. Sinon il est coupé. |
+| `APP_URL` | URL publique, utilisée pour le retour Google. |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Active « Continuer avec Google ». Voir [docs/GOOGLE_SIGN_IN.md](docs/GOOGLE_SIGN_IN.md). |
+| `PILOT_CITY`, `DEFAULT_TIMEZONE` | Ville pilote et fuseau par défaut. |
+| `FEATURE_*` | Fonctions en attente de décision (disponibilités, posts, messagerie, QR). |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Mode démo et pannes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Le mode démo est explicite (`DEMO_MODE`) et coupé en production sauf `ALLOW_DEMO_IN_PRODUCTION=true`.
+- Si la base est injoignable **et** que le mode démo est actif, le feed et les fiches s'affichent en lecture seule depuis des données démo, avec un bandeau visible. Sans mode démo, une panne de base produit une vraie erreur : rien n'est masqué.
+- `/api/health` dit si la base répond.
 
-## Deploy on Vercel
+## Ce qui est en place
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Feed** : cartes image, vidéo (lecture seulement à l'écran, muette, respecte « réduire les animations » et l'économie de données) et texte ; filtres date, ville, catégorie ; pagination par curseur ; états vides et erreurs.
+- **Moments** : création, brouillon, publication, modification, annulation avec motif. Quatre visibilités : public (rejoindre direct), sur demande, sur invitation, privé (lien).
+- **Participation** : demande avec message, invitation par pseudo, acceptation ou refus, retrait. La capacité est vérifiée dans une transaction avec verrou de ligne : deux acceptations simultanées ne peuvent pas dépasser la jauge (testé).
+- **Adresse protégée** : visible seulement par l'hôte et les participants confirmés si l'hôte le choisit.
+- **Profils**, réglages, suppression de compte (anonymisation), **invitations**, **notifications**.
+- **Sécurité** : blocage, signalement, modération admin avec journal d'audit, limites de fréquence, CSRF même-origine, sessions hachées en base, mots de passe scrypt, médias ré-encodés en WebP (EXIF supprimés).
+- **Connexion Google** (OAuth avec PKCE) : prête, s'active dès que les identifiants sont posés.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Limites connues
+
+- Upload de médias : stockage local en dev uniquement. En production, il faut brancher un stockage (Supabase Storage ou Vercel Blob) avant d'ouvrir l'upload.
+- Pas d'e-mails (vérification d'adresse, mot de passe oublié) ni de notifications push.
+- Pas de messagerie, de carte ni de géolocalisation : en attente de décision produit.
+
+## Structure
+
+```
+prisma/            schéma, migrations, seed démo
+src/app/           pages et routes API (fines)
+src/server/        logique métier : moments, participations, sécurité, comptes, Google
+src/lib/           auth, erreurs, validation, temps/fuseaux, client API
+src/components/    interface
+src/config/        réglages produit et drapeaux
+tests/             tests d'intégration sur vraie base
+scripts/           diagnostic base, génération des visuels démo
+```
+
+## Décisions encore ouvertes (derrière config ou drapeaux)
+
+- Ville pilote (Marbella par défaut, `PILOT_CITY`).
+- Disponibilités « je suis libre ce soir », posts, messagerie, QR d'arrivée (`FEATURE_*`).
+- Stockage des médias en production.
+- Âge minimum et vérification d'identité.
+
+## Marketing (pour plus tard)
+
+La priorité est l'application. Pistes de vidéos à reprendre au moment du lancement :
+
+- **A. « Le soir où »** : un plan-séquence d'une soirée née d'un Moment, de la carte dans le feed jusqu'aux rires autour de la table.
+- **B. « Avant / après »** : le même dimanche, seul sur le canapé puis au padel avec trois inconnus devenus potes.
+- **C. « L'hôte »** : quelqu'un crée un Moment en 30 secondes, reçoit des demandes, choisit, et accueille.
+- **D. « Une ville, 24 h de Moments »** : montage rapide de Moments réels d'une même journée dans la ville pilote.
+
+Les visuels démo de l'app sont des illustrations générées, pas des personnes réelles.
