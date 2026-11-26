@@ -1,0 +1,74 @@
+import Link from "next/link";
+import { Bell, Shield } from "lucide-react";
+import type { Viewer } from "@/lib/auth";
+import { isDemoMode } from "@/lib/env";
+import { Avatar } from "./Avatar";
+import { Logo } from "./Logo";
+import { BottomNav, SideNav } from "./Nav";
+
+export function AppShell({ viewer, unread, children }: { viewer: Viewer | null; unread: number; children: React.ReactNode }) {
+  const demo = isDemoMode();
+  return (
+    <div className="min-h-dvh lg:flex">
+      <a href="#contenu" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-white">
+        Aller au contenu
+      </a>
+
+      {/* Barre latérale (ordinateur) */}
+      <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-line bg-paper/70 px-5 py-6 backdrop-blur lg:flex">
+        <Link href="/" className="mb-8 px-2"><Logo /></Link>
+        <SideNav signedIn={!!viewer} unread={unread} />
+        <div className="mt-auto space-y-3">
+          {viewer?.role === "ADMIN" && (
+            <Link href="/admin" className="flex items-center gap-2 rounded-2xl px-3 py-2 text-sm font-medium text-muted hover:bg-sand">
+              <Shield size={16} /> Modération
+            </Link>
+          )}
+          {viewer ? (
+            <Link href="/moi" className="flex items-center gap-3 rounded-2xl p-2 hover:bg-sand">
+              <Avatar person={viewer} size="md" />
+              <span className="min-w-0">
+                <span className="block truncate text-sm font-semibold">{viewer.name}</span>
+                <span className="block truncate text-xs text-muted">@{viewer.username}</span>
+              </span>
+            </Link>
+          ) : (
+            <div className="space-y-2">
+              <Link href="/connexion" className="btn-primary w-full">Se connecter</Link>
+              <Link href="/inscription" className="btn-secondary w-full">Créer un compte</Link>
+            </div>
+          )}
+        </div>
+      </aside>
+
+      <div className="min-w-0 flex-1">
+        {/* En-tête (mobile et tablette) */}
+        <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-line/70 bg-cream/85 px-4 backdrop-blur-md lg:hidden">
+          <Link href="/" aria-label="Momento, accueil"><Logo /></Link>
+          <div className="flex items-center gap-1">
+            {viewer ? (
+              <Link href="/notifications" className="relative inline-flex h-11 w-11 items-center justify-center rounded-full hover:bg-sand" aria-label={unread ? `Notifications, ${unread} non lues` : "Notifications"}>
+                <Bell size={21} />
+                {unread > 0 && <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-rose ring-2 ring-cream" />}
+              </Link>
+            ) : (
+              <Link href="/connexion" className="btn-primary !min-h-9 !px-4 text-sm">Se connecter</Link>
+            )}
+          </div>
+        </header>
+
+        {demo && (
+          <div className="border-b border-warn/15 bg-warn-soft px-4 py-2 text-center text-[13px] text-warn">
+            Version de démonstration : les profils et Moments marqués « Démo » sont fictifs.
+          </div>
+        )}
+
+        <main id="contenu" className="mx-auto w-full max-w-6xl px-4 pb-28 pt-5 sm:px-6 lg:px-10 lg:pb-16 lg:pt-8">
+          {children}
+        </main>
+      </div>
+
+      <BottomNav signedIn={!!viewer} unread={unread} />
+    </div>
+  );
+}

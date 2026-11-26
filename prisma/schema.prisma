@@ -78,6 +78,8 @@ model User {
   id           String        @id @default(cuid())
   email        String        @unique
   passwordHash String?
+  /// Identifiant Google (claim « sub ») si le compte utilise la connexion Google.
+  googleId     String?       @unique
   name         String
   username     String        @unique
   bio          String        @default("")
