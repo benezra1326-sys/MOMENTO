@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { startTransition, useState } from "react";
 import { Ban, Loader2, Pencil, Send, UserPlus } from "lucide-react";
 import type { MemberRow, MomentDetailDTO } from "@/server/types";
 import { api } from "@/lib/client";
@@ -24,14 +24,17 @@ export function HostPanel({ moment }: { moment: MomentDetailDTO }) {
   const [notice, setNotice] = useState<string | null>(null);
   const [showCancel, setShowCancel] = useState(false);
   const [reason, setReason] = useState("");
-  const members = moment.members ?? [];
+  const [overrides, setOverrides] = useState<Record<string, MemberRow["status"]>>({});
+  const members = (moment.members ?? []).map((m) => (overrides[m.id] ? { ...m, status: overrides[m.id] } : m));
+  const acceptedNow = members.filter((m) => m.status === "ACCEPTED").length;
+  const spotsLeft = Math.max(0, moment.capacity - acceptedNow);
   const requests = members.filter((m) => m.kind === "REQUEST" && m.status === "PENDING");
   const confirmed = members.filter((m) => m.status === "ACCEPTED");
   const invited = members.filter((m) => m.kind === "INVITE" && m.status === "PENDING");
   const others = members.filter((m) => m.status === "DECLINED" || m.status === "CANCELLED");
   const open = moment.phase === "upcoming" || moment.phase === "ongoing";
 
-  async function run(key: string, url: string, body: unknown = {}, okMsg?: string) {
+  async function run(key: string, url: string, body: unknown = {}, okMsg?: string, apply?: () => void) {
     setBusy(key);
     setError(null);
     setNotice(null);
@@ -42,7 +45,8 @@ export function HostPanel({ moment }: { moment: MomentDetailDTO }) {
       return false;
     }
     if (okMsg) setNotice(okMsg);
-    router.refresh();
+    apply?.();
+    startTransition(() => router.refresh());
     return true;
   }
 
@@ -110,10 +114,10 @@ export function HostPanel({ moment }: { moment: MomentDetailDTO }) {
               row(
                 m,
                 <div className="flex shrink-0 gap-1.5">
-                  <button type="button" className="btn-secondary !min-h-9 !px-3 text-sm" disabled={!!busy} onClick={() => run(`d-${m.id}`, `/api/requests/${m.id}/decline`)} aria-label={`Refuser la demande de ${m.user.name}`}>
+                  <button type="button" className="btn-secondary !min-h-9 !px-3 text-sm" disabled={!!busy} onClick={() => run(`d-${m.id}`, `/api/requests/${m.id}/decline`, {}, undefined, () => setOverrides((o) => ({ ...o, [m.id]: "DECLINED" })))} aria-label={`Refuser la demande de ${m.user.name}`}>
                     {busy === `d-${m.id}` ? <Loader2 size={14} className="animate-spin" /> : "Refuser"}
                   </button>
-                  <button type="button" className="btn-primary !min-h-9 !px-3 text-sm" disabled={!!busy || moment.spotsLeft === 0} onClick={() => run(`a-${m.id}`, `/api/requests/${m.id}/accept`)} aria-label={`Accepter la demande de ${m.user.name}`}>
+                  <button type="button" className="btn-primary !min-h-9 !px-3 text-sm" disabled={!!busy || spotsLeft === 0} onClick={() => run(`a-${m.id}`, `/api/requests/${m.id}/accept`, {}, undefined, () => setOverrides((o) => ({ ...o, [m.id]: "ACCEPTED" })))} aria-label={`Accepter la demande de ${m.user.name}`}>
                     {busy === `a-${m.id}` ? <Loader2 size={14} className="animate-spin" /> : "Accepter"}
                   </button>
                 </div>,
@@ -121,7 +125,7 @@ export function HostPanel({ moment }: { moment: MomentDetailDTO }) {
             )}
           </ul>
         )}
-        {requests.length > 0 && moment.spotsLeft === 0 && <p className="mt-2 text-sm text-warn">Le Moment est complet : augmente la capacité pour accepter d&apos;autres personnes.</p>}
+        {requests.length > 0 && spotsLeft === 0 && <p className="mt-2 text-sm text-warn">Le Moment est complet : augmente la capacité pour accepter d&apos;autres personnes.</p>}
       </section>
 
       {open && (
@@ -155,7 +159,7 @@ export function HostPanel({ moment }: { moment: MomentDetailDTO }) {
             {invited.map((m) =>
               row(
                 m,
-                <button type="button" className="btn-ghost !min-h-9 !px-3 text-sm text-muted" disabled={!!busy} onClick={() => run(`w-${m.id}`, `/api/requests/${m.id}/cancel`)}>
+                <button type="button" className="btn-ghost !min-h-9 !px-3 text-sm text-muted" disabled={!!busy} onClick={() => run(`w-${m.id}`, `/api/requests/${m.id}/cancel`, {}, undefined, () => setOverrides((o) => ({ ...o, [m.id]: "CANCELLED" })))}>
                   Retirer
                 </button>,
               ),

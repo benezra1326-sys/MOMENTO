@@ -44,7 +44,7 @@ export function FeedList({ initial, query, autoplay, signedIn }: { initial: Feed
 
   return (
     <>
-      <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+      <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
         {items.map((m, i) => (
           <li key={m.id}>
             <MomentCard moment={m} autoplay={autoplay} priority={i < 2} />

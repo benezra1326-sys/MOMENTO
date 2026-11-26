@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { startTransition, useState } from "react";
 import { Loader2 } from "lucide-react";
 import type { MomentCardDTO, PersonSummary } from "@/server/types";
 import { api } from "@/lib/client";
@@ -45,8 +45,17 @@ const statusPill: Record<Row["status"], { text: string; cls: string }> = {
   CANCELLED: { text: "Retiré", cls: "bg-sand text-muted" },
 };
 
-export function InvitationsView({ data, initialTab }: { data: InvitationsData; initialTab?: string }) {
+export function InvitationsView({ data: raw, initialTab }: { data: InvitationsData; initialTab?: string }) {
   const router = useRouter();
+  const [overrides, setOverrides] = useState<Record<string, Row["status"]>>({});
+  const fix = (rows: Row[]) => rows.map((r) => (overrides[r.id] ? { ...r, status: overrides[r.id] } : r));
+  const data: InvitationsData = {
+    invitationsReceived: fix(raw.invitationsReceived),
+    requestsSent: fix(raw.requestsSent),
+    requestsToReview: fix(raw.requestsToReview).filter((r) => r.status === "PENDING"),
+    hostActivity: fix(raw.hostActivity),
+    upcoming: fix(raw.upcoming).filter((r) => r.status === "ACCEPTED"),
+  };
   const counts: Record<Tab, number> = {
     agenda: data.upcoming.length,
     recues: data.invitationsReceived.filter((r) => r.status === "PENDING").length,
@@ -64,7 +73,8 @@ export function InvitationsView({ data, initialTab }: { data: InvitationsData; i
     const res = await api(`/api/requests/${id}/${action}`, { body: {} });
     setBusy(null);
     if (!res.ok) return setError(res.error.message);
-    router.refresh();
+    setOverrides((o) => ({ ...o, [id]: action === "accept" ? "ACCEPTED" : action === "decline" ? "DECLINED" : "CANCELLED" }));
+    startTransition(() => router.refresh());
   }
 
   const btn = (id: string, action: "accept" | "decline" | "cancel", label: string, cls: string, disabled = false) => (

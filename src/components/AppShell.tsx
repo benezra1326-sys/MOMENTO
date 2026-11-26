@@ -16,7 +16,7 @@ export function AppShell({ viewer, unread, children }: { viewer: Viewer | null; 
 
       {/* Barre latérale (ordinateur) */}
       <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-line bg-paper/70 px-5 py-6 backdrop-blur lg:flex">
-        <Link href="/" className="mb-8 px-2"><Logo /></Link>
+        <Link href="/" className="mb-8 px-2"><Logo id="mlogo-side" /></Link>
         <SideNav signedIn={!!viewer} unread={unread} />
         <div className="mt-auto space-y-3">
           {viewer?.role === "ADMIN" && (
@@ -44,7 +44,7 @@ export function AppShell({ viewer, unread, children }: { viewer: Viewer | null; 
       <div className="min-w-0 flex-1">
         {/* En-tête (mobile et tablette) */}
         <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-line/70 bg-cream/85 px-4 backdrop-blur-md lg:hidden">
-          <Link href="/" aria-label="Momento, accueil"><Logo /></Link>
+          <Link href="/" aria-label="Momento, accueil"><Logo id="mlogo-top" /></Link>
           <div className="flex items-center gap-1">
             {viewer ? (
               <Link href="/notifications" className="relative inline-flex h-11 w-11 items-center justify-center rounded-full hover:bg-sand" aria-label={unread ? `Notifications, ${unread} non lues` : "Notifications"}>

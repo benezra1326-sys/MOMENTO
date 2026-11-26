@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { startTransition, useState } from "react";
 import { CheckCircle2, Clock, Loader2, Lock, XCircle } from "lucide-react";
-import type { MomentDetailDTO } from "@/server/types";
+import type { MomentDetailDTO, ViewerMembership } from "@/server/types";
 import { api } from "@/lib/client";
 
 export function JoinPanel({ moment, signedIn, readOnly = false }: { moment: MomentDetailDTO; signedIn: boolean; readOnly?: boolean }) {
@@ -13,15 +13,21 @@ export function JoinPanel({ moment, signedIn, readOnly = false }: { moment: Mome
   const [showOnMoment, setShowOnMoment] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const ms = moment.viewerMembership;
+  // État local mis à jour dès la réponse du serveur (le rafraîchissement suit en arrière-plan).
+  const [local, setLocal] = useState<{ ms: ViewerMembership; spotsDelta: number } | null>(null);
+  const ms = local ? local.ms : moment.viewerMembership;
 
   async function run(key: string, url: string, body: unknown = {}) {
     setBusy(key);
     setError(null);
-    const res = await api(url, { body });
+    const res = await api<{ id: string; status: "PENDING" | "ACCEPTED" | "DECLINED" | "CANCELLED" }>(url, { body });
     setBusy(null);
     if (!res.ok) return setError(res.error.message);
-    router.refresh();
+    const prev = ms;
+    const kind = key === "join" ? "REQUEST" : prev?.kind ?? "REQUEST";
+    const next: ViewerMembership = res.data.status === "CANCELLED" ? null : { id: res.data.id, kind, status: res.data.status, initiatedByViewer: kind === "REQUEST" };
+    setLocal({ ms: next, spotsDelta: 0 });
+    startTransition(() => router.refresh());
   }
 
   const box = (tone: "ok" | "wait" | "off" | "lock", title: string, text?: string, actions?: React.ReactNode) => {

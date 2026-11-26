@@ -31,17 +31,17 @@ export default async function FeedPage({ searchParams }: { searchParams: SP }) {
   return (
     <div className="space-y-6">
       {!viewer ? (
-        <section className="relative overflow-hidden rounded-[2rem] bg-ink px-6 py-9 text-white sm:px-10 sm:py-12">
+        <section className="relative overflow-hidden rounded-[2rem] bg-ink px-6 py-7 text-white sm:px-10 sm:py-12">
           <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-rose/40 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-28 left-10 h-72 w-72 rounded-full bg-violet/40 blur-3xl" />
           <p className="eyebrow relative !text-white/60">{productConfig.mantra}</p>
           <h1 className="font-display relative mt-3 max-w-2xl text-[clamp(2.1rem,6vw,3.6rem)] leading-[1.02]">
             Moins de scroll.<br />Plus de moments vécus.
           </h1>
-          <p className="relative mt-4 max-w-xl text-white/75">
+          <p className="relative mt-3 max-w-xl text-[15px] text-white/75 sm:mt-4 sm:text-base">
             Découvre un Moment près de toi, demande à le rejoindre ou crée le tien. L&apos;hôte accepte, et vous vous retrouvez pour de vrai.
           </p>
-          <div className="relative mt-7 flex flex-wrap gap-3">
+          <div className="relative mt-5 flex flex-wrap gap-2.5 sm:mt-7 sm:gap-3">
             <Link href="/inscription" className="bg-white text-ink hover:bg-cream inline-flex min-h-11 items-center gap-2 rounded-full px-5 font-semibold">
               Créer mon compte <ArrowRight size={18} />
             </Link>

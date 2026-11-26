@@ -332,7 +332,7 @@ export function MomentForm({
       <aside className="hidden lg:block">
         <div className="sticky top-8 space-y-3">
           <p className="eyebrow">Aperçu dans le feed</p>
-          <div className="pointer-events-none max-w-sm">
+          <div className="pointer-events-none max-w-sm" aria-hidden inert>
             <MomentCard moment={preview} autoplay={false} />
           </div>
         </div>

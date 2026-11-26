@@ -55,7 +55,7 @@ export function ProfileHeader({ p, children }: { p: Profile; children?: React.Re
 }
 
 export function ProfileMoments({ p, narrow = false }: { p: Profile; narrow?: boolean }) {
-  const grid = narrow ? "grid gap-5 sm:grid-cols-2" : "grid gap-5 sm:grid-cols-2 xl:grid-cols-3";
+  const grid = narrow ? "grid grid-cols-1 gap-5 sm:grid-cols-2" : "grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3";
   const upcomingHosted = p.hosted.filter((m) => m.phase === "upcoming" || m.phase === "ongoing" || (p.isSelf && m.phase === "draft"));
   const past = [...p.hosted.filter((m) => m.phase === "ended"), ...p.attended.filter((m) => m.phase === "ended")];
   return (
