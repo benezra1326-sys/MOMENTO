@@ -65,14 +65,16 @@ export async function demoLogin(username: string) {
 
 export async function listDemoAccounts() {
   if (!isDemoMode()) return [];
-  const select = { username: true, name: true, photoUrl: true, city: true, role: true, _count: { select: { hostedMoments: true } } } as const;
-  const where = { isDemo: true, status: "ACTIVE" } as const;
-  const [hosts, guests, admins] = await Promise.all([
-    prisma.user.findMany({ where: { ...where, role: "USER", hostedMoments: { some: {} } }, select, orderBy: { hostedMoments: { _count: "desc" } }, take: 6 }),
-    prisma.user.findMany({ where: { ...where, role: "USER", hostedMoments: { none: {} } }, select, orderBy: { createdAt: "asc" }, take: 4 }),
-    prisma.user.findMany({ where: { ...where, role: "ADMIN" }, select, take: 1 }),
-  ]);
-  return [...hosts, ...guests, ...admins];
+  // Une seule requête : la base de production n'accepte qu'une connexion par fonction.
+  const all = await prisma.user.findMany({
+    where: { isDemo: true, status: "ACTIVE" },
+    select: { username: true, name: true, photoUrl: true, city: true, role: true, _count: { select: { hostedMoments: true } } },
+    orderBy: [{ hostedMoments: { _count: "desc" } }, { createdAt: "asc" }],
+  });
+  const users = all.filter((u) => u.role !== "ADMIN");
+  const hosts = users.filter((u) => u._count.hostedMoments > 0).slice(0, 6);
+  const guests = users.filter((u) => u._count.hostedMoments === 0).slice(0, 4);
+  return [...hosts, ...guests, ...all.filter((u) => u.role === "ADMIN").slice(0, 1)];
 }
 
 export async function logout() {
