@@ -9,3 +9,9 @@ export function isDemoMode(): boolean {
   }
   return process.env.DEMO_MODE === "true";
 }
+
+/**
+ * NEXT_PUBLIC_DEMO_LABELS=false : version de test « en conditions réelles », sans badge « Démo »
+ * ni bandeau dans l'app. Les comptes fictifs restent marqués isDemo en base (supprimables avant le lancement).
+ */
+export const demoLabelsVisible = process.env.NEXT_PUBLIC_DEMO_LABELS !== "false";

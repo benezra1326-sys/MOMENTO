@@ -371,6 +371,7 @@ export const en: Record<string, string> = {
   lent: "slow",
   spontané: "spontaneous",
   "Sur demande": "On request",
+  "Accès direct": "Instant join",
   "Visible dans le feed. Chaque personne demande à rejoindre, tu acceptes ou refuses.": "Visible in the feed. Each person asks to join; you accept or decline.",
   Ouvert: "Open",
   "Visible dans le feed. La place est confirmée tout de suite, tant qu'il en reste.": "Visible in the feed. Spots are confirmed right away while they last.",

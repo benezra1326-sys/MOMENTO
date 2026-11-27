@@ -64,18 +64,19 @@ const bios: [string, string[]][] = [
   ["Créatrice de bijoux, je cherche des ateliers et des gens créatifs.", ["artisanat", "expos", "céramique"]],
 ];
 
-const peopleCount = 84;
+
 const used = new Set(["lea", "karim", "sofia", "noah", "ines", "marco", "yael", "lucas", "amira", "hugo", "elena", "tom", "nadia", "jules", "maya", "david", "clara", "sam", "rafael", "moderation"]);
 const slugify = (x: string) => x.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z]/g, "");
 
-const faceIds = Object.keys(faces).filter((k) => faces[k].g === "man" || faces[k].g === "woman");
+const faceIds = shuffle(Object.keys(faces).filter((k) => faces[k].g === "man" || faces[k].g === "woman"));
+const peopleCount = faceIds.length || 84;
 const people: { slug: string; name: string; city: string; bio: string; interests: string[]; face?: string; joinedDaysAgo: number }[] = [];
 const wPool = shuffle([...women]); const mPool = shuffle([...men]);
 const owPool = shuffle([...olderW]); const omPool = shuffle([...olderM]);
 for (let i = 0; i < peopleCount; i++) {
   const face = faceIds[i];
   const f = face ? faces[face] : { g: r() < 0.5 ? "woman" : "man", age: "" };
-  const older = /older/.test(f.age);
+  const older = /older|elderly/.test(f.age);
   const first = f.g === "woman" ? (older ? owPool.pop() : undefined) ?? wPool.pop() ?? pick(women) : (older ? omPool.pop() : undefined) ?? mPool.pop() ?? pick(men);
   let slug = slugify(first);
   let ini = pick([...initials]);

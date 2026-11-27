@@ -23,3 +23,10 @@ export function membershipLabel(ms: MomentCardDTO["viewerMembership"], t: T): st
   if (ms.status === "DECLINED") return ms.kind === "INVITE" ? t("Invitation déclinée") : t("Demande non retenue");
   return null;
 }
+
+/** Ce que la personne peut faire, en deux mots (affiché sur la carte). */
+export function accessLabel(visibility: MomentCardDTO["visibility"], t: T): string {
+  if (visibility === "PUBLIC") return t("Accès direct");
+  if (visibility === "INVITE_ONLY") return t("Sur invitation");
+  return t("Sur demande");
+}

@@ -10,7 +10,7 @@ import { Avatar, AvatarStack } from "./Avatar";
 import { DemoBadge } from "./DemoBadge";
 import { MomentMedia } from "./MomentMedia";
 import { ShareButton } from "./ShareButton";
-import { membershipLabel, spotsLabel, statusTone } from "./moment-labels";
+import { accessLabel, membershipLabel, spotsLabel, statusTone } from "./moment-labels";
 
 const toneClass = {
   neutral: "bg-white/90 text-ink",
@@ -58,7 +58,7 @@ export function MomentCard({ moment, autoplay = true, priority = false }: { mome
           <span className="min-w-0">
             <span className="block truncate text-sm font-semibold">{moment.host.name}</span>
             <span className="block truncate text-xs text-muted">
-              {mine ?? (moment.vibeTags.length ? moment.vibeTags.slice(0, 3).map((tag) => `#${t(tag)}`).join(" ") : t("Hôte"))}
+              {mine ?? [accessLabel(moment.visibility, t), ...moment.vibeTags.slice(0, 2).map((tag) => `#${t(tag)}`)].join(" · ")}
             </span>
           </span>
         </Link>
