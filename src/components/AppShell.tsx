@@ -15,8 +15,8 @@ export async function AppShell({ viewer, unread, children }: { viewer: Viewer | 
     // Non connecté : seulement les pages de connexion et d'inscription, sans navigation dans l'app.
     return (
       <div className="min-h-dvh">
-        <header className="flex h-16 items-center justify-center border-b border-line/70 bg-cream/85 px-4">
-          <Link href="/connexion" aria-label={t("Momento, accueil")}><Logo id="mlogo-top" /></Link>
+        <header className="flex h-16 items-center justify-center border-b border-border/70 bg-bg/85 px-4">
+          <Link href="/connexion" aria-label={t("Upclose, accueil")}><Logo /></Link>
         </header>
         {demo && (
           <div className="border-b border-warn/15 bg-warn-soft px-4 py-2 text-center text-[13px] text-warn">
@@ -36,17 +36,17 @@ export async function AppShell({ viewer, unread, children }: { viewer: Viewer | 
       </a>
 
       {/* Barre latérale (ordinateur) */}
-      <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-line bg-paper/70 px-5 py-6 backdrop-blur lg:flex">
-        <Link href="/" className="mb-8 px-2"><Logo id="mlogo-side" /></Link>
+      <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-border bg-surface/70 px-5 py-6 backdrop-blur lg:flex">
+        <Link href="/" className="mb-8 px-2"><Logo height={34} /></Link>
         <SideNav signedIn={!!viewer} unread={unread} />
         <div className="mt-auto space-y-3">
           {viewer?.role === "ADMIN" && (
-            <Link href="/admin" className="flex items-center gap-2 rounded-2xl px-3 py-2 text-sm font-medium text-muted hover:bg-sand">
+            <Link href="/admin" className="flex items-center gap-2 rounded-2xl px-3 py-2 text-sm font-medium text-muted hover:bg-surface-2">
               <Shield size={16} /> {t("Modération")}
             </Link>
           )}
           {viewer ? (
-            <Link href="/moi" className="flex items-center gap-3 rounded-2xl p-2 hover:bg-sand">
+            <Link href="/moi" className="flex items-center gap-3 rounded-2xl p-2 hover:bg-surface-2">
               <Avatar person={viewer} size="md" />
               <span className="min-w-0">
                 <span className="block truncate text-sm font-semibold">{viewer.name}</span>
@@ -55,7 +55,7 @@ export async function AppShell({ viewer, unread, children }: { viewer: Viewer | 
             </Link>
           ) : (
             <div className="space-y-2">
-              <Link href="/connexion" className="btn-primary w-full">{t("Se connecter")}</Link>
+              <Link href="/connexion" className="btn-ink w-full">{t("Se connecter")}</Link>
               <Link href="/inscription" className="btn-secondary w-full">{t("Créer un compte")}</Link>
             </div>
           )}
@@ -64,16 +64,16 @@ export async function AppShell({ viewer, unread, children }: { viewer: Viewer | 
 
       <div className="min-w-0 flex-1">
         {/* En-tête (mobile et tablette) */}
-        <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-line/70 bg-cream/85 px-4 backdrop-blur-md lg:hidden">
-          <Link href="/" aria-label={t("Momento, accueil")}><Logo id="mlogo-top" /></Link>
+        <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border/70 bg-bg/85 px-4 backdrop-blur-md lg:hidden">
+          <Link href="/" aria-label={t("Upclose, accueil")}><Logo /></Link>
           <div className="flex items-center gap-1">
             {viewer ? (
-              <Link href="/notifications" className="relative inline-flex h-11 w-11 items-center justify-center rounded-full hover:bg-sand" aria-label={unread ? t("Notifications, {n} non lues", { n: unread }) : t("Notifications")}>
+              <Link href="/notifications" className="relative inline-flex h-11 w-11 items-center justify-center rounded-full hover:bg-surface-2" aria-label={unread ? t("Notifications, {n} non lues", { n: unread }) : t("Notifications")}>
                 <Bell size={21} />
-                {unread > 0 && <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-rose ring-2 ring-cream" />}
+                {unread > 0 && <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-coral ring-2 ring-bg" />}
               </Link>
             ) : (
-              <Link href="/connexion" className="btn-primary !min-h-9 !px-4 text-sm">{t("Se connecter")}</Link>
+              <Link href="/connexion" className="btn-ink !min-h-9 !px-4 text-sm">{t("Se connecter")}</Link>
             )}
           </div>
         </header>

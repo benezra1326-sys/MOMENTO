@@ -15,9 +15,9 @@ export function emailProvider(): "resend" | "brevo" | "console" | "none" {
 }
 
 function sender() {
-  const from = process.env.EMAIL_FROM ?? "Momento <onboarding@resend.dev>";
+  const from = process.env.EMAIL_FROM ?? "Upclose <onboarding@resend.dev>";
   const m = from.match(/^(.*)<(.+)>$/);
-  return m ? { name: m[1].trim() || "Momento", email: m[2].trim() } : { name: "Momento", email: from.trim() };
+  return m ? { name: m[1].trim() || "Upclose", email: m[2].trim() } : { name: "Upclose", email: from.trim() };
 }
 
 /** Pour les tests : derniers messages « envoyés » quand le fournisseur est la console. */
@@ -66,7 +66,7 @@ export async function sendEmail(msg: EmailMessage): Promise<boolean> {
 /** URL publique de l'app, pour les liens envoyés par e-mail. */
 /**
  * Adresse utilisée dans les liens : celle de la requête si elle fait partie des adresses connues
- * (APP_URL, momento-en.vercel.app, ou la liste PUBLIC_HOSTS), sinon APP_URL.
+ * (APP_URL, upclose-en.vercel.app, ou la liste PUBLIC_HOSTS), sinon APP_URL.
  * Jamais un hôte arbitraire : un lien de réinitialisation ne doit pas pointer vers un autre site.
  */
 export async function publicBaseUrl(): Promise<string> {
@@ -75,7 +75,7 @@ export async function publicBaseUrl(): Promise<string> {
     const h = await headers();
     const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
     const proto = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
-    const allowed = new Set(["momento-en.vercel.app", ...(process.env.PUBLIC_HOSTS ?? "").split(",").map((x) => x.trim()).filter(Boolean)]);
+    const allowed = new Set(["upclose.world", "upclose-en.vercel.app", "en.upclose.world", ...(process.env.PUBLIC_HOSTS ?? "").split(",").map((x) => x.trim()).filter(Boolean)]);
     if (appUrl) allowed.add(new URL(appUrl).host);
     if (!appUrl || allowed.has(host)) return `${proto}://${host}`;
     return appUrl;
@@ -87,6 +87,10 @@ export async function publicBaseUrl(): Promise<string> {
 function escapeHtml(s: string) {
   return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 }
+
+/** Logo des e-mails : PNG (beaucoup de messageries n'affichent pas le SVG), toujours sur l'adresse principale. */
+const EMAIL_LOGO_URL = "https://upclose.world/brand/upclose-logo-email.png";
+const EMAIL_LOGO_W = 128;
 
 /** Gabarit simple et lisible partout (clients mail sans CSS compris). */
 export function actionEmail(opts: {
@@ -101,15 +105,15 @@ export function actionEmail(opts: {
   lang?: string;
 }): EmailMessage {
   const fallback = opts.fallback ?? "Si le bouton ne marche pas, copie ce lien :";
-  const text = `${opts.greeting}\n\n${opts.intro}\n\n${opts.cta} : ${opts.url}\n\n${opts.outro}\n\n— Momento`;
-  const html = `<!doctype html><html lang="${opts.lang ?? "fr"}"><body style="margin:0;background:#f7f3ec;font-family:Helvetica,Arial,sans-serif;color:#1d1726">
+  const text = `${opts.greeting}\n\n${opts.intro}\n\n${opts.cta} : ${opts.url}\n\n${opts.outro}\n\n— Upclose`;
+  const html = `<!doctype html><html lang="${opts.lang ?? "fr"}"><body style="margin:0;background:#FAF6F0;font-family:Helvetica,Arial,sans-serif;color:#1D1626">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:32px 16px">
 <table role="presentation" width="100%" style="max-width:520px;background:#ffffff;border-radius:20px;padding:32px">
-<tr><td style="font-size:22px;font-weight:bold;padding-bottom:16px">momento</td></tr>
+<tr><td style="padding-bottom:20px"><img src="${EMAIL_LOGO_URL}" width="${EMAIL_LOGO_W}" height="36" alt="Upclose" style="display:block;border:0"></td></tr>
 <tr><td style="font-size:16px;line-height:1.5;padding-bottom:8px">${escapeHtml(opts.greeting)}</td></tr>
 <tr><td style="font-size:16px;line-height:1.5;padding-bottom:24px">${escapeHtml(opts.intro)}</td></tr>
-<tr><td style="padding-bottom:24px"><a href="${escapeHtml(opts.url)}" style="display:inline-block;background:#d93d74;color:#ffffff;text-decoration:none;font-weight:bold;padding:14px 24px;border-radius:999px">${escapeHtml(opts.cta)}</a></td></tr>
-<tr><td style="font-size:13px;line-height:1.5;color:#6b6475">${escapeHtml(opts.outro)}<br><br>${escapeHtml(fallback)} ${escapeHtml(opts.url)}</td></tr>
+<tr><td style="padding-bottom:24px"><a href="${escapeHtml(opts.url)}" style="display:inline-block;background:#D93D74;color:#FFFFFF;text-decoration:none;font-weight:bold;padding:14px 24px;border-radius:999px">${escapeHtml(opts.cta)}</a></td></tr>
+<tr><td style="font-size:13px;line-height:1.5;color:#6E6578">${escapeHtml(opts.outro)}<br><br>${escapeHtml(fallback)} ${escapeHtml(opts.url)}</td></tr>
 </table></td></tr></table></body></html>`;
   return { to: opts.to, subject: opts.subject, text, html };
 }
