@@ -24,6 +24,9 @@ export default async function SignupPage({ searchParams }: { searchParams: Promi
       <p className="mt-6 text-center text-sm text-muted">
         {t("Déjà inscrit ?")} <Link href="/connexion" className="font-semibold text-ink underline-offset-2 hover:underline">{t("Connecte-toi")}</Link>
       </p>
+      <p className="mt-3 text-center text-xs text-muted">
+        <Link href="/confidentialite" className="underline-offset-2 hover:underline">{t("Confidentialité")}</Link>
+      </p>
     </section>
   );
 }

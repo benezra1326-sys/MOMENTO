@@ -33,7 +33,11 @@ export async function sendEmail(msg: EmailMessage): Promise<boolean> {
         headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
         body: JSON.stringify({ from: `${from.name} <${from.email}>`, to: [msg.to], subject: msg.subject, text: msg.text, html: msg.html }),
       });
-      if (!res.ok) throw new Error(`Resend ${res.status}`);
+      if (!res.ok) {
+        // Le message de Resend (ex. « testing emails only to your own address ») aide à comprendre ; il ne contient pas le destinataire.
+        const body = (await res.json().catch(() => ({}))) as { name?: string; message?: string };
+        throw new Error(`Resend ${res.status} ${body.name ?? ""} ${(body.message ?? "").replace(/[^\s@]+@[^\s@]+/g, "<adresse>")}`.trim());
+      }
       return true;
     }
     if (provider === "brevo") {
@@ -60,15 +64,23 @@ export async function sendEmail(msg: EmailMessage): Promise<boolean> {
 }
 
 /** URL publique de l'app, pour les liens envoyés par e-mail. */
+/**
+ * Adresse utilisée dans les liens : celle de la requête si elle fait partie des adresses connues
+ * (APP_URL, momento-en.vercel.app, ou la liste PUBLIC_HOSTS), sinon APP_URL.
+ * Jamais un hôte arbitraire : un lien de réinitialisation ne doit pas pointer vers un autre site.
+ */
 export async function publicBaseUrl(): Promise<string> {
-  if (process.env.APP_URL) return process.env.APP_URL.replace(/\/$/, "");
+  const appUrl = process.env.APP_URL?.replace(/\/$/, "");
   try {
     const h = await headers();
     const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
     const proto = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
-    return `${proto}://${host}`;
+    const allowed = new Set(["momento-en.vercel.app", ...(process.env.PUBLIC_HOSTS ?? "").split(",").map((x) => x.trim()).filter(Boolean)]);
+    if (appUrl) allowed.add(new URL(appUrl).host);
+    if (!appUrl || allowed.has(host)) return `${proto}://${host}`;
+    return appUrl;
   } catch {
-    return "http://localhost:3000";
+    return appUrl ?? "http://localhost:3000";
   }
 }
 
@@ -77,16 +89,27 @@ function escapeHtml(s: string) {
 }
 
 /** Gabarit simple et lisible partout (clients mail sans CSS compris). */
-export function actionEmail(opts: { to: string; subject: string; greeting: string; intro: string; cta: string; url: string; outro: string }): EmailMessage {
+export function actionEmail(opts: {
+  to: string;
+  subject: string;
+  greeting: string;
+  intro: string;
+  cta: string;
+  url: string;
+  outro: string;
+  fallback?: string;
+  lang?: string;
+}): EmailMessage {
+  const fallback = opts.fallback ?? "Si le bouton ne marche pas, copie ce lien :";
   const text = `${opts.greeting}\n\n${opts.intro}\n\n${opts.cta} : ${opts.url}\n\n${opts.outro}\n\n— Momento`;
-  const html = `<!doctype html><html lang="fr"><body style="margin:0;background:#f7f3ec;font-family:Helvetica,Arial,sans-serif;color:#1d1726">
+  const html = `<!doctype html><html lang="${opts.lang ?? "fr"}"><body style="margin:0;background:#f7f3ec;font-family:Helvetica,Arial,sans-serif;color:#1d1726">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:32px 16px">
 <table role="presentation" width="100%" style="max-width:520px;background:#ffffff;border-radius:20px;padding:32px">
 <tr><td style="font-size:22px;font-weight:bold;padding-bottom:16px">momento</td></tr>
 <tr><td style="font-size:16px;line-height:1.5;padding-bottom:8px">${escapeHtml(opts.greeting)}</td></tr>
 <tr><td style="font-size:16px;line-height:1.5;padding-bottom:24px">${escapeHtml(opts.intro)}</td></tr>
 <tr><td style="padding-bottom:24px"><a href="${escapeHtml(opts.url)}" style="display:inline-block;background:#d93d74;color:#ffffff;text-decoration:none;font-weight:bold;padding:14px 24px;border-radius:999px">${escapeHtml(opts.cta)}</a></td></tr>
-<tr><td style="font-size:13px;line-height:1.5;color:#6b6475">${escapeHtml(opts.outro)}<br><br>Si le bouton ne marche pas, copie ce lien : ${escapeHtml(opts.url)}</td></tr>
+<tr><td style="font-size:13px;line-height:1.5;color:#6b6475">${escapeHtml(opts.outro)}<br><br>${escapeHtml(fallback)} ${escapeHtml(opts.url)}</td></tr>
 </table></td></tr></table></body></html>`;
   return { to: opts.to, subject: opts.subject, text, html };
 }

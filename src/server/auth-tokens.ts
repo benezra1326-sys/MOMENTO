@@ -7,6 +7,7 @@ import { createSession, destroyAllSessions, hashSecret, requireActive, type View
 import { hashPassword } from "@/lib/password";
 import { productConfig } from "@/config/product";
 import { actionEmail, publicBaseUrl, sendEmail } from "./email";
+import { getLocale, getT } from "@/lib/i18n/server";
 
 /**
  * Jetons envoyés par e-mail : vérification d'adresse (24 h) et mot de passe oublié (1 h).
@@ -95,15 +96,18 @@ export async function requestPasswordReset(raw: unknown) {
     const token = await issueToken(user.id, "RESET_PASSWORD");
     if (token) {
       const url = `${await publicBaseUrl()}/nouveau-mot-de-passe?jeton=${token}`;
+      const t = await getT();
       await sendEmail(
         actionEmail({
           to: user.email,
-          subject: "Réinitialise ton mot de passe",
-          greeting: `Bonjour ${user.name},`,
-          intro: "Tu as demandé à changer ton mot de passe Momento.",
-          cta: "Choisir un nouveau mot de passe",
+          subject: t("Réinitialise ton mot de passe"),
+          greeting: t("Bonjour {name},", { name: user.name }),
+          intro: t("Tu as demandé à changer ton mot de passe Momento."),
+          cta: t("Choisir un nouveau mot de passe"),
           url,
-          outro: "Ce lien est valable 1 heure et ne sert qu'une fois. Si tu n'as rien demandé, ignore cet e-mail : ton mot de passe reste inchangé.",
+          outro: t("Ce lien est valable 1 heure et ne sert qu'une fois. Si tu n'as rien demandé, ignore cet e-mail : ton mot de passe reste inchangé."),
+          fallback: t("Si le bouton ne marche pas, copie ce lien :"),
+          lang: await getLocale(),
         }),
       );
     }
