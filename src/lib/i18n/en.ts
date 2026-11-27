@@ -267,6 +267,7 @@ export const en: Record<string, string> = {
   "Invitation envoyée à @{u}.": "Invitation sent to @{u}.",
   "Pseudo de la personne à inviter": "Username of the person to invite",
   "@pseudo": "@username",
+  "Nom ou @pseudo": "Name or @username",
   Inviter: "Invite",
   "Ou partage le lien du Moment : les personnes demanderont à le rejoindre.": "Or share the Moment's link: people will ask to join.",
   "Invitations en attente": "Pending invitations",

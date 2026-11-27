@@ -116,6 +116,23 @@ body {
 .scroll-row::-webkit-scrollbar {
   display: none;
 }
+/* Sur mobile : fondu à droite pour signaler qu'on peut faire glisser la rangée. */
+@media (max-width: 639px) {
+  .scroll-row {
+    padding-right: 2.5rem;
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 2.75rem), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 2.75rem), transparent);
+  }
+}
+
+/* Mobile : un champ qui reçoit le focus n'est jamais caché derrière la navigation basse
+   ni derrière la barre « Publier » du formulaire. */
+@media (max-width: 1023px) {
+  html {
+    scroll-padding-top: 5rem;
+    scroll-padding-bottom: 12rem;
+  }
+}
 
 .text-cover-dusk { background: linear-gradient(150deg, #3a1d5d 0%, #b33c7a 55%, #f39c6b 100%); }
 .text-cover-ocean { background: linear-gradient(150deg, #0b3954 0%, #087e8b 60%, #9fd8cb 100%); }

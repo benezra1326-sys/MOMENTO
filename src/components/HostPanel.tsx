@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { startTransition, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 import { Ban, Loader2, Pencil, Send, UserPlus } from "lucide-react";
 import type { MemberRow, MomentDetailDTO } from "@/server/types";
 import { api } from "@/lib/client";
@@ -25,6 +25,21 @@ export function HostPanel({ moment }: { moment: MomentDetailDTO }) {
   const [error, setError] = useState<string | null>(null);
   const [invitee, setInvitee] = useState("");
   const [notice, setNotice] = useState<string | null>(null);
+  const [suggestions, setSuggestions] = useState<{ username: string; name: string; photoUrl: string | null; city: string }[]>([]);
+  const inviteQuery = invitee.trim().replace(/^@/, "");
+  useEffect(() => {
+    if (inviteQuery.length < 1) return;
+    let live = true;
+    const timer = setTimeout(async () => {
+      const res = await api<typeof suggestions>(`/api/users/search?q=${encodeURIComponent(inviteQuery)}`);
+      if (live && res.ok) setSuggestions(res.data.filter((p) => !(moment.members ?? []).some((m) => m.user.username === p.username && (m.status === "ACCEPTED" || m.status === "PENDING"))));
+    }, 200);
+    return () => {
+      live = false;
+      clearTimeout(timer);
+    };
+  }, [inviteQuery, moment.members]);
+  const shownSuggestions = inviteQuery.length > 0 && !suggestions.some((p) => p.username === inviteQuery.toLowerCase()) ? suggestions : [];
   const [showCancel, setShowCancel] = useState(false);
   const [reason, setReason] = useState("");
   const [overrides, setOverrides] = useState<Record<string, MemberRow["status"]>>({});
@@ -144,7 +159,22 @@ export function HostPanel({ moment }: { moment: MomentDetailDTO }) {
             <label htmlFor="invitee" className="sr-only">{t("Pseudo de la personne à inviter")}</label>
             <div className="relative flex-1">
               <UserPlus size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted" aria-hidden />
-              <input id="invitee" className="input !pl-10" placeholder={t("@pseudo")} value={invitee} onChange={(e) => setInvitee(e.target.value)} autoComplete="off" autoCapitalize="none" />
+              <input id="invitee" className="input !pl-10" placeholder={t("Nom ou @pseudo")} value={invitee} onChange={(e) => setInvitee(e.target.value)} autoComplete="off" autoCapitalize="none" role="combobox" aria-expanded={shownSuggestions.length > 0} aria-controls="invitee-list" />
+              {shownSuggestions.length > 0 && (
+                <ul id="invitee-list" role="listbox" className="absolute inset-x-0 top-full z-20 mt-1 overflow-hidden rounded-2xl border border-line bg-paper shadow-lg">
+                  {shownSuggestions.map((p) => (
+                    <li key={p.username} role="option" aria-selected={false}>
+                      <button type="button" className="flex w-full items-center gap-3 px-3 py-2 text-left hover:bg-sand/60" onClick={() => setInvitee(p.username)}>
+                        <Avatar person={p} size="sm" />
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-semibold">{p.name}</span>
+                          <span className="block truncate text-xs text-muted">@{p.username}{p.city ? ` · ${p.city}` : ""}</span>
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
             <button type="submit" className="btn-primary" disabled={!invitee.trim() || !!busy}>
               {busy === "invite" ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}

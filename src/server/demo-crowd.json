@@ -1,0 +1,5481 @@
+{
+ "people": [
+  {
+   "slug": "paula",
+   "name": "Paula P.",
+   "city": "Marbella",
+   "bio": "Je viens d'arriver sur la côte, envie de rencontrer des gens sympas.",
+   "interests": [
+    "rencontres",
+    "plage",
+    "brunch"
+   ],
+   "face": "f001",
+   "joinedDaysAgo": 13
+  },
+  {
+   "slug": "omar",
+   "name": "Omar D.",
+   "city": "Marbella",
+   "bio": "Graphiste freelance. Café, carnet et longues balades.",
+   "interests": [
+    "design",
+    "café",
+    "balades"
+   ],
+   "face": "f002",
+   "joinedDaysAgo": 119
+  },
+  {
+   "slug": "pilar",
+   "name": "Pilar T.",
+   "city": "Marbella",
+   "bio": "Prof d'espagnol le jour, salsa le soir.",
+   "interests": [
+    "danse",
+    "langues",
+    "musique"
+   ],
+   "face": "f003",
+   "joinedDaysAgo": 50
+  },
+  {
+   "slug": "alejandro",
+   "name": "Alejandro K.",
+   "city": "Málaga",
+   "bio": "Toujours partant pour un sunset improvisé.",
+   "interests": [
+    "sunset",
+    "apéro",
+    "photo"
+   ],
+   "face": "f004",
+   "joinedDaysAgo": 42
+  },
+  {
+   "slug": "sara",
+   "name": "Sara H.",
+   "city": "Marbella",
+   "bio": "Je cuisine trop pour une seule personne, alors j'invite.",
+   "interests": [
+    "cuisine",
+    "vin",
+    "dîners"
+   ],
+   "face": "f005",
+   "joinedDaysAgo": 28
+  },
+  {
+   "slug": "nicolas",
+   "name": "Nicolás C.",
+   "city": "Marbella",
+   "bio": "Runner du matin, lecteur du soir.",
+   "interests": [
+    "running",
+    "lecture",
+    "café"
+   ],
+   "face": "f006",
+   "joinedDaysAgo": 4
+  },
+  {
+   "slug": "adele",
+   "name": "Adèle G.",
+   "city": "Marbella",
+   "bio": "Développeuse en télétravail, je cherche des coworkings et des gens.",
+   "interests": [
+    "tech",
+    "coworking",
+    "café"
+   ],
+   "face": "f007",
+   "joinedDaysAgo": 104
+  },
+  {
+   "slug": "adrien",
+   "name": "Adrien Z.",
+   "city": "Málaga",
+   "bio": "Passionné de voile, je partage le bateau quand il y a de la place.",
+   "interests": [
+    "voile",
+    "mer",
+    "pêche"
+   ],
+   "face": "f008",
+   "joinedDaysAgo": 10
+  },
+  {
+   "slug": "irene",
+   "name": "Irene P.",
+   "city": "Málaga",
+   "bio": "Architecte. J'aime les vieilles villes et les nouvelles adresses.",
+   "interests": [
+    "architecture",
+    "balades",
+    "expos"
+   ],
+   "face": "f009",
+   "joinedDaysAgo": 105
+  },
+  {
+   "slug": "antoine",
+   "name": "Antoine S.",
+   "city": "Marbella",
+   "bio": "Infirmière de nuit, dispo en journée pour du sport et des brunchs.",
+   "interests": [
+    "sport",
+    "brunch",
+    "plage"
+   ],
+   "face": "f010",
+   "joinedDaysAgo": 71
+  },
+  {
+   "slug": "rania",
+   "name": "Rania T.",
+   "city": "Marbella",
+   "bio": "Photographe amateur, toujours à la recherche de la bonne lumière.",
+   "interests": [
+    "photo",
+    "sunset",
+    "randonnée"
+   ],
+   "face": "f011",
+   "joinedDaysAgo": 104
+  },
+  {
+   "slug": "enzo",
+   "name": "Enzo N.",
+   "city": "Marbella",
+   "bio": "Étudiant en master, curieux de tout.",
+   "interests": [
+    "cinéma",
+    "foot",
+    "soirées"
+   ],
+   "face": "f012",
+   "joinedDaysAgo": 119
+  },
+  {
+   "slug": "olivia",
+   "name": "Olivia T.",
+   "city": "Marbella",
+   "bio": "Sommelier en devenir. Je goûte, je note, je partage.",
+   "interests": [
+    "vin",
+    "gastronomie",
+    "dîners"
+   ],
+   "face": "f013",
+   "joinedDaysAgo": 77
+  },
+  {
+   "slug": "simon",
+   "name": "Simon F.",
+   "city": "Marbella",
+   "bio": "Yoga le matin, padel l'après-midi.",
+   "interests": [
+    "yoga",
+    "padel",
+    "nutrition"
+   ],
+   "face": "f014",
+   "joinedDaysAgo": 22
+  },
+  {
+   "slug": "emma",
+   "name": "Emma V.",
+   "city": "Estepona",
+   "bio": "Retraitée actifve, jamais contre une bonne table.",
+   "interests": [
+    "gastronomie",
+    "marche",
+    "histoire"
+   ],
+   "face": "f015",
+   "joinedDaysAgo": 28
+  },
+  {
+   "slug": "benjamin",
+   "name": "Benjamin A.",
+   "city": "Málaga",
+   "bio": "Musicien. Guitare dans le sac, toujours.",
+   "interests": [
+    "musique",
+    "concerts",
+    "apéro"
+   ],
+   "face": "f016",
+   "joinedDaysAgo": 107
+  },
+  {
+   "slug": "freya",
+   "name": "Freya L.",
+   "city": "Marbella",
+   "bio": "Je monte ma startup et j'adore rencontrer d'autres fondateurs.",
+   "interests": [
+    "startups",
+    "networking",
+    "brunch"
+   ],
+   "face": "f017",
+   "joinedDaysAgo": 42
+  },
+  {
+   "slug": "gabriel",
+   "name": "Gabriel M.",
+   "city": "Marbella",
+   "bio": "Illustratrice, je dessine dans tous les cafés de la ville.",
+   "interests": [
+    "dessin",
+    "café",
+    "expos"
+   ],
+   "face": "f018",
+   "joinedDaysAgo": 16
+  },
+  {
+   "slug": "anouk",
+   "name": "Anouk P.",
+   "city": "Marbella",
+   "bio": "Plongeur, kitesurfeur, et toujours dans l'eau.",
+   "interests": [
+    "kitesurf",
+    "plongée",
+    "plage"
+   ],
+   "face": "f019",
+   "joinedDaysAgo": 100
+  },
+  {
+   "slug": "felix",
+   "name": "Felix Z.",
+   "city": "Marbella",
+   "bio": "Libraire. Je lance des clubs de lecture partout où je passe.",
+   "interests": [
+    "lecture",
+    "café",
+    "balades"
+   ],
+   "face": "f020",
+   "joinedDaysAgo": 18
+  },
+  {
+   "slug": "giulia",
+   "name": "Giulia J.",
+   "city": "Estepona",
+   "bio": "Chef de cuisine en pause, je teste des recettes avec qui veut.",
+   "interests": [
+    "cuisine",
+    "marchés",
+    "vin"
+   ],
+   "face": "f021",
+   "joinedDaysAgo": 110
+  },
+  {
+   "slug": "bruno",
+   "name": "Bruno P.",
+   "city": "Málaga",
+   "bio": "Coach de vie, fan de randonnées au lever du soleil.",
+   "interests": [
+    "randonnée",
+    "méditation",
+    "nature"
+   ],
+   "face": "f022",
+   "joinedDaysAgo": 111
+  },
+  {
+   "slug": "chloe",
+   "name": "Chloé R.",
+   "city": "Málaga",
+   "bio": "Expat depuis 3 ans, je connais les bons plans et j'aime les partager.",
+   "interests": [
+    "bons plans",
+    "tapas",
+    "rencontres"
+   ],
+   "face": "f023",
+   "joinedDaysAgo": 58
+  },
+  {
+   "slug": "mathis",
+   "name": "Mathis R.",
+   "city": "Marbella",
+   "bio": "Danseuse contemporaine, toujours une soirée en tête.",
+   "interests": [
+    "danse",
+    "soirées",
+    "musique"
+   ],
+   "face": "f024",
+   "joinedDaysAgo": 37
+  },
+  {
+   "slug": "valentina",
+   "name": "Valentina M.",
+   "city": "Marbella",
+   "bio": "Ingénieur, joueur d'échecs et de jeux de société.",
+   "interests": [
+    "jeux",
+    "échecs",
+    "tech"
+   ],
+   "face": "f025",
+   "joinedDaysAgo": 102
+  },
+  {
+   "slug": "nathan",
+   "name": "Nathan F.",
+   "city": "Marbella",
+   "bio": "Amoureuse des marchés et des petites terrasses.",
+   "interests": [
+    "marchés",
+    "café",
+    "tapas"
+   ],
+   "face": "f026",
+   "joinedDaysAgo": 87
+  },
+  {
+   "slug": "lola",
+   "name": "Lola N.",
+   "city": "Marbella",
+   "bio": "Moniteur de surf, horaires flexibles.",
+   "interests": [
+    "surf",
+    "plage",
+    "sport"
+   ],
+   "face": "f027",
+   "joinedDaysAgo": 21
+  },
+  {
+   "slug": "leo",
+   "name": "Léo K.",
+   "city": "Marbella",
+   "bio": "Je reprends le sport après une longue pause, motivé !",
+   "interests": [
+    "sport",
+    "running",
+    "nutrition"
+   ],
+   "face": "f028",
+   "joinedDaysAgo": 26
+  },
+  {
+   "slug": "elisa",
+   "name": "Elisa R.",
+   "city": "Marbella",
+   "bio": "Cinéphile. Je préfère la VO et les petites salles.",
+   "interests": [
+    "cinéma",
+    "séries",
+    "tapas"
+   ],
+   "face": "f029",
+   "joinedDaysAgo": 117
+  },
+  {
+   "slug": "daniel",
+   "name": "Daniel G.",
+   "city": "Marbella",
+   "bio": "Créatrice de bijoux, je cherche des ateliers et des gens créatifs.",
+   "interests": [
+    "artisanat",
+    "expos",
+    "céramique"
+   ],
+   "face": "f030",
+   "joinedDaysAgo": 45
+  },
+  {
+   "slug": "lucia",
+   "name": "Lucía J.",
+   "city": "Málaga",
+   "bio": "Je viens d'arriver sur la côte, envie de rencontrer des gens sympas.",
+   "interests": [
+    "rencontres",
+    "plage",
+    "brunch"
+   ],
+   "face": "f031",
+   "joinedDaysAgo": 115
+  },
+  {
+   "slug": "lorenzo",
+   "name": "Lorenzo K.",
+   "city": "Estepona",
+   "bio": "Graphiste freelance. Café, carnet et longues balades.",
+   "interests": [
+    "design",
+    "café",
+    "balades"
+   ],
+   "face": "f032",
+   "joinedDaysAgo": 39
+  },
+  {
+   "slug": "leila",
+   "name": "Leila T.",
+   "city": "Estepona",
+   "bio": "Prof d'espagnol le jour, salsa le soir.",
+   "interests": [
+    "danse",
+    "langues",
+    "musique"
+   ],
+   "face": "f033",
+   "joinedDaysAgo": 84
+  },
+  {
+   "slug": "hugo.c",
+   "name": "Hugo S.",
+   "city": "Málaga",
+   "bio": "Toujours partant pour un sunset improvisé.",
+   "interests": [
+    "sunset",
+    "apéro",
+    "photo"
+   ],
+   "face": "f034",
+   "joinedDaysAgo": 99
+  },
+  {
+   "slug": "hannah",
+   "name": "Hannah E.",
+   "city": "Marbella",
+   "bio": "Je cuisine trop pour une seule personne, alors j'invite.",
+   "interests": [
+    "cuisine",
+    "vin",
+    "dîners"
+   ],
+   "face": "f035",
+   "joinedDaysAgo": 83
+  },
+  {
+   "slug": "remi",
+   "name": "Rémi C.",
+   "city": "Málaga",
+   "bio": "Runner du matin, lecteur du soir.",
+   "interests": [
+    "running",
+    "lecture",
+    "café"
+   ],
+   "face": "f036",
+   "joinedDaysAgo": 50
+  },
+  {
+   "slug": "camille",
+   "name": "Camille H.",
+   "city": "Marbella",
+   "bio": "Développeuse en télétravail, je cherche des coworkings et des gens.",
+   "interests": [
+    "tech",
+    "coworking",
+    "café"
+   ],
+   "face": "f037",
+   "joinedDaysAgo": 83
+  },
+  {
+   "slug": "ivan",
+   "name": "Iván D.",
+   "city": "Málaga",
+   "bio": "Passionné de voile, je partage le bateau quand il y a de la place.",
+   "interests": [
+    "voile",
+    "mer",
+    "pêche"
+   ],
+   "face": "f038",
+   "joinedDaysAgo": 45
+  },
+  {
+   "slug": "carmen",
+   "name": "Carmen E.",
+   "city": "Málaga",
+   "bio": "Architecte. J'aime les vieilles villes et les nouvelles adresses.",
+   "interests": [
+    "architecture",
+    "balades",
+    "expos"
+   ],
+   "face": "f039",
+   "joinedDaysAgo": 26
+  },
+  {
+   "slug": "theo",
+   "name": "Théo B.",
+   "city": "Marbella",
+   "bio": "Infirmière de nuit, dispo en journée pour du sport et des brunchs.",
+   "interests": [
+    "sport",
+    "brunch",
+    "plage"
+   ],
+   "face": "f040",
+   "joinedDaysAgo": 17
+  },
+  {
+   "slug": "margaux",
+   "name": "Margaux B.",
+   "city": "Marbella",
+   "bio": "Photographe amateur, toujours à la recherche de la bonne lumière.",
+   "interests": [
+    "photo",
+    "sunset",
+    "randonnée"
+   ],
+   "face": "f041",
+   "joinedDaysAgo": 5
+  },
+  {
+   "slug": "arthur",
+   "name": "Arthur V.",
+   "city": "Marbella",
+   "bio": "Étudiant en master, curieux de tout.",
+   "interests": [
+    "cinéma",
+    "foot",
+    "soirées"
+   ],
+   "face": "f042",
+   "joinedDaysAgo": 6
+  },
+  {
+   "slug": "alicia",
+   "name": "Alicia Z.",
+   "city": "Marbella",
+   "bio": "Sommelier en devenir. Je goûte, je note, je partage.",
+   "interests": [
+    "vin",
+    "gastronomie",
+    "dîners"
+   ],
+   "face": "f043",
+   "joinedDaysAgo": 10
+  },
+  {
+   "slug": "louis",
+   "name": "Louis J.",
+   "city": "Marbella",
+   "bio": "Yoga le matin, padel l'après-midi.",
+   "interests": [
+    "yoga",
+    "padel",
+    "nutrition"
+   ],
+   "face": "f044",
+   "joinedDaysAgo": 79
+  },
+  {
+   "slug": "ana",
+   "name": "Ana N.",
+   "city": "Málaga",
+   "bio": "Retraitée actifve, jamais contre une bonne table.",
+   "interests": [
+    "gastronomie",
+    "marche",
+    "histoire"
+   ],
+   "face": "f045",
+   "joinedDaysAgo": 91
+  },
+  {
+   "slug": "javier",
+   "name": "Javier F.",
+   "city": "Marbella",
+   "bio": "Musicien. Guitare dans le sac, toujours.",
+   "interests": [
+    "musique",
+    "concerts",
+    "apéro"
+   ],
+   "face": "f046",
+   "joinedDaysAgo": 22
+  },
+  {
+   "slug": "mia",
+   "name": "Mia S.",
+   "city": "Marbella",
+   "bio": "Je monte ma startup et j'adore rencontrer d'autres fondateurs.",
+   "interests": [
+    "startups",
+    "networking",
+    "brunch"
+   ],
+   "face": "f047",
+   "joinedDaysAgo": 71
+  },
+  {
+   "slug": "yanis",
+   "name": "Yanis M.",
+   "city": "Marbella",
+   "bio": "Illustratrice, je dessine dans tous les cafés de la ville.",
+   "interests": [
+    "dessin",
+    "café",
+    "expos"
+   ],
+   "face": "f048",
+   "joinedDaysAgo": 52
+  },
+  {
+   "slug": "lina",
+   "name": "Lina T.",
+   "city": "Málaga",
+   "bio": "Plongeur, kitesurfeur, et toujours dans l'eau.",
+   "interests": [
+    "kitesurf",
+    "plongée",
+    "plage"
+   ],
+   "face": "f049",
+   "joinedDaysAgo": 69
+  },
+  {
+   "slug": "ethan",
+   "name": "Ethan S.",
+   "city": "Marbella",
+   "bio": "Libraire. Je lance des clubs de lecture partout où je passe.",
+   "interests": [
+    "lecture",
+    "café",
+    "balades"
+   ],
+   "face": "f050",
+   "joinedDaysAgo": 24
+  },
+  {
+   "slug": "charlotte",
+   "name": "Charlotte T.",
+   "city": "Marbella",
+   "bio": "Chef de cuisine en pause, je teste des recettes avec qui veut.",
+   "interests": [
+    "cuisine",
+    "marchés",
+    "vin"
+   ],
+   "face": "f051",
+   "joinedDaysAgo": 55
+  },
+  {
+   "slug": "pablo",
+   "name": "Pablo N.",
+   "city": "Marbella",
+   "bio": "Coach de vie, fan de randonnées au lever du soleil.",
+   "interests": [
+    "randonnée",
+    "méditation",
+    "nature"
+   ],
+   "face": "f052",
+   "joinedDaysAgo": 66
+  },
+  {
+   "slug": "sophie",
+   "name": "Sophie B.",
+   "city": "Marbella",
+   "bio": "Expat depuis 3 ans, je connais les bons plans et j'aime les partager.",
+   "interests": [
+    "bons plans",
+    "tapas",
+    "rencontres"
+   ],
+   "face": "f053",
+   "joinedDaysAgo": 44
+  },
+  {
+   "slug": "diego",
+   "name": "Diego R.",
+   "city": "Marbella",
+   "bio": "Danseuse contemporaine, toujours une soirée en tête.",
+   "interests": [
+    "danse",
+    "soirées",
+    "musique"
+   ],
+   "face": "f054",
+   "joinedDaysAgo": 98
+  },
+  {
+   "slug": "mathilde",
+   "name": "Mathilde H.",
+   "city": "Marbella",
+   "bio": "Ingénieur, joueur d'échecs et de jeux de société.",
+   "interests": [
+    "jeux",
+    "échecs",
+    "tech"
+   ],
+   "face": "f055",
+   "joinedDaysAgo": 52
+  },
+  {
+   "slug": "samuel",
+   "name": "Samuel A.",
+   "city": "Estepona",
+   "bio": "Amoureuse des marchés et des petites terrasses.",
+   "interests": [
+    "marchés",
+    "café",
+    "tapas"
+   ],
+   "face": "f056",
+   "joinedDaysAgo": 45
+  },
+  {
+   "slug": "laura",
+   "name": "Laura F.",
+   "city": "Marbella",
+   "bio": "Moniteur de surf, horaires flexibles.",
+   "interests": [
+    "surf",
+    "plage",
+    "sport"
+   ],
+   "face": "f057",
+   "joinedDaysAgo": 27
+  },
+  {
+   "slug": "sergio",
+   "name": "Sergio E.",
+   "city": "Marbella",
+   "bio": "Je reprends le sport après une longue pause, motivé !",
+   "interests": [
+    "sport",
+    "running",
+    "nutrition"
+   ],
+   "face": "f058",
+   "joinedDaysAgo": 29
+  },
+  {
+   "slug": "manon",
+   "name": "Manon A.",
+   "city": "Marbella",
+   "bio": "Cinéphile. Je préfère la VO et les petites salles.",
+   "interests": [
+    "cinéma",
+    "séries",
+    "tapas"
+   ],
+   "face": "f059",
+   "joinedDaysAgo": 57
+  },
+  {
+   "slug": "victor",
+   "name": "Victor K.",
+   "city": "Marbella",
+   "bio": "Créatrice de bijoux, je cherche des ateliers et des gens créatifs.",
+   "interests": [
+    "artisanat",
+    "expos",
+    "céramique"
+   ],
+   "face": "f060",
+   "joinedDaysAgo": 35
+  },
+  {
+   "slug": "nina",
+   "name": "Nina E.",
+   "city": "Estepona",
+   "bio": "Je viens d'arriver sur la côte, envie de rencontrer des gens sympas.",
+   "interests": [
+    "rencontres",
+    "plage",
+    "brunch"
+   ],
+   "face": "f061",
+   "joinedDaysAgo": 4
+  },
+  {
+   "slug": "raphael",
+   "name": "Raphaël G.",
+   "city": "Estepona",
+   "bio": "Graphiste freelance. Café, carnet et longues balades.",
+   "interests": [
+    "design",
+    "café",
+    "balades"
+   ],
+   "face": "f062",
+   "joinedDaysAgo": 52
+  },
+  {
+   "slug": "alba",
+   "name": "Alba V.",
+   "city": "Málaga",
+   "bio": "Prof d'espagnol le jour, salsa le soir.",
+   "interests": [
+    "danse",
+    "langues",
+    "musique"
+   ],
+   "face": "f063",
+   "joinedDaysAgo": 56
+  },
+  {
+   "slug": "elias",
+   "name": "Elias H.",
+   "city": "Estepona",
+   "bio": "Toujours partant pour un sunset improvisé.",
+   "interests": [
+    "sunset",
+    "apéro",
+    "photo"
+   ],
+   "face": "f064",
+   "joinedDaysAgo": 30
+  },
+  {
+   "slug": "rose",
+   "name": "Rose P.",
+   "city": "Málaga",
+   "bio": "Je cuisine trop pour une seule personne, alors j'invite.",
+   "interests": [
+    "cuisine",
+    "vin",
+    "dîners"
+   ],
+   "face": "f065",
+   "joinedDaysAgo": 39
+  },
+  {
+   "slug": "maxime",
+   "name": "Maxime B.",
+   "city": "Marbella",
+   "bio": "Runner du matin, lecteur du soir.",
+   "interests": [
+    "running",
+    "lecture",
+    "café"
+   ],
+   "face": "f066",
+   "joinedDaysAgo": 83
+  },
+  {
+   "slug": "julia",
+   "name": "Julia M.",
+   "city": "Marbella",
+   "bio": "Développeuse en télétravail, je cherche des coworkings et des gens.",
+   "interests": [
+    "tech",
+    "coworking",
+    "café"
+   ],
+   "face": "f067",
+   "joinedDaysAgo": 9
+  },
+  {
+   "slug": "thomas",
+   "name": "Thomas R.",
+   "city": "Málaga",
+   "bio": "Passionné de voile, je partage le bateau quand il y a de la place.",
+   "interests": [
+    "voile",
+    "mer",
+    "pêche"
+   ],
+   "face": "f068",
+   "joinedDaysAgo": 112
+  },
+  {
+   "slug": "ingrid",
+   "name": "Ingrid O.",
+   "city": "Marbella",
+   "bio": "Architecte. J'aime les vieilles villes et les nouvelles adresses.",
+   "interests": [
+    "architecture",
+    "balades",
+    "expos"
+   ],
+   "face": "f069",
+   "joinedDaysAgo": 59
+  },
+  {
+   "slug": "oscar",
+   "name": "Oscar E.",
+   "city": "Marbella",
+   "bio": "Infirmière de nuit, dispo en journée pour du sport et des brunchs.",
+   "interests": [
+    "sport",
+    "brunch",
+    "plage"
+   ],
+   "face": "f070",
+   "joinedDaysAgo": 8
+  },
+  {
+   "slug": "salome",
+   "name": "Salomé L.",
+   "city": "Málaga",
+   "bio": "Photographe amateur, toujours à la recherche de la bonne lumière.",
+   "interests": [
+    "photo",
+    "sunset",
+    "randonnée"
+   ],
+   "face": "f071",
+   "joinedDaysAgo": 21
+  },
+  {
+   "slug": "marc",
+   "name": "Marc M.",
+   "city": "Málaga",
+   "bio": "Étudiant en master, curieux de tout.",
+   "interests": [
+    "cinéma",
+    "foot",
+    "soirées"
+   ],
+   "face": "f072",
+   "joinedDaysAgo": 81
+  },
+  {
+   "slug": "marta",
+   "name": "Marta E.",
+   "city": "Marbella",
+   "bio": "Sommelier en devenir. Je goûte, je note, je partage.",
+   "interests": [
+    "vin",
+    "gastronomie",
+    "dîners"
+   ],
+   "face": "f073",
+   "joinedDaysAgo": 78
+  },
+  {
+   "slug": "carlos",
+   "name": "Carlos Z.",
+   "city": "Málaga",
+   "bio": "Yoga le matin, padel l'après-midi.",
+   "interests": [
+    "yoga",
+    "padel",
+    "nutrition"
+   ],
+   "face": "f074",
+   "joinedDaysAgo": 7
+  },
+  {
+   "slug": "zoe",
+   "name": "Zoé K.",
+   "city": "Marbella",
+   "bio": "Retraitée actifve, jamais contre une bonne table.",
+   "interests": [
+    "gastronomie",
+    "marche",
+    "histoire"
+   ],
+   "face": "f075",
+   "joinedDaysAgo": 13
+  },
+  {
+   "slug": "alvaro",
+   "name": "Álvaro A.",
+   "city": "Marbella",
+   "bio": "Musicien. Guitare dans le sac, toujours.",
+   "interests": [
+    "musique",
+    "concerts",
+    "apéro"
+   ],
+   "face": "f076",
+   "joinedDaysAgo": 53
+  },
+  {
+   "slug": "jade",
+   "name": "Jade T.",
+   "city": "Marbella",
+   "bio": "Je monte ma startup et j'adore rencontrer d'autres fondateurs.",
+   "interests": [
+    "startups",
+    "networking",
+    "brunch"
+   ],
+   "face": "f077",
+   "joinedDaysAgo": 85
+  },
+  {
+   "slug": "andres",
+   "name": "Andrés V.",
+   "city": "Málaga",
+   "bio": "Illustratrice, je dessine dans tous les cafés de la ville.",
+   "interests": [
+    "dessin",
+    "café",
+    "expos"
+   ],
+   "face": "f078",
+   "joinedDaysAgo": 24
+  },
+  {
+   "slug": "noemie",
+   "name": "Noémie T.",
+   "city": "Marbella",
+   "bio": "Plongeur, kitesurfeur, et toujours dans l'eau.",
+   "interests": [
+    "kitesurf",
+    "plongée",
+    "plage"
+   ],
+   "face": "f079",
+   "joinedDaysAgo": 71
+  },
+  {
+   "slug": "mateo",
+   "name": "Mateo J.",
+   "city": "Marbella",
+   "bio": "Libraire. Je lance des clubs de lecture partout où je passe.",
+   "interests": [
+    "lecture",
+    "café",
+    "balades"
+   ],
+   "face": "f080",
+   "joinedDaysAgo": 64
+  },
+  {
+   "slug": "emma.g",
+   "name": "Emma J.",
+   "city": "Marbella",
+   "bio": "Chef de cuisine en pause, je teste des recettes avec qui veut.",
+   "interests": [
+    "cuisine",
+    "marchés",
+    "vin"
+   ],
+   "face": "f081",
+   "joinedDaysAgo": 67
+  },
+  {
+   "slug": "simon.v",
+   "name": "Simon R.",
+   "city": "Estepona",
+   "bio": "Coach de vie, fan de randonnées au lever du soleil.",
+   "interests": [
+    "randonnée",
+    "méditation",
+    "nature"
+   ],
+   "face": "f082",
+   "joinedDaysAgo": 87
+  },
+  {
+   "slug": "irene.v",
+   "name": "Irene S.",
+   "city": "Marbella",
+   "bio": "Expat depuis 3 ans, je connais les bons plans et j'aime les partager.",
+   "interests": [
+    "bons plans",
+    "tapas",
+    "rencontres"
+   ],
+   "face": "f083",
+   "joinedDaysAgo": 59
+  },
+  {
+   "slug": "nathan.b",
+   "name": "Nathan B.",
+   "city": "Málaga",
+   "bio": "Danseuse contemporaine, toujours une soirée en tête.",
+   "interests": [
+    "danse",
+    "soirées",
+    "musique"
+   ],
+   "face": "f084",
+   "joinedDaysAgo": 100
+  }
+ ],
+ "moments": [
+  {
+   "key": "c001",
+   "host": "paula",
+   "title": "Ciné en plein air",
+   "description": "Projection d'un classique en VO sous les étoiles. Coussins conseillés.",
+   "category": "other",
+   "tags": [
+    "chill",
+    "rencontres"
+   ],
+   "media": "IMAGE",
+   "city": "Estepona",
+   "area": "Playa de la Rada",
+   "placeName": "Terrasse du centre culturel",
+   "day": -3,
+   "start": "20:30",
+   "end": "22:30",
+   "capacity": 6,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "lina",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "pilar",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "tom",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c002",
+   "host": "paula",
+   "title": "Vernissage photo",
+   "description": "Vernissage d'une jeune photographe locale. On fait le tour ensemble puis on discute autour d'un verre.",
+   "category": "gallery",
+   "tags": [
+    "créatif",
+    "rencontres"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Casco Antiguo",
+   "placeName": "Galerie du centre",
+   "address": "Avenida de los Naranjos 67",
+   "day": 3,
+   "start": "17:00",
+   "end": "19:00",
+   "capacity": 12,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "hugo.c",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "elias",
+     "PENDING",
+     "REQUEST",
+     "Débutant total mais très motivé."
+    ],
+    [
+     "sofia",
+     "PENDING",
+     "REQUEST",
+     null
+    ]
+   ]
+  },
+  {
+   "key": "c003",
+   "host": "paula",
+   "title": "Sortie vélo sur la côte",
+   "description": "40 km en groupe, rythme modéré, pause café à mi-parcours. Casque obligatoire.",
+   "category": "sport",
+   "tags": [
+    "sportif",
+    "en plein air"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Elviria",
+   "placeName": "Départ du rond-point",
+   "day": 2,
+   "start": "09:00",
+   "end": "11:00",
+   "capacity": 8,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "maya",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "olivia",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "remi",
+     "DECLINED",
+     "REQUEST"
+    ],
+    [
+     "ingrid",
+     "CANCELLED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c004",
+   "host": "omar",
+   "title": "Apéro sunset sur les rochers",
+   "description": "Petit spot secret sur les rochers, vue sur la mer et sur le soleil qui plonge. Chaussures confortables conseillées.",
+   "category": "sunset",
+   "tags": [
+    "en plein air",
+    "spontané"
+   ],
+   "media": "TEXT",
+   "textTheme": "ocean",
+   "city": "Málaga",
+   "area": "Soho",
+   "placeName": "Rochers du phare",
+   "day": -7,
+   "start": "18:00",
+   "end": "20:00",
+   "capacity": 6,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "valentina",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "nadia",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "jules",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "julia",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "noah",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c005",
+   "host": "pilar",
+   "title": "Coucher de soleil au mirador",
+   "description": "On monte au mirador une heure avant le coucher du soleil, avec de quoi grignoter. Vue imprenable, ambiance tranquille.",
+   "category": "sunset",
+   "tags": [
+    "chill",
+    "en plein air"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Sierra Blanca",
+   "placeName": "Mirador de la colline",
+   "address": "Avenida de los Naranjos 77",
+   "day": 1,
+   "start": "18:00",
+   "end": "20:00",
+   "capacity": 9,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "david",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c006",
+   "host": "pilar",
+   "title": "Tournée des bars à tapas",
+   "description": "Trois bars, trois spécialités. On marche entre chaque étape, rythme cool.",
+   "category": "drinks",
+   "tags": [
+    "gourmand",
+    "festif"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Puerto Deportivo",
+   "placeName": "Départ devant la cathédrale",
+   "day": -1,
+   "start": "19:30",
+   "end": "21:30",
+   "capacity": 7,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "irene",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "charlotte",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "nathan.b",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "felix",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "jade",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c007",
+   "host": "alejandro",
+   "title": "Sunset & guitare sur la plage",
+   "description": "J'apporte ma guitare, vous apportez vos voix (même fausses). On reste jusqu'à la nuit.",
+   "category": "sunset",
+   "tags": [
+    "musique",
+    "chill",
+    "rencontres"
+   ],
+   "media": "IMAGE",
+   "city": "Málaga",
+   "area": "Muelle Uno",
+   "placeName": "Plage du centre",
+   "day": 12,
+   "start": "17:45",
+   "end": "19:45",
+   "capacity": 9,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "ana",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "omar",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "mia",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "leo",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "nicolas",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "lorenzo",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "sergio",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "mathilde",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "freya",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c008",
+   "host": "alejandro",
+   "title": "Dégustation de vermouth",
+   "description": "Le vermouth est de retour : on en goûte quatre avec des olives et des chips maison.",
+   "category": "drinks",
+   "tags": [
+    "gourmand",
+    "intimiste"
+   ],
+   "media": "IMAGE",
+   "city": "Málaga",
+   "area": "Centre historique",
+   "placeName": "Bodega du quartier",
+   "address": "Avenida Real 47",
+   "day": 1,
+   "start": "21:00",
+   "end": "23:00",
+   "capacity": 7,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "irene",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "thomas",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "elena",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "hugo.c",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "rafael",
+     "PENDING",
+     "INVITE"
+    ]
+   ]
+  },
+  {
+   "key": "c009",
+   "host": "alejandro",
+   "title": "Marche nordique en bord de mer",
+   "description": "Une heure de marche nordique, bâtons prêtés. Bon pour le cardio et le moral.",
+   "category": "walk",
+   "tags": [
+    "sportif",
+    "en plein air"
+   ],
+   "media": "IMAGE",
+   "city": "Málaga",
+   "area": "Soho",
+   "placeName": "Promenade maritime",
+   "day": 1,
+   "start": "07:30",
+   "end": "09:30",
+   "capacity": 11,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "julia",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "charlotte",
+     "PENDING",
+     "REQUEST",
+     "Super idée, je serai à l'heure promis."
+    ],
+    [
+     "jade",
+     "PENDING",
+     "REQUEST",
+     "Je peux venir avec une amie ? Sinon je viens seule sans souci."
+    ]
+   ]
+  },
+  {
+   "key": "c010",
+   "host": "sara",
+   "title": "Yoga au lever du soleil",
+   "description": "Une heure de vinyasa doux face à la mer. Apporte ta serviette ou ton tapis.",
+   "category": "sport",
+   "tags": [
+    "lent",
+    "en plein air"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Sierra Blanca",
+   "placeName": "Plage au pied du phare",
+   "day": 3,
+   "start": "08:00",
+   "end": "10:00",
+   "capacity": 8,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "chloe",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "giulia",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "adele",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "javier",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "lorenzo",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "lucas",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "mathilde",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "daniel",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "rafael",
+     "DECLINED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c011",
+   "host": "irene",
+   "title": "Visite d'une huilerie",
+   "description": "Visite d'un moulin à huile d'olive et dégustation. Covoiturage depuis la ville.",
+   "category": "other",
+   "tags": [
+    "gourmand",
+    "lent"
+   ],
+   "media": "TEXT",
+   "textTheme": "forest",
+   "city": "Málaga",
+   "area": "Soho",
+   "placeName": "Moulin à huile",
+   "address": "Avenida Ricardo Soriano 4",
+   "day": 0,
+   "start": "20:00",
+   "end": "22:00",
+   "capacity": 7,
+   "visibility": "INVITE_ONLY",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "alvaro",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "lucia",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "anouk",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "leo",
+     "PENDING",
+     "INVITE",
+     null
+    ]
+   ]
+  },
+  {
+   "key": "c012",
+   "host": "antoine",
+   "title": "Padel débutants",
+   "description": "On joue en double, niveau débutant. Raquettes à prêter. On tourne les équipes.",
+   "category": "sport",
+   "tags": [
+    "sportif",
+    "rencontres"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Nueva Andalucía",
+   "placeName": "Club de padel",
+   "day": 9,
+   "start": "09:00",
+   "end": "11:00",
+   "capacity": 7,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "mia",
+     "DECLINED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c013",
+   "host": "rania",
+   "title": "Randonnée au lever du soleil",
+   "description": "Montée tranquille pour voir le soleil se lever sur la mer. Lampe frontale indispensable.",
+   "category": "walk",
+   "tags": [
+    "sportif",
+    "en plein air"
+   ],
+   "media": "TEXT",
+   "textTheme": "citrus",
+   "city": "Marbella",
+   "area": "San Pedro",
+   "placeName": "Parking du sentier",
+   "address": "Avenida Ricardo Soriano 19",
+   "day": 3,
+   "start": "09:00",
+   "end": "11:00",
+   "capacity": 9,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "alejandro",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "mathilde",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "rose",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "carlos",
+     "PENDING",
+     "REQUEST",
+     "Je parle français et espagnol, si ça peut aider."
+    ]
+   ]
+  },
+  {
+   "key": "c014",
+   "host": "olivia",
+   "title": "Brunch fondateurs",
+   "description": "Chacun présente son projet en une minute, puis on mange. Bienveillance de rigueur.",
+   "category": "brunch",
+   "tags": [
+    "networking",
+    "rencontres"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Paseo Marítimo",
+   "placeName": "Hôtel boutique",
+   "address": "Paseo Nueva 34",
+   "day": 6,
+   "start": "10:00",
+   "end": "12:00",
+   "capacity": 12,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "carlos",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "louis",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "nicolas",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "irene.v",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "daniel",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "nathan.b",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "victor",
+     "PENDING",
+     "REQUEST",
+     "Débutant total mais très motivé."
+    ],
+    [
+     "sara",
+     "DECLINED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c015",
+   "host": "simon",
+   "title": "Bière artisanale et quiz",
+   "description": "Quiz de culture générale par équipes, dans une brasserie artisanale. Lots ridicules garantis.",
+   "category": "drinks",
+   "tags": [
+    "festif",
+    "rencontres"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Nueva Andalucía",
+   "placeName": "Brasserie artisanale",
+   "address": "Plaza de los Naranjos 65",
+   "day": 10,
+   "start": "19:30",
+   "end": "21:30",
+   "capacity": 11,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "lucia",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "hugo",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "jules",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "samuel",
+     "PENDING",
+     "REQUEST",
+     "Ça fait longtemps que je cherchais ce genre de Moment !"
+    ],
+    [
+     "rania",
+     "PENDING",
+     "REQUEST",
+     "Je viens d'arriver dans le coin, ce serait top de rencontrer du monde."
+    ],
+    [
+     "sergio",
+     "PENDING",
+     "REQUEST",
+     null
+    ],
+    [
+     "leila",
+     "DECLINED",
+     "REQUEST"
+    ],
+    [
+     "yael",
+     "CANCELLED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c016",
+   "host": "emma",
+   "title": "Club de lecture",
+   "description": "Ce mois-ci, on parle d'un roman court. Pas lu ? Viens quand même, on te racontera.",
+   "category": "coffee",
+   "tags": [
+    "créatif",
+    "lent",
+    "intimiste"
+   ],
+   "media": "TEXT",
+   "textTheme": "dusk",
+   "city": "Marbella",
+   "area": "La Cañada",
+   "placeName": "Librairie-café",
+   "address": "Plaza San Juan 2",
+   "day": 1,
+   "start": "11:00",
+   "end": "13:00",
+   "capacity": 7,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "noah",
+     "PENDING",
+     "REQUEST",
+     null
+    ],
+    [
+     "karim",
+     "PENDING",
+     "REQUEST",
+     "Je viens d'arriver dans le coin, ce serait top de rencontrer du monde."
+    ],
+    [
+     "irene",
+     "PENDING",
+     "REQUEST",
+     "Je viens d'arriver dans le coin, ce serait top de rencontrer du monde."
+    ],
+    [
+     "zoe",
+     "CANCELLED",
+     "REQUEST"
+    ],
+    [
+     "rafael",
+     "PENDING",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c017",
+   "host": "benjamin",
+   "title": "Café langues : français / espagnol",
+   "description": "30 minutes en français, 30 minutes en espagnol. Tous niveaux, l'important c'est de parler.",
+   "category": "coffee",
+   "tags": [
+    "rencontres",
+    "lent"
+   ],
+   "media": "IMAGE",
+   "city": "Málaga",
+   "area": "Centre historique",
+   "placeName": "Café de la place",
+   "day": 8,
+   "start": "11:00",
+   "end": "13:00",
+   "capacity": 7,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "irene",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "maxime",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "samuel",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "yanis",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "yael",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "david",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "camille",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c018",
+   "host": "gabriel",
+   "title": "Bachata pour débutants",
+   "description": "Une heure de cours puis soirée dansante. Viens seul·e, on tourne les partenaires.",
+   "category": "party",
+   "tags": [
+    "musique",
+    "festif",
+    "rencontres"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Puerto Banús",
+   "placeName": "École de danse",
+   "address": "Plaza del Mar 27",
+   "day": 2,
+   "start": "20:30",
+   "end": "00:30",
+   "capacity": 12,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "nicolas",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "samuel",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "omar",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "sophie",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "elena",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "adele",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "camille",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "mathilde",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "pilar",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "simon",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "zoe",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "ivan",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "marta",
+     "DECLINED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c019",
+   "host": "gabriel",
+   "title": "Volley sur la plage",
+   "description": "Volley détente sur le sable, filet installé. Tous niveaux, bonne humeur obligatoire.",
+   "category": "sport",
+   "tags": [
+    "sportif",
+    "en plein air"
+   ],
+   "media": "TEXT",
+   "textTheme": "plum",
+   "city": "Marbella",
+   "area": "Puerto Deportivo",
+   "placeName": "Terrain de beach-volley",
+   "day": -12,
+   "start": "08:00",
+   "end": "10:00",
+   "capacity": 10,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "anouk",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "andres",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "simon.v",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "manon",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "remi",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "lucia",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c020",
+   "host": "felix",
+   "title": "Brunch des expats",
+   "description": "Le rendez-vous des nouveaux et des anciens sur la côte. Échange de bons plans assuré.",
+   "category": "brunch",
+   "tags": [
+    "rencontres",
+    "chill"
+   ],
+   "media": "TEXT",
+   "textTheme": "citrus",
+   "city": "Marbella",
+   "area": "La Cañada",
+   "placeName": "Brunch spot du port",
+   "address": "Avenida de los Naranjos 30",
+   "day": -7,
+   "start": "10:00",
+   "end": "12:00",
+   "capacity": 9,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "nathan",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "mathis",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "anouk",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "ingrid",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "lea",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "louis",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c021",
+   "host": "giulia",
+   "title": "Soirée sushis maison",
+   "description": "On apprend à rouler des makis ensemble. Tout le matériel est fourni, il suffit d'avoir faim.",
+   "category": "dinner",
+   "tags": [
+    "gourmand",
+    "créatif"
+   ],
+   "media": "TEXT",
+   "textTheme": "ink",
+   "city": "Estepona",
+   "area": "Port d'Estepona",
+   "placeName": "Cuisine partagée",
+   "day": 1,
+   "start": "20:30",
+   "end": "22:30",
+   "capacity": 6,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "hugo.c",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "rania",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "sofia",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "pilar",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "leo",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c022",
+   "host": "giulia",
+   "title": "Bénévolat : nettoyage de plage",
+   "description": "Deux heures pour ramasser les déchets de la plage, puis café offert. Gants fournis.",
+   "category": "other",
+   "tags": [
+    "en plein air",
+    "rencontres"
+   ],
+   "media": "IMAGE",
+   "city": "Estepona",
+   "area": "Vieille ville",
+   "placeName": "Plage principale",
+   "day": 0,
+   "start": "21:30",
+   "end": "23:30",
+   "capacity": 8,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "mathilde",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "pilar",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "felix",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "sergio",
+     "PENDING",
+     "REQUEST",
+     "Je viens d'arriver dans le coin, ce serait top de rencontrer du monde."
+    ]
+   ]
+  },
+  {
+   "key": "c023",
+   "host": "giulia",
+   "title": "Pique-nique au coucher du soleil",
+   "description": "Chacun apporte un plat ou une boisson, on partage tout. Plaid fourni.",
+   "category": "sunset",
+   "tags": [
+    "gourmand",
+    "chill"
+   ],
+   "media": "IMAGE",
+   "city": "Estepona",
+   "area": "Vieille ville",
+   "placeName": "Pelouse du front de mer",
+   "address": "Plaza Nueva 62",
+   "day": -4,
+   "start": "18:00",
+   "end": "20:00",
+   "capacity": 13,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "raphael",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "javier",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "elisa",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "chloe",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "lorenzo",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "andres",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "rose",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "mia",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "valentina",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "leila",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "louis",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c024",
+   "host": "chloe",
+   "title": "Brunch pancakes & jeux",
+   "description": "Pancakes à volonté et jeux de société rapides. Ambiance dimanche matin.",
+   "category": "brunch",
+   "tags": [
+    "chill",
+    "gourmand"
+   ],
+   "media": "IMAGE",
+   "city": "Málaga",
+   "area": "Centre historique",
+   "placeName": "Café ludique",
+   "address": "Paseo del Mar 59",
+   "day": 7,
+   "start": "11:00",
+   "end": "13:00",
+   "capacity": 9,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "bruno",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "giulia",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "sophie",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "omar",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c025",
+   "host": "chloe",
+   "title": "Café & croissants au marché",
+   "description": "Petit tour du marché couvert puis café en terrasse. Idéal pour démarrer le samedi.",
+   "category": "coffee",
+   "tags": [
+    "gourmand",
+    "chill"
+   ],
+   "media": "IMAGE",
+   "city": "Málaga",
+   "area": "La Malagueta",
+   "placeName": "Marché couvert",
+   "day": 2,
+   "start": "09:30",
+   "end": "11:30",
+   "capacity": 7,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "freya",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "marco",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "marta",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "victor",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "salome",
+     "DECLINED",
+     "REQUEST"
+    ],
+    [
+     "lucia",
+     "CANCELLED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c026",
+   "host": "valentina",
+   "title": "Atelier aquarelle au café",
+   "description": "Une heure d'aquarelle guidée, matériel fourni. Aucun talent requis, promis.",
+   "category": "coffee",
+   "tags": [
+    "créatif",
+    "chill"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Sierra Blanca",
+   "placeName": "Café des artistes",
+   "address": "Plaza Real 80",
+   "day": -4,
+   "start": "10:00",
+   "end": "12:00",
+   "capacity": 8,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "mateo",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "maya",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "olivia",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "simon.v",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "javier",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "mathilde",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "lea",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c027",
+   "host": "valentina",
+   "title": "Street art tour",
+   "description": "Balade commentée des plus belles fresques du quartier. Appareil photo bienvenu.",
+   "category": "gallery",
+   "tags": [
+    "créatif",
+    "en plein air"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Sierra Blanca",
+   "placeName": "Quartier des arts",
+   "address": "Calle Real 39",
+   "day": -4,
+   "start": "11:00",
+   "end": "13:00",
+   "capacity": 9,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "lola",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "leila",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "ana",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "hugo.c",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "emma",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "tom",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c028",
+   "host": "elisa",
+   "title": "Balade en catamaran",
+   "description": "Trois heures en mer, baignade dans une crique si la mer le permet. Frais partagés.",
+   "category": "boat",
+   "tags": [
+    "en plein air",
+    "chill"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Sierra Blanca",
+   "placeName": "Port de plaisance",
+   "address": "Avenida de los Naranjos 21",
+   "day": 0,
+   "start": "09:00",
+   "end": "14:00",
+   "capacity": 8,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "javier",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "sergio",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "daniel",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "andres",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "sophie",
+     "PENDING",
+     "REQUEST",
+     "Débutant total mais très motivé."
+    ],
+    [
+     "salome",
+     "PENDING",
+     "REQUEST",
+     "Hello, j'ai déjà fait ce genre de sortie, partant·e !"
+    ],
+    [
+     "nina",
+     "PENDING",
+     "REQUEST",
+     "Salut ! Ça me tente beaucoup, je peux apporter quelque chose ?"
+    ]
+   ]
+  },
+  {
+   "key": "c029",
+   "host": "elisa",
+   "title": "Cocktails sur un toit",
+   "description": "Un rooftop discret avec une vue folle. On reste deux heures, chacun paie ses verres.",
+   "category": "drinks",
+   "tags": [
+    "festif",
+    "musique"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Puerto Banús",
+   "placeName": "Rooftop de l'hôtel",
+   "day": 6,
+   "start": "20:30",
+   "end": "22:30",
+   "capacity": 9,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "nadia",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "lea",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "mia",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "adrien",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "lina",
+     "PENDING",
+     "REQUEST",
+     "Je peux venir avec une amie ? Sinon je viens seule sans souci."
+    ],
+    [
+     "karim",
+     "PENDING",
+     "REQUEST",
+     "Débutant total mais très motivé."
+    ]
+   ]
+  },
+  {
+   "key": "c030",
+   "host": "elisa",
+   "title": "Running 10 km le long de la mer",
+   "description": "Allure 5'30 à 6'00 min/km. On s'attend aux points de regroupement.",
+   "category": "sport",
+   "tags": [
+    "sportif",
+    "en plein air"
+   ],
+   "media": "IMAGE",
+   "city": "Málaga",
+   "area": "El Limonar",
+   "placeName": "Départ devant le port",
+   "day": 2,
+   "start": "09:00",
+   "end": "11:00",
+   "capacity": 8,
+   "visibility": "PUBLIC",
+   "status": "CANCELLED",
+   "cancelReason": "Imprévu de dernière minute, désolé !",
+   "members": [
+    [
+     "antoine",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "alvaro",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "lucas",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "theo",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "yael",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c031",
+   "host": "daniel",
+   "title": "Soirée flamenco",
+   "description": "Spectacle de flamenco dans une peña authentique, puis verre dans le quartier.",
+   "category": "party",
+   "tags": [
+    "musique",
+    "festif"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "La Cañada",
+   "placeName": "Peña flamenca",
+   "day": 4,
+   "start": "20:30",
+   "end": "00:30",
+   "capacity": 12,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "noah",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "ines",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "maxime",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "salome",
+     "ACCEPTED",
+     "INVITE"
+    ]
+   ]
+  },
+  {
+   "key": "c032",
+   "host": "lorenzo",
+   "title": "Dîner italien fait maison",
+   "description": "Pâtes fraîches roulées à la main, tiramisu maison. On cuisine ensemble les 30 premières minutes.",
+   "category": "dinner",
+   "tags": [
+    "gourmand",
+    "intimiste"
+   ],
+   "media": "IMAGE",
+   "city": "Estepona",
+   "area": "El Padrón",
+   "placeName": "Chez moi",
+   "day": -12,
+   "start": "19:30",
+   "end": "21:30",
+   "capacity": 5,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "yanis",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "sara",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "ethan",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "manon",
+     "ACCEPTED",
+     "INVITE"
+    ]
+   ]
+  },
+  {
+   "key": "c033",
+   "host": "lorenzo",
+   "title": "Atelier cuisine espagnole",
+   "description": "On apprend à faire des croquetas et un salmorejo avec une cheffe. Dégustation ensuite.",
+   "category": "other",
+   "tags": [
+    "gourmand",
+    "créatif"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Nueva Andalucía",
+   "placeName": "Cuisine-atelier",
+   "day": 13,
+   "start": "20:00",
+   "end": "22:00",
+   "capacity": 8,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "marc",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "mathilde",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "julia",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c034",
+   "host": "lorenzo",
+   "title": "Balade dans la vieille ville",
+   "description": "Patios fleuris, ruelles blanches, petites places : je vous montre mes coins préférés.",
+   "category": "walk",
+   "tags": [
+    "lent",
+    "en plein air"
+   ],
+   "media": "IMAGE",
+   "city": "Estepona",
+   "area": "El Padrón",
+   "placeName": "Place principale",
+   "address": "Plaza Nueva 64",
+   "day": 9,
+   "start": "09:00",
+   "end": "11:00",
+   "capacity": 6,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "omar",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "lea",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "sara",
+     "PENDING",
+     "REQUEST",
+     null
+    ],
+    [
+     "freya",
+     "PENDING",
+     "REQUEST",
+     null
+    ]
+   ]
+  },
+  {
+   "key": "c035",
+   "host": "leila",
+   "title": "Table d'hôtes : cuisine marocaine",
+   "description": "Tajine, couscous et thé à la menthe, comme chez ma grand-mère. Ambiance familiale.",
+   "category": "dinner",
+   "tags": [
+    "gourmand",
+    "intimiste"
+   ],
+   "media": "IMAGE",
+   "city": "Málaga",
+   "area": "Pedregalejo",
+   "placeName": "Chez moi",
+   "address": "Paseo Nueva 17",
+   "day": 14,
+   "start": "19:30",
+   "end": "21:30",
+   "capacity": 6,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "nathan.b",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "samuel",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "enzo",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "david",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "daniel",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "antoine",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "zoe",
+     "DECLINED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c036",
+   "host": "leila",
+   "title": "Soirée jeux de société",
+   "description": "Jeux faciles à apprendre, snacks et bonne ambiance. Apporte ton jeu préféré.",
+   "category": "party",
+   "tags": [
+    "chill",
+    "rencontres"
+   ],
+   "media": "IMAGE",
+   "city": "Estepona",
+   "area": "Port d'Estepona",
+   "placeName": "Bar à jeux",
+   "address": "Plaza de los Naranjos 43",
+   "day": 2,
+   "start": "21:30",
+   "end": "01:30",
+   "capacity": 9,
+   "visibility": "INVITE_ONLY",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "irene.v",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "oscar",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "marc",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "adele",
+     "DECLINED",
+     "REQUEST"
+    ],
+    [
+     "paula",
+     "CANCELLED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c037",
+   "host": "hugo.c",
+   "title": "Pêche au lever du jour",
+   "description": "Sortie de pêche en petit bateau. Débutants bienvenus, on garde ou on relâche.",
+   "category": "boat",
+   "tags": [
+    "en plein air",
+    "lent"
+   ],
+   "media": "TEXT",
+   "textTheme": "plum",
+   "city": "Málaga",
+   "area": "El Palo",
+   "placeName": "Ponton des pêcheurs",
+   "address": "Paseo del Mar 80",
+   "day": 3,
+   "start": "10:30",
+   "end": "15:30",
+   "capacity": 2,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "javier",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "noemie",
+     "DECLINED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c038",
+   "host": "hugo.c",
+   "title": "Échange de plantes",
+   "description": "Apporte une bouture, repars avec une autre. Conseils de jardinage inclus.",
+   "category": "other",
+   "tags": [
+    "chill",
+    "créatif"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "La Cañada",
+   "placeName": "Jardin partagé",
+   "day": -3,
+   "start": "19:30",
+   "end": "21:30",
+   "capacity": 11,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "javier",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "leila",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "simon.v",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "margaux",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "irene",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "lucia",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "omar",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "pilar",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c039",
+   "host": "hugo.c",
+   "title": "Paddle jusqu'à la crique",
+   "description": "Une heure de paddle jusqu'à une petite crique, pause baignade et retour.",
+   "category": "boat",
+   "tags": [
+    "sportif",
+    "en plein air"
+   ],
+   "media": "TEXT",
+   "textTheme": "plum",
+   "city": "Marbella",
+   "area": "Nueva Andalucía",
+   "placeName": "Location de paddle",
+   "day": 7,
+   "start": "10:30",
+   "end": "15:30",
+   "capacity": 5,
+   "visibility": "INVITE_ONLY",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "benjamin",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "ines",
+     "PENDING",
+     "INVITE",
+     null
+    ],
+    [
+     "mia",
+     "DECLINED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c040",
+   "host": "ivan",
+   "title": "Brunch healthy après le sport",
+   "description": "Bols d'açaï, œufs, jus pressés. On peut venir sans avoir fait de sport, on ne dira rien.",
+   "category": "brunch",
+   "tags": [
+    "gourmand",
+    "sportif"
+   ],
+   "media": "IMAGE",
+   "city": "Estepona",
+   "area": "Playa de la Rada",
+   "placeName": "Brunch café",
+   "address": "Calle Ricardo Soriano 43",
+   "day": 6,
+   "start": "11:30",
+   "end": "13:30",
+   "capacity": 7,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "lola",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "lina",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "adele",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "rania",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "remi",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "camille",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "diego",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "noah",
+     "DECLINED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c041",
+   "host": "arthur",
+   "title": "Paella du dimanche",
+   "description": "Grande paella au feu de bois pour ceux qui aiment les longues tablées. Participation aux courses.",
+   "category": "dinner",
+   "tags": [
+    "gourmand",
+    "rencontres"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Sierra Blanca",
+   "placeName": "Patio de la maison",
+   "address": "Plaza del Puerto 2",
+   "day": 4,
+   "start": "20:00",
+   "end": "22:00",
+   "capacity": 8,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "sergio",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "mathilde",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "andres",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "simon.v",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "ana",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c042",
+   "host": "arthur",
+   "title": "Musée Picasso en petit groupe",
+   "description": "Visite libre en petit groupe, puis café pour échanger nos coups de cœur.",
+   "category": "gallery",
+   "tags": [
+    "créatif",
+    "lent"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Puerto Deportivo",
+   "placeName": "Musée Picasso",
+   "day": 1,
+   "start": "11:00",
+   "end": "13:00",
+   "capacity": 7,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "lola",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "nathan.b",
+     "PENDING",
+     "REQUEST",
+     null
+    ],
+    [
+     "louis",
+     "PENDING",
+     "REQUEST",
+     "Super idée, je serai à l'heure promis."
+    ],
+    [
+     "marco",
+     "PENDING",
+     "REQUEST",
+     "Ça fait longtemps que je cherchais ce genre de Moment !"
+    ]
+   ]
+  },
+  {
+   "key": "c043",
+   "host": "louis",
+   "title": "Escalade en salle",
+   "description": "Bloc en salle, initiation pour ceux qui découvrent. Chaussons en location.",
+   "category": "sport",
+   "tags": [
+    "sportif",
+    "rencontres"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Paseo Marítimo",
+   "placeName": "Salle d'escalade",
+   "address": "Calle San Juan 23",
+   "day": 8,
+   "start": "09:00",
+   "end": "11:00",
+   "capacity": 8,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "daniel",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "yael",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "ana",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "carmen",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "adrien",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "nathan.b",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "nathan",
+     "PENDING",
+     "REQUEST",
+     null
+    ],
+    [
+     "simon",
+     "PENDING",
+     "REQUEST",
+     "Je viens d'arriver dans le coin, ce serait top de rencontrer du monde."
+    ],
+    [
+     "marta",
+     "PENDING",
+     "REQUEST",
+     null
+    ],
+    [
+     "julia",
+     "DECLINED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c044",
+   "host": "ana",
+   "title": "Sortie voilier au coucher du soleil",
+   "description": "Deux heures de voile tranquille au coucher du soleil, cava à bord.",
+   "category": "boat",
+   "tags": [
+    "chill",
+    "en plein air"
+   ],
+   "media": "IMAGE",
+   "city": "Málaga",
+   "area": "Soho",
+   "placeName": "Marina",
+   "address": "Calle Real 60",
+   "day": 1,
+   "start": "16:00",
+   "end": "21:00",
+   "capacity": 3,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "hugo.c",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "oscar",
+     "DECLINED",
+     "REQUEST"
+    ],
+    [
+     "raphael",
+     "CANCELLED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c045",
+   "host": "mia",
+   "title": "Atelier poterie",
+   "description": "Deux heures de tour de potier avec une artisane. Tu repars avec ta création (après cuisson).",
+   "category": "gallery",
+   "tags": [
+    "créatif",
+    "intimiste"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Puerto Deportivo",
+   "placeName": "Atelier de céramique",
+   "day": 2,
+   "start": "11:00",
+   "end": "13:00",
+   "capacity": 5,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "david",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "sophie",
+     "PENDING",
+     "REQUEST",
+     "Ça fait longtemps que je cherchais ce genre de Moment !"
+    ]
+   ]
+  },
+  {
+   "key": "c046",
+   "host": "mia",
+   "title": "Dîner de nouveaux arrivants",
+   "description": "Tu viens de t'installer ? On se retrouve dans un resto simple pour faire connaissance.",
+   "category": "dinner",
+   "tags": [
+    "rencontres",
+    "chill"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Casco Antiguo",
+   "placeName": "Restaurant du port",
+   "address": "Paseo de la Constitución 30",
+   "day": 1,
+   "start": "20:30",
+   "end": "22:30",
+   "capacity": 10,
+   "visibility": "INVITE_ONLY",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "freya",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "laura",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "ivan",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "paula",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "elisa",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "thomas",
+     "PENDING",
+     "INVITE",
+     null
+    ],
+    [
+     "nicolas",
+     "CANCELLED",
+     "REQUEST"
+    ],
+    [
+     "clara",
+     "DECLINED",
+     "INVITE"
+    ]
+   ]
+  },
+  {
+   "key": "c047",
+   "host": "yanis",
+   "title": "Soirée karaoké",
+   "description": "Salle privatisée, playlist interminable, aucun jugement. On chante faux ensemble.",
+   "category": "party",
+   "tags": [
+    "festif",
+    "musique"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Puerto Banús",
+   "placeName": "Bar karaoké",
+   "address": "Avenida de los Naranjos 66",
+   "day": -1,
+   "start": "21:00",
+   "end": "01:00",
+   "capacity": 12,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "enzo",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "anouk",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "lucia",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "salome",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "felix",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "zoe",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "rose",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "sophie",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c048",
+   "host": "yanis",
+   "title": "Atelier peinture & vin",
+   "description": "On peint le même paysage, chacun à sa façon, un verre à la main. Fous rires garantis.",
+   "category": "gallery",
+   "tags": [
+    "créatif",
+    "festif"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Puerto Deportivo",
+   "placeName": "Atelier d'art",
+   "day": 2,
+   "start": "17:00",
+   "end": "19:00",
+   "capacity": 8,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "irene.v",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "lina",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "freya",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "javier",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "sophie",
+     "PENDING",
+     "REQUEST",
+     "Débutant total mais très motivé."
+    ],
+    [
+     "yael",
+     "PENDING",
+     "REQUEST",
+     null
+    ],
+    [
+     "nathan",
+     "CANCELLED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c049",
+   "host": "charlotte",
+   "title": "Session surf débutants",
+   "description": "Cours collectif d'initiation avec un moniteur, combinaison et planche fournies.",
+   "category": "sport",
+   "tags": [
+    "sportif",
+    "en plein air"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Cabopino",
+   "placeName": "École de surf",
+   "day": 13,
+   "start": "18:30",
+   "end": "20:30",
+   "capacity": 8,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "theo",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "victor",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "daniel",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "leila",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "sara",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "lucia",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "valentina",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "hugo.c",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "ana",
+     "PENDING",
+     "REQUEST",
+     "Je parle français et espagnol, si ça peut aider."
+    ]
+   ]
+  },
+  {
+   "key": "c050",
+   "host": "charlotte",
+   "title": "Afterwork en terrasse",
+   "description": "Un verre pour décompresser après la semaine, dans un bar avec une belle terrasse. On parle de tout sauf du travail.",
+   "category": "drinks",
+   "tags": [
+    "rencontres",
+    "chill"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "San Pedro",
+   "placeName": "Bar à terrasse",
+   "day": 5,
+   "start": "20:30",
+   "end": "22:30",
+   "capacity": 10,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "hannah",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "alba",
+     "PENDING",
+     "REQUEST",
+     null
+    ],
+    [
+     "simon.v",
+     "PENDING",
+     "REQUEST",
+     "Super idée, je serai à l'heure promis."
+    ],
+    [
+     "sam",
+     "DECLINED",
+     "INVITE"
+    ]
+   ]
+  },
+  {
+   "key": "c051",
+   "host": "pablo",
+   "title": "Coworking du mardi",
+   "description": "On se pose ensemble dans un café calme pour travailler, avec une pause déjeuner commune.",
+   "category": "coffee",
+   "tags": [
+    "networking",
+    "lent"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Puerto Banús",
+   "placeName": "Café coworking",
+   "day": 2,
+   "start": "09:30",
+   "end": "11:30",
+   "capacity": 7,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "gabriel",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "chloe",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "carlos",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "simon",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "david",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "olivia",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "karim",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "victor",
+     "DECLINED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c052",
+   "host": "pablo",
+   "title": "Soirée stand-up en anglais",
+   "description": "Scène ouverte d'humoristes de la côte. Fous rires (en anglais) assurés.",
+   "category": "other",
+   "tags": [
+    "festif",
+    "rencontres"
+   ],
+   "media": "IMAGE",
+   "city": "Estepona",
+   "area": "Vieille ville",
+   "placeName": "Comedy bar",
+   "address": "Plaza Real 60",
+   "day": 0,
+   "start": "20:00",
+   "end": "22:00",
+   "capacity": 10,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "noemie",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "amira",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "alejandro",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "rania",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "irene.v",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "mateo",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "pilar",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "giulia",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c053",
+   "host": "samuel",
+   "title": "Dîner végétarien entre curieux",
+   "description": "Menu 100 % végétal, de saison, sans prise de tête. Parfait pour découvrir de nouvelles saveurs.",
+   "category": "dinner",
+   "tags": [
+    "gourmand",
+    "lent"
+   ],
+   "media": "TEXT",
+   "textTheme": "plum",
+   "city": "Estepona",
+   "area": "Vieille ville",
+   "placeName": "Appartement avec terrasse",
+   "address": "Avenida San Juan 15",
+   "day": 10,
+   "start": "21:30",
+   "end": "23:30",
+   "capacity": 5,
+   "visibility": "PRIVATE",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "mateo",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "hugo",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "hugo.c",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "bruno",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "ethan",
+     "PENDING",
+     "REQUEST",
+     null
+    ],
+    [
+     "lucia",
+     "PENDING",
+     "REQUEST",
+     "Débutant total mais très motivé."
+    ]
+   ]
+  },
+  {
+   "key": "c054",
+   "host": "laura",
+   "title": "Sunset en kayak",
+   "description": "Sortie kayak tranquille d'une heure, retour à la plage à la tombée de la nuit. Location sur place.",
+   "category": "sunset",
+   "tags": [
+    "sportif",
+    "en plein air"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Elviria",
+   "placeName": "Club nautique",
+   "address": "Plaza del Puerto 23",
+   "day": 9,
+   "start": "17:45",
+   "end": "19:45",
+   "capacity": 7,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "noah",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "rania",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "ethan",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "ana",
+     "DECLINED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c055",
+   "host": "sergio",
+   "title": "Speed-friending autour d'un verre",
+   "description": "On change de table toutes les 10 minutes pour rencontrer un maximum de monde. Zéro drague, que de l'amitié.",
+   "category": "drinks",
+   "tags": [
+    "rencontres",
+    "festif"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Golden Mile",
+   "placeName": "Bar lounge",
+   "address": "Avenida San Juan 22",
+   "day": -12,
+   "start": "21:00",
+   "end": "23:00",
+   "capacity": 16,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "adele",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "sophie",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "enzo",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "anouk",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "david",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "lorenzo",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "giulia",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "raphael",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "maxime",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "remi",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "adrien",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "pilar",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c056",
+   "host": "sergio",
+   "title": "Soirée électro sur la plage",
+   "description": "DJ set au coucher du soleil, puis on danse pieds nus. Entrée libre au beach club.",
+   "category": "party",
+   "tags": [
+    "festif",
+    "musique"
+   ],
+   "media": "TEXT",
+   "textTheme": "ocean",
+   "city": "Marbella",
+   "area": "Nueva Andalucía",
+   "placeName": "Beach club",
+   "address": "Avenida Nueva 19",
+   "day": 2,
+   "start": "21:30",
+   "end": "01:30",
+   "capacity": 12,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "benjamin",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "rania",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "jules",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "alejandro",
+     "PENDING",
+     "REQUEST",
+     "Je viens d'arriver dans le coin, ce serait top de rencontrer du monde."
+    ]
+   ]
+  },
+  {
+   "key": "c057",
+   "host": "victor",
+   "title": "Concert jazz en petit comité",
+   "description": "Trio jazz dans un bar intimiste. On réserve une table pour le groupe.",
+   "category": "party",
+   "tags": [
+    "musique",
+    "intimiste"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Golden Mile",
+   "placeName": "Club de jazz",
+   "day": 12,
+   "start": "19:30",
+   "end": "23:30",
+   "capacity": 4,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "elias",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "ethan",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "mathis",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "hugo",
+     "PENDING",
+     "REQUEST",
+     null
+    ]
+   ]
+  },
+  {
+   "key": "c058",
+   "host": "victor",
+   "title": "Randonnée au Caminito",
+   "description": "Journée de rando sur des passerelles impressionnantes. Transport partagé depuis la ville.",
+   "category": "walk",
+   "tags": [
+    "sportif",
+    "en plein air"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Sierra Blanca",
+   "placeName": "Départ en covoiturage",
+   "address": "Avenida Ricardo Soriano 1",
+   "day": 5,
+   "start": "08:00",
+   "end": "13:00",
+   "capacity": 6,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "alejandro",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "lucas",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "carmen",
+     "PENDING",
+     "REQUEST",
+     null
+    ],
+    [
+     "leo",
+     "PENDING",
+     "REQUEST",
+     null
+    ],
+    [
+     "andres",
+     "PENDING",
+     "REQUEST",
+     null
+    ],
+    [
+     "mathilde",
+     "DECLINED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c059",
+   "host": "nina",
+   "title": "Balade avec nos chiens",
+   "description": "Viens avec ton chien (ou sans) pour une balade sociable. Les chiens sociables seulement !",
+   "category": "walk",
+   "tags": [
+    "chill",
+    "en plein air",
+    "rencontres"
+   ],
+   "media": "IMAGE",
+   "city": "Estepona",
+   "area": "Vieille ville",
+   "placeName": "Parc municipal",
+   "day": 5,
+   "start": "10:00",
+   "end": "12:00",
+   "capacity": 7,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "marc",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "alejandro",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "benjamin",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "maxime",
+     "ACCEPTED",
+     "INVITE"
+    ]
+   ]
+  },
+  {
+   "key": "c060",
+   "host": "nina",
+   "title": "Coworking du mardi",
+   "description": "On se pose ensemble dans un café calme pour travailler, avec une pause déjeuner commune.",
+   "category": "coffee",
+   "tags": [
+    "networking",
+    "lent"
+   ],
+   "media": "TEXT",
+   "textTheme": "citrus",
+   "city": "Estepona",
+   "area": "El Padrón",
+   "placeName": "Café coworking",
+   "address": "Plaza del Puerto 23",
+   "day": 1,
+   "start": "11:30",
+   "end": "13:30",
+   "capacity": 4,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "lucia",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "nathan",
+     "PENDING",
+     "REQUEST",
+     "Je parle français et espagnol, si ça peut aider."
+    ],
+    [
+     "freya",
+     "DECLINED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c061",
+   "host": "raphael",
+   "title": "Session surf débutants",
+   "description": "Cours collectif d'initiation avec un moniteur, combinaison et planche fournies.",
+   "category": "sport",
+   "tags": [
+    "sportif",
+    "en plein air"
+   ],
+   "media": "IMAGE",
+   "city": "Estepona",
+   "area": "Port d'Estepona",
+   "placeName": "École de surf",
+   "address": "Plaza del Mar 70",
+   "day": 7,
+   "start": "09:00",
+   "end": "11:00",
+   "capacity": 8,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "margaux",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "julia",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "salome",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "nicolas",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "elena",
+     "PENDING",
+     "REQUEST",
+     "Salut ! Ça me tente beaucoup, je peux apporter quelque chose ?"
+    ],
+    [
+     "remi",
+     "DECLINED",
+     "REQUEST"
+    ],
+    [
+     "rania",
+     "CANCELLED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c062",
+   "host": "elias",
+   "title": "Brunch fondateurs",
+   "description": "Chacun présente son projet en une minute, puis on mange. Bienveillance de rigueur.",
+   "category": "brunch",
+   "tags": [
+    "networking",
+    "rencontres"
+   ],
+   "media": "IMAGE",
+   "city": "Málaga",
+   "area": "Soho",
+   "placeName": "Hôtel boutique",
+   "day": 1,
+   "start": "11:30",
+   "end": "13:30",
+   "capacity": 6,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "mia",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "samuel",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "ivan",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "amira",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c063",
+   "host": "rose",
+   "title": "Atelier peinture & vin",
+   "description": "On peint le même paysage, chacun à sa façon, un verre à la main. Fous rires garantis.",
+   "category": "gallery",
+   "tags": [
+    "créatif",
+    "festif"
+   ],
+   "media": "IMAGE",
+   "city": "Málaga",
+   "area": "Soho",
+   "placeName": "Atelier d'art",
+   "day": 10,
+   "start": "11:00",
+   "end": "13:00",
+   "capacity": 8,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "andres",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "ethan",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "elias",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "alba",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "sofia",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "manon",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "simon.v",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "leila",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "lea",
+     "PENDING",
+     "REQUEST",
+     "Hello, j'ai déjà fait ce genre de sortie, partant·e !"
+    ]
+   ]
+  },
+  {
+   "key": "c064",
+   "host": "maxime",
+   "title": "Sortie voilier au coucher du soleil",
+   "description": "Deux heures de voile tranquille au coucher du soleil, cava à bord.",
+   "category": "boat",
+   "tags": [
+    "chill",
+    "en plein air"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Nueva Andalucía",
+   "placeName": "Marina",
+   "address": "Paseo San Juan 21",
+   "day": 8,
+   "start": "09:00",
+   "end": "14:00",
+   "capacity": 5,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "emma.g",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "manon",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "sophie",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "rose",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "camille",
+     "PENDING",
+     "REQUEST",
+     "Je parle français et espagnol, si ça peut aider."
+    ],
+    [
+     "carlos",
+     "PENDING",
+     "REQUEST",
+     "Je viens d'arriver dans le coin, ce serait top de rencontrer du monde."
+    ]
+   ]
+  },
+  {
+   "key": "c065",
+   "host": "maxime",
+   "title": "Café & croissants au marché",
+   "description": "Petit tour du marché couvert puis café en terrasse. Idéal pour démarrer le samedi.",
+   "category": "coffee",
+   "tags": [
+    "gourmand",
+    "chill"
+   ],
+   "media": "TEXT",
+   "textTheme": "dusk",
+   "city": "Marbella",
+   "area": "Puerto Deportivo",
+   "placeName": "Marché couvert",
+   "day": 3,
+   "start": "09:30",
+   "end": "11:30",
+   "capacity": 8,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "freya",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "remi",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "jules",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "alba",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "gabriel",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "benjamin",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "lola",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "javier",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c066",
+   "host": "ingrid",
+   "title": "Ciné en plein air",
+   "description": "Projection d'un classique en VO sous les étoiles. Coussins conseillés.",
+   "category": "other",
+   "tags": [
+    "chill",
+    "rencontres"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Puerto Deportivo",
+   "placeName": "Terrasse du centre culturel",
+   "day": 3,
+   "start": "19:30",
+   "end": "21:30",
+   "capacity": 14,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "alejandro",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "enzo",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "ana",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "emma",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c067",
+   "host": "ingrid",
+   "title": "Sortie vélo sur la côte",
+   "description": "40 km en groupe, rythme modéré, pause café à mi-parcours. Casque obligatoire.",
+   "category": "sport",
+   "tags": [
+    "sportif",
+    "en plein air"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Sierra Blanca",
+   "placeName": "Départ du rond-point",
+   "address": "Paseo de los Naranjos 22",
+   "day": 5,
+   "start": "07:30",
+   "end": "09:30",
+   "capacity": 10,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "lea",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "sophie",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "pablo",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "tom",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "emma.g",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c068",
+   "host": "ingrid",
+   "title": "Dégustation de vermouth",
+   "description": "Le vermouth est de retour : on en goûte quatre avec des olives et des chips maison.",
+   "category": "drinks",
+   "tags": [
+    "gourmand",
+    "intimiste"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Puerto Deportivo",
+   "placeName": "Bodega du quartier",
+   "day": 2,
+   "start": "21:00",
+   "end": "23:00",
+   "capacity": 5,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "mateo",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "julia",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "pablo",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "marco",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c069",
+   "host": "marc",
+   "title": "Bénévolat : nettoyage de plage",
+   "description": "Deux heures pour ramasser les déchets de la plage, puis café offert. Gants fournis.",
+   "category": "other",
+   "tags": [
+    "en plein air",
+    "rencontres"
+   ],
+   "media": "IMAGE",
+   "city": "Estepona",
+   "area": "Vieille ville",
+   "placeName": "Plage principale",
+   "day": 0,
+   "start": "21:00",
+   "end": "23:00",
+   "capacity": 11,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "victor",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "ines",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "yanis",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "javier",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "alba",
+     "PENDING",
+     "REQUEST",
+     "Salut ! Ça me tente beaucoup, je peux apporter quelque chose ?"
+    ],
+    [
+     "emma",
+     "CANCELLED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c070",
+   "host": "marc",
+   "title": "Escalade en salle",
+   "description": "Bloc en salle, initiation pour ceux qui découvrent. Chaussons en location.",
+   "category": "sport",
+   "tags": [
+    "sportif",
+    "rencontres"
+   ],
+   "media": "TEXT",
+   "textTheme": "plum",
+   "city": "Málaga",
+   "area": "El Palo",
+   "placeName": "Salle d'escalade",
+   "day": 8,
+   "start": "09:00",
+   "end": "11:00",
+   "capacity": 8,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "nadia",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "enzo",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "maxime",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "nina",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "olivia",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "sophie",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "omar",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "simon",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c071",
+   "host": "marta",
+   "title": "Coucher de soleil au mirador",
+   "description": "On monte au mirador une heure avant le coucher du soleil, avec de quoi grignoter. Vue imprenable, ambiance tranquille.",
+   "category": "sunset",
+   "tags": [
+    "chill",
+    "en plein air"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "San Pedro",
+   "placeName": "Mirador de la colline",
+   "day": -4,
+   "start": "18:00",
+   "end": "20:00",
+   "capacity": 5,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "hugo.c",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "margaux",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "ingrid",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "zoe",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "irene.v",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c072",
+   "host": "carlos",
+   "title": "Street art tour",
+   "description": "Balade commentée des plus belles fresques du quartier. Appareil photo bienvenu.",
+   "category": "gallery",
+   "tags": [
+    "créatif",
+    "en plein air"
+   ],
+   "media": "TEXT",
+   "textTheme": "ocean",
+   "city": "Málaga",
+   "area": "Pedregalejo",
+   "placeName": "Quartier des arts",
+   "address": "Plaza San Juan 28",
+   "day": 4,
+   "start": "19:00",
+   "end": "21:00",
+   "capacity": 6,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "javier",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "julia",
+     "DECLINED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c073",
+   "host": "carlos",
+   "title": "Randonnée au Caminito",
+   "description": "Journée de rando sur des passerelles impressionnantes. Transport partagé depuis la ville.",
+   "category": "walk",
+   "tags": [
+    "sportif",
+    "en plein air"
+   ],
+   "media": "IMAGE",
+   "city": "Málaga",
+   "area": "El Limonar",
+   "placeName": "Départ en covoiturage",
+   "address": "Paseo del Mar 9",
+   "day": 13,
+   "start": "18:30",
+   "end": "23:30",
+   "capacity": 7,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "nathan",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "noah",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "anouk",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "julia",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "simon",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c074",
+   "host": "carlos",
+   "title": "Bachata pour débutants",
+   "description": "Une heure de cours puis soirée dansante. Viens seul·e, on tourne les partenaires.",
+   "category": "party",
+   "tags": [
+    "musique",
+    "festif",
+    "rencontres"
+   ],
+   "media": "IMAGE",
+   "city": "Málaga",
+   "area": "El Limonar",
+   "placeName": "École de danse",
+   "address": "Avenida Real 69",
+   "day": 2,
+   "start": "21:00",
+   "end": "01:00",
+   "capacity": 19,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "sergio",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "karim",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "lea",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "victor",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "elisa",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "bruno",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "mateo",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "manon",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "nicolas",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "antoine",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "yanis",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "camille",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "enzo",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "alejandro",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "alicia",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "marta",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "elena",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "ivan",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "jade",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c075",
+   "host": "zoe",
+   "title": "Brunch pancakes & jeux",
+   "description": "Pancakes à volonté et jeux de société rapides. Ambiance dimanche matin.",
+   "category": "brunch",
+   "tags": [
+    "chill",
+    "gourmand"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Nueva Andalucía",
+   "placeName": "Café ludique",
+   "address": "Paseo Real 67",
+   "day": 2,
+   "start": "11:30",
+   "end": "13:30",
+   "capacity": 8,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "remi",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c076",
+   "host": "alvaro",
+   "title": "Concert jazz en petit comité",
+   "description": "Trio jazz dans un bar intimiste. On réserve une table pour le groupe.",
+   "category": "party",
+   "tags": [
+    "musique",
+    "intimiste"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Sierra Blanca",
+   "placeName": "Club de jazz",
+   "day": 12,
+   "start": "19:30",
+   "end": "23:30",
+   "capacity": 7,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "david",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "remi",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c077",
+   "host": "alvaro",
+   "title": "Café langues : français / espagnol",
+   "description": "30 minutes en français, 30 minutes en espagnol. Tous niveaux, l'important c'est de parler.",
+   "category": "coffee",
+   "tags": [
+    "rencontres",
+    "lent"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Puerto Banús",
+   "placeName": "Café de la place",
+   "address": "Plaza de la Constitución 30",
+   "day": 7,
+   "start": "11:30",
+   "end": "13:30",
+   "capacity": 9,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "hannah",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "sofia",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "ines",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "noemie",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "bruno",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "thomas",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c078",
+   "host": "alvaro",
+   "title": "Atelier poterie",
+   "description": "Deux heures de tour de potier avec une artisane. Tu repars avec ta création (après cuisson).",
+   "category": "gallery",
+   "tags": [
+    "créatif",
+    "intimiste"
+   ],
+   "media": "IMAGE",
+   "city": "Estepona",
+   "area": "Port d'Estepona",
+   "placeName": "Atelier de céramique",
+   "address": "Paseo de los Naranjos 60",
+   "day": 8,
+   "start": "19:00",
+   "end": "21:00",
+   "capacity": 4,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "hannah",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c079",
+   "host": "jade",
+   "title": "Atelier cuisine espagnole",
+   "description": "On apprend à faire des croquetas et un salmorejo avec une cheffe. Dégustation ensuite.",
+   "category": "other",
+   "tags": [
+    "gourmand",
+    "créatif"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Casco Antiguo",
+   "placeName": "Cuisine-atelier",
+   "address": "Avenida de los Naranjos 34",
+   "day": -2,
+   "start": "20:00",
+   "end": "22:00",
+   "capacity": 5,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "julia",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "amira",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "carmen",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "anouk",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "sophie",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c080",
+   "host": "emma.g",
+   "title": "Soirée électro sur la plage",
+   "description": "DJ set au coucher du soleil, puis on danse pieds nus. Entrée libre au beach club.",
+   "category": "party",
+   "tags": [
+    "festif",
+    "musique"
+   ],
+   "media": "TEXT",
+   "textTheme": "dusk",
+   "city": "Marbella",
+   "area": "Paseo Marítimo",
+   "placeName": "Beach club",
+   "day": -9,
+   "start": "21:30",
+   "end": "01:30",
+   "capacity": 16,
+   "visibility": "PUBLIC",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "david",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "ivan",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "simon",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "javier",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "laura",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "mateo",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "alicia",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "charlotte",
+     "ACCEPTED",
+     "INVITE"
+    ],
+    [
+     "freya",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "noah",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c081",
+   "host": "simon.v",
+   "title": "Pêche au lever du jour",
+   "description": "Sortie de pêche en petit bateau. Débutants bienvenus, on garde ou on relâche.",
+   "category": "boat",
+   "tags": [
+    "en plein air",
+    "lent"
+   ],
+   "media": "IMAGE",
+   "city": "Estepona",
+   "area": "Port d'Estepona",
+   "placeName": "Ponton des pêcheurs",
+   "day": 2,
+   "start": "09:00",
+   "end": "14:00",
+   "capacity": 3,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "daniel",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c082",
+   "host": "nathan.b",
+   "title": "Soirée jeux de société",
+   "description": "Jeux faciles à apprendre, snacks et bonne ambiance. Apporte ton jeu préféré.",
+   "category": "party",
+   "tags": [
+    "chill",
+    "rencontres"
+   ],
+   "media": "IMAGE",
+   "city": "Málaga",
+   "area": "El Limonar",
+   "placeName": "Bar à jeux",
+   "address": "Avenida del Puerto 42",
+   "day": 1,
+   "start": "21:30",
+   "end": "01:30",
+   "capacity": 7,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "leila",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "thomas",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "lucas",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "emma",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "arthur",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "theo",
+     "PENDING",
+     "REQUEST",
+     null
+    ],
+    [
+     "salome",
+     "PENDING",
+     "REQUEST",
+     null
+    ]
+   ]
+  },
+  {
+   "key": "c083",
+   "host": "nathan.b",
+   "title": "Brunch healthy après le sport",
+   "description": "Bols d'açaï, œufs, jus pressés. On peut venir sans avoir fait de sport, on ne dira rien.",
+   "category": "brunch",
+   "tags": [
+    "gourmand",
+    "sportif"
+   ],
+   "media": "TEXT",
+   "textTheme": "plum",
+   "city": "Málaga",
+   "area": "El Palo",
+   "placeName": "Brunch café",
+   "day": -3,
+   "start": "11:00",
+   "end": "13:00",
+   "capacity": 4,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "amira",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "emma.g",
+     "ACCEPTED",
+     "REQUEST"
+    ]
+   ]
+  },
+  {
+   "key": "c084",
+   "host": "nathan.b",
+   "title": "Balade dans la vieille ville",
+   "description": "Patios fleuris, ruelles blanches, petites places : je vous montre mes coins préférés.",
+   "category": "walk",
+   "tags": [
+    "lent",
+    "en plein air"
+   ],
+   "media": "IMAGE",
+   "city": "Marbella",
+   "area": "Paseo Marítimo",
+   "placeName": "Place principale",
+   "day": 1,
+   "start": "18:30",
+   "end": "20:30",
+   "capacity": 12,
+   "visibility": "REQUEST",
+   "status": "PUBLISHED",
+   "members": [
+    [
+     "jules",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "alba",
+     "ACCEPTED",
+     "REQUEST"
+    ],
+    [
+     "camille",
+     "DECLINED",
+     "REQUEST"
+    ]
+   ]
+  }
+ ]
+}
