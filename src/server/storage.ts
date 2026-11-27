@@ -2,6 +2,18 @@ import { mkdir, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { del, put } from "@vercel/blob";
 import { isAllowedMediaUrl } from "@/lib/media";
+import { galleryUrls } from "@/lib/gallery";
+import demoMedia from "./demo-media.json";
+
+/** Photos du jeu de démonstration et de la galerie : partagées ou rechargées par le seed, jamais supprimées. */
+const protectedMedia = new Set<string>([
+  ...galleryUrls,
+  ...Object.values((demoMedia as { avatars: Record<string, string> }).avatars),
+  ...Object.values((demoMedia as { covers: Record<string, string> }).covers),
+]);
+function isProtectedDemoMedia(url: string) {
+  return protectedMedia.has(url);
+}
 
 /**
  * Stockage des fichiers médias (voir docs/MEDIA.md).
@@ -45,7 +57,7 @@ export async function storeFile(key: string, body: Buffer, contentType: string):
  * orphelin vaut mieux qu'une action utilisateur bloquée.
  */
 export async function deleteStoredFile(url: string | null | undefined): Promise<void> {
-  if (!url || url.startsWith("/demo/")) return;
+  if (!url || url.startsWith("/demo/") || isProtectedDemoMedia(url)) return;
   try {
     if (url.startsWith("/uploads/") && isAllowedMediaUrl(url)) {
       await unlink(path.join(process.cwd(), "public", url));

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { galleryUrl } from "@/lib/gallery";
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Eye, ImagePlus, Loader2, Minus, Plus, Send, Type, Video, X } from "lucide-react";
 import { categories, productConfig, vibeSuggestions, visibilityInfo } from "@/config/product";
@@ -300,7 +301,7 @@ export function MomentForm({
 
         <Section n={3} title={t("Visuel")}>
           <div className="flex flex-wrap gap-2" role="tablist" aria-label={t("Type de visuel")}>
-            <button type="button" role="tab" aria-selected={v.mediaType === "IMAGE"} className={`chip ${v.mediaType === "IMAGE" ? "chip-active" : ""}`} onClick={() => setV((p) => ({ ...p, mediaType: "IMAGE", mediaUrl: p.mediaType === "IMAGE" && p.mediaUrl ? p.mediaUrl : `/demo/moments/${galleryCovers[0]}.webp`, posterUrl: null }))}><ImagePlus size={15} /> {t("Photo")}</button>
+            <button type="button" role="tab" aria-selected={v.mediaType === "IMAGE"} className={`chip ${v.mediaType === "IMAGE" ? "chip-active" : ""}`} onClick={() => setV((p) => ({ ...p, mediaType: "IMAGE", mediaUrl: p.mediaType === "IMAGE" && p.mediaUrl ? p.mediaUrl : galleryUrl(galleryCovers[0]), posterUrl: null }))}><ImagePlus size={15} /> {t("Photo")}</button>
             {memberVideos && (
               <button type="button" role="tab" aria-selected={v.mediaType === "VIDEO"} className={`chip ${v.mediaType === "VIDEO" ? "chip-active" : ""}`} onClick={() => (v.mediaType === "VIDEO" ? null : videoRef.current?.click())}><Video size={15} /> {t("Vidéo")}</button>
             )}
@@ -328,7 +329,7 @@ export function MomentForm({
               <p className="text-sm text-muted">{t("Ou choisis une illustration :")}</p>
               <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
                 {galleryCovers.map((c) => {
-                  const url = `/demo/moments/${c}.webp`;
+                  const url = galleryUrl(c);
                   return (
                     <button key={c} type="button" onClick={() => setV((p) => ({ ...p, mediaType: "IMAGE", mediaUrl: url, posterUrl: null }))} className={`relative aspect-[4/5] overflow-hidden rounded-xl ring-offset-2 ring-offset-surface ${v.mediaUrl === url ? "ring-2 ring-ink" : ""}`} aria-label={t("Choisir l'illustration {name}", { name: c })} aria-pressed={v.mediaUrl === url}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
