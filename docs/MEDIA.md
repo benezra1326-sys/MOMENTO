@@ -41,3 +41,11 @@ Toute autre URL (site externe, autre chemin, http) est refusée. Next/Image n'es
 ## Confidentialité
 
 Pas de reconnaissance faciale, pas d'analyse d'image. Les URL Blob sont publiques mais non devinables (UUID aléatoire). Une photo de groupe ou une adresse privée ne doit pas être publiée sans l'accord des personnes. Un contenu de ce type peut être signalé et traité par la modération.
+
+## Vidéos des membres (v2)
+
+- Ouvertes par `FEATURE_MEMBER_VIDEOS` (vrai par défaut). MP4, MOV ou WebM, 60 Mo et 60 secondes maximum, 6 vidéos par compte et par heure.
+- En production, le navigateur envoie la vidéo **directement à Vercel Blob** (les fonctions Vercel refusent les corps de plus de 4,5 Mo). `/api/uploads/video` ne fait que vérifier le compte, le quota, le type et le poids, puis délivre un jeton valable pour un seul chemin `media/video/<uuid>.<ext>`.
+- Le navigateur vérifie la durée et capture une image vers 1 s, envoyée comme affiche (`posterUrl`, ré-encodée en WebP sans métadonnées).
+- Pas de transcodage : MP4 (H.264) se lit partout ; un MOV HEVC d'iPhone peut ne pas se lire sur certains Android.
+- Une vidéo ou une affiche remplacée est supprimée du stockage.

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CalendarDays, Clock, Eye, Lock, MapPin, Users } from "lucide-react";
+import { ArrowLeft, CalendarDays, CheckCircle2, Clock, Eye, Lock, MapPin, ShieldCheck, Users } from "lucide-react";
+import { prisma } from "@/lib/db";
 import { getViewerSafe } from "@/lib/auth";
 import { AppError } from "@/lib/errors";
 import { categoryLabel, visibilityInfo } from "@/config/product";
@@ -20,7 +21,7 @@ import { getLocale, getT } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
-type Props = { params: Promise<{ id: string }> };
+type Props = { params: Promise<{ id: string }>; searchParams?: Promise<Record<string, string | string[] | undefined>> };
 
 async function load(id: string) {
   const viewer = await getViewerSafe();
@@ -45,8 +46,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default async function MomentPage({ params }: Props) {
+export default async function MomentPage({ params, searchParams }: Props) {
   const { id } = await params;
+  const sp = (await searchParams) ?? {};
   const r = await load(id);
   const t = await getT();
   const locale = await getLocale();
@@ -61,6 +63,19 @@ export default async function MomentPage({ params }: Props) {
   const vis = visibilityInfo[m.visibility];
   const time = `${formatMomentTime(m.startsAt, m.timezone, locale)}${m.endsAt ? ` – ${formatMomentTime(m.endsAt, m.timezone, locale)}` : ""}`;
   const title = t(m.title);
+  // Repères de confiance sur l'hôte : ancienneté et Moments déjà organisés.
+  const hostInfo =
+    source === "database"
+      ? await prisma.user
+          .findUnique({
+            where: { id: m.host.id },
+            select: { createdAt: true, _count: { select: { hostedMoments: { where: { status: "PUBLISHED", startsAt: { lt: new Date() } } } } } },
+          })
+          .catch(() => null)
+      : null;
+  const since = hostInfo ? new Intl.DateTimeFormat(locale === "fr" ? "fr-FR" : "en-GB", { month: "long", year: "numeric" }).format(hostInfo.createdAt) : null;
+  const pastHosted = hostInfo?._count.hostedMoments ?? 0;
+  const invitation = sp.invitation === "envoyee" ? "sent" : sp.invitation === "echec" ? "failed" : null;
 
   return (
     <div className="space-y-5">
@@ -138,6 +153,13 @@ export default async function MomentPage({ params }: Props) {
             </div>
           </dl>
 
+          {invitation && m.isHost && (
+            <p role="status" className={`flex items-center gap-2 rounded-2xl px-4 py-3 text-sm ${invitation === "sent" ? "bg-success-soft text-success" : "bg-warn-soft text-warn"}`}>
+              <CheckCircle2 size={18} className="shrink-0" aria-hidden />
+              {invitation === "sent" ? t("Moment publié et invitation envoyée. Tu verras sa réponse ici.") : t("Moment publié, mais l'invitation n'a pas pu partir. Invite la personne depuis « Gérer mon Moment ».")}
+            </p>
+          )}
+
           <section className="card p-5">
             {m.isHost ? (
               <>
@@ -160,7 +182,13 @@ export default async function MomentPage({ params }: Props) {
               <span className="min-w-0">
                 <span className="eyebrow">{t("Hôte")}</span>
                 <span className="flex items-center gap-2 font-semibold">{m.host.name} {m.host.isDemo && <DemoBadge />}</span>
-                <span className="text-sm text-muted">@{m.host.username}</span>
+                <span className="block text-sm text-muted">@{m.host.username}</span>
+                {since && (
+                  <span className="block text-xs text-muted">
+                    {t("Membre depuis {date}", { date: since })}
+                    {pastHosted > 0 && ` · ${pastHosted > 1 ? t("{n} Moments organisés", { n: pastHosted }) : t("1 Moment organisé")}`}
+                  </span>
+                )}
               </span>
             </Link>
             <ShareButton path={`/moments/${m.id}`} title={title} />
@@ -189,6 +217,42 @@ export default async function MomentPage({ params }: Props) {
               )}
             </section>
           )}
+
+          <section className="card p-5" aria-labelledby="privacy-title">
+            <h2 id="privacy-title" className="flex items-center gap-2 font-semibold">
+              <ShieldCheck size={18} className="text-success" aria-hidden /> {t("Ce que les autres voient")}
+            </h2>
+            <ul className="mt-3 space-y-2.5 text-sm text-ink-2">
+              <li className="flex gap-2">
+                <Eye size={16} className="mt-0.5 shrink-0 text-muted" aria-hidden />
+                <span>
+                  {m.visibility === "INVITE_ONLY"
+                    ? t("Ce Moment n'apparaît pas dans le feed : seules les personnes invitées le voient.")
+                    : m.visibility === "PRIVATE"
+                      ? t("Ce Moment n'apparaît pas dans le feed : il faut le lien pour le voir.")
+                      : t("Ce Moment apparaît dans le feed des membres connectés.")}
+                </span>
+              </li>
+              <li className="flex gap-2">
+                <Lock size={16} className="mt-0.5 shrink-0 text-muted" aria-hidden />
+                <span>
+                  {!m.address && !m.addressHidden
+                    ? t("Pas d'adresse exacte publiée : seuls le lieu et la zone sont affichés.")
+                    : m.addressMembersOnly
+                      ? t("L'adresse exacte n'est donnée qu'aux participants confirmés.")
+                      : t("L'adresse exacte est visible par tous ceux qui voient ce Moment.")}
+                </span>
+              </li>
+              <li className="flex gap-2">
+                <Users size={16} className="mt-0.5 shrink-0 text-muted" aria-hidden />
+                <span>
+                  {m.showAttendees
+                    ? t("Les participants confirmés sont affichés, sauf ceux qui ont choisi de ne pas apparaître.")
+                    : t("La liste des participants n'est pas affichée : seul l'hôte la voit.")}
+                </span>
+              </li>
+            </ul>
+          </section>
 
           {viewer && !m.isHost && source === "database" && (
             <div className="border-t border-border pt-4">

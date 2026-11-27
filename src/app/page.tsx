@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, CalendarHeart, Compass } from "lucide-react";
 import { getViewerSafe } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { productConfig } from "@/config/product";
@@ -9,6 +9,8 @@ import { FeedFilters } from "@/components/FeedFilters";
 import { FeedList } from "@/components/FeedList";
 import { OfflineDemoNotice } from "@/components/States";
 import { getT } from "@/lib/i18n/server";
+import { listAvailabilities, type AvailabilityDTO } from "@/server/availability";
+import { AvailabilityCard } from "@/components/Availability";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +31,14 @@ export default async function FeedPage({ searchParams }: { searchParams: SP }) {
   const autoplay = viewer
     ? (await prisma.user.findUnique({ where: { id: viewer.id }, select: { autoplayVideos: true } }).catch(() => null))?.autoplayVideos ?? true
     : true;
+
+  // Deuxième porte d'entrée vers les Moments : quelques personnes libres bientôt.
+  let dispos: AvailabilityDTO[] = [];
+  if (viewer && productConfig.features.availability && feed.source === "database") {
+    dispos = (await listAvailabilities(viewer, { city: query.city, when: query.when === "week" ? undefined : query.when }).catch(() => []))
+      .filter((a) => !a.isMine)
+      .slice(0, 8);
+  }
 
   return (
     <div className="space-y-6">
@@ -66,6 +76,43 @@ export default async function FeedPage({ searchParams }: { searchParams: SP }) {
       <Suspense>
         <FeedFilters />
       </Suspense>
+
+      {viewer && productConfig.features.availability && (
+        <section aria-labelledby="dispos-strip" className="space-y-3">
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <h2 id="dispos-strip" className="flex items-center gap-2 font-display text-xl">
+                <CalendarHeart size={20} className="text-primary" aria-hidden /> {t("Libres bientôt")}
+              </h2>
+              <p className="text-sm text-muted">{t("Une idée ? Propose-leur un Moment.")}</p>
+            </div>
+            <Link href="/dispos" className="shrink-0 text-sm font-semibold text-accent underline-offset-2 hover:underline">
+              {dispos.length > 0 ? t("Tout voir") : t("Je suis dispo")}
+            </Link>
+          </div>
+          {dispos.length > 0 ? (
+            <ul className="scroll-row -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
+              {dispos.map((a) => (
+                <li key={a.id} className="flex">
+                  <AvailabilityCard a={a} compact />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <Link href="/dispos" className="card flex items-center gap-3 p-4 text-sm hover:bg-surface-2/60">
+              <CalendarHeart size={20} className="shrink-0 text-accent" aria-hidden />
+              <span>{t("Personne n'a publié de dispo pour ces filtres. Dis quand tu es libre : quelqu'un pourra te proposer un Moment.")}</span>
+            </Link>
+          )}
+        </section>
+      )}
+
+      <div className="flex items-center justify-between gap-3 lg:hidden">
+        <h2 className="font-display text-xl">{t("Les Moments")}</h2>
+        <Link href="/explorer" className="inline-flex items-center gap-1 text-sm font-semibold text-accent">
+          <Compass size={15} aria-hidden /> {t("Explorer")}
+        </Link>
+      </div>
 
       <FeedList key={JSON.stringify(query)} initial={feed} query={new URLSearchParams(query).toString()} autoplay={autoplay} signedIn={!!viewer} />
     </div>

@@ -115,6 +115,7 @@ model User {
   blocksGot     Block[]            @relation("Blocked")
   authTokens    AuthToken[]
   uploads       Upload[]
+  availabilities Availability[]
 }
 
 model Session {
@@ -286,4 +287,32 @@ model Upload {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
+}
+
+/// Disponibilité publiée volontairement (« je suis libre samedi soir »). Elle donne envie à quelqu'un
+/// de créer un Moment et d'y inviter la personne ; elle n'envoie jamais d'invitation automatique et
+/// ne fait pas de la personne un hôte. Elle expire seule à la fin du créneau.
+model Availability {
+  id         String   @id @default(cuid())
+  userId     String
+  startsAt   DateTime
+  endsAt     DateTime
+  timezone   String   @default("Europe/Madrid")
+  city       String
+  /// Zone large uniquement (quartier) : jamais d'adresse.
+  area       String   @default("")
+  /// Envies (identifiants de catégories de Moment).
+  categories String[] @default([])
+  note       String   @default("")
+  /// Masquée par son auteur : plus visible des autres, mais conservée.
+  hidden     Boolean  @default(false)
+  isDemo     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([city, endsAt])
+  @@index([endsAt])
+  @@index([userId, endsAt])
 }

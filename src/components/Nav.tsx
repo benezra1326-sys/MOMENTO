@@ -2,12 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Compass, Home, Mail, Plus, User } from "lucide-react";
+import { Bell, CalendarHeart, Compass, Home, Mail, Plus, User } from "lucide-react";
 import { useT } from "./I18nProvider";
 
-const items = [
+type Item = { href: string; label: string; icon: typeof Home; match: (p: string) => boolean; primary?: boolean };
+
+const explorer: Item = { href: "/explorer", label: "Explorer", icon: Compass, match: (p: string) => p.startsWith("/explorer") };
+const dispos: Item = { href: "/dispos", label: "Dispos", icon: CalendarHeart, match: (p: string) => p.startsWith("/dispos") };
+
+const items: Item[] = [
   { href: "/", label: "Feed", icon: Home, match: (p: string) => p === "/" },
-  { href: "/explorer", label: "Explorer", icon: Compass, match: (p: string) => p.startsWith("/explorer") },
+  dispos,
   { href: "/moments/nouveau", label: "Créer", icon: Plus, match: (p: string) => p === "/moments/nouveau", primary: true },
   { href: "/invitations", label: "Invitations", icon: Mail, match: (p: string) => p.startsWith("/invitations") },
   { href: "/moi", label: "Profil", icon: User, match: (p: string) => p.startsWith("/moi") || p.startsWith("/u/") },
@@ -53,7 +58,8 @@ export function BottomNav({ signedIn, unread }: { signedIn: boolean; unread: num
 export function SideNav({ signedIn, unread }: { signedIn: boolean; unread: number }) {
   const path = usePathname();
   const t = useT();
-  const list = [...items.filter((i) => !i.primary), { href: "/notifications", label: "Notifications", icon: Bell, match: (p: string) => p.startsWith("/notifications") }];
+  const base = items.filter((i) => !i.primary);
+  const list = [base[0], base[1], explorer, ...base.slice(2), { href: "/notifications", label: "Notifications", icon: Bell, match: (p: string) => p.startsWith("/notifications") }];
   return (
     <nav aria-label={t("Navigation principale")} className="space-y-1">
       <Link href={signedIn ? "/moments/nouveau" : "/connexion?suite=/moments/nouveau"} className="btn-primary mb-5 w-full">

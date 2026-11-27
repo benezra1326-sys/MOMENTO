@@ -28,8 +28,10 @@ export const productConfig = {
   enabledVisibilities: ["REQUEST", "PUBLIC", "INVITE_ONLY", "PRIVATE"] as MomentVisibility[],
 
   features: {
-    /** Décision ouverte n°2 : Disponibilités au MVP ? Désactivé par défaut. */
-    availability: flag("FEATURE_AVAILABILITY", false),
+    /** Disponibilités (« je suis libre samedi soir ») : ouvertes en v2, à la demande d'Avishay. */
+    availability: flag("FEATURE_AVAILABILITY", true),
+    /** Vidéos envoyées par les membres (Vercel Blob, envoi direct depuis le navigateur). */
+    memberVideos: flag("FEATURE_MEMBER_VIDEOS", true),
     /** Souvenirs/posts : phase 5. */
     posts: flag("FEATURE_POSTS", false),
     /** Décision ouverte n°4 : messagerie intégrée. */
@@ -57,6 +59,14 @@ export const productConfig = {
     /** Sous la limite de 4,5 Mo des fonctions Vercel ; le navigateur réduit les photos plus lourdes avant l'envoi. */
     uploadMaxBytes: 4 * 1024 * 1024,
     uploadMaxDimension: 6000,
+    /** Vidéos des membres : envoyées directement du navigateur vers le stockage. */
+    videoMaxBytes: 60 * 1024 * 1024,
+    videoMaxSeconds: 60,
+    videoUploadsPerHour: 6,
+    /** Disponibilités actives en même temps par personne, et horizon de publication. */
+    availabilitiesActiveMax: 3,
+    availabilityDaysAhead: 14,
+    availabilitiesPerDay: 10,
   },
 } as const;
 
@@ -103,3 +113,14 @@ export const visibilityInfo: Record<MomentVisibility, { label: string; help: str
     help: "Absent du feed. Visible uniquement avec le lien ; tu acceptes ou refuses chaque demande.",
   },
 };
+
+/** Créneaux d'une disponibilité, en heure locale. */
+export const availabilitySlots = [
+  { id: "morning", label: "Matin", start: "09:00", end: "12:00" },
+  { id: "lunch", label: "Midi", start: "12:00", end: "15:00" },
+  { id: "afternoon", label: "Après-midi", start: "15:00", end: "19:00" },
+  { id: "evening", label: "Soir", start: "19:00", end: "23:30" },
+  { id: "day", label: "Toute la journée", start: "09:00", end: "23:30" },
+] as const;
+
+export type AvailabilitySlotId = (typeof availabilitySlots)[number]["id"];

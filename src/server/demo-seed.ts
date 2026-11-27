@@ -6,7 +6,10 @@
  * jamais modifié. Requêtes séquentielles : la base de production n'accepte qu'une connexion.
  */
 import type { PrismaClient } from "@prisma/client";
+import { availabilitySlots } from "@/config/product";
+import { zonedLocalToUtc, utcToZonedLocal } from "@/lib/time";
 import { buildDemoDataset } from "./demo-dataset";
+import { availabilities, DEMO_TZ } from "./demo-data";
 
 export async function seedDemo(db: PrismaClient, passwordHash: string, now = new Date()) {
   const data = buildDemoDataset(now);
@@ -47,5 +50,17 @@ export async function seedDemo(db: PrismaClient, passwordHash: string, now = new
     data: data.reports.map(({ reporter, targetUser, ...x }) => ({ ...x, reporterId: id(reporter), targetUserId: targetUser ? id(targetUser) : null })),
   });
 
-  return { users: data.users.length, moments: data.moments.length, memberships: data.memberships.length, notifications: data.notifications.length, reports: data.reports.length };
+  // Disponibilités fictives, recalculées par rapport à maintenant.
+  await db.availability.deleteMany({ where: { userId: { in: allDemoIds } } });
+  const rows = availabilities.flatMap((a) => {
+    const slot = availabilitySlots.find((s) => s.id === a.slot)!;
+    const day = utcToZonedLocal(new Date(now.getTime() + a.day * 86400_000), DEMO_TZ).slice(0, 10);
+    const startsAt = zonedLocalToUtc(`${day}T${slot.start}`, DEMO_TZ);
+    const endsAt = zonedLocalToUtc(`${day}T${slot.end}`, DEMO_TZ);
+    if (endsAt <= now || !ids.has(a.person)) return [];
+    return [{ userId: id(a.person), startsAt, endsAt, timezone: DEMO_TZ, city: a.city, area: a.area, categories: a.categories, note: a.note, isDemo: true }];
+  });
+  await db.availability.createMany({ data: rows });
+
+  return { availabilities: rows.length, users: data.users.length, moments: data.moments.length, memberships: data.memberships.length, notifications: data.notifications.length, reports: data.reports.length };
 }

@@ -14,12 +14,14 @@ Les décisions prises, avec leur raison, et celles encore ouvertes. Les réglage
 | 2026-11 | **E-mails avec Resend** (Brevo possible en secours). | Choisi par Avishay. Envoi par API HTTP, sans SMTP. |
 | 2026-11 | **Confirmation d'adresse exigée seulement si `REQUIRE_EMAIL_VERIFICATION=true`.** | Sans domaine vérifié, Resend n'envoie qu'à l'adresse du propriétaire du compte : exiger la confirmation bloquerait tous les autres membres. On l'active quand un domaine est vérifié. Les liens partent dès qu'une clé est posée. |
 | 2026-11 | **Mode démo explicite** (`DEMO_MODE`, `ALLOW_DEMO_IN_PRODUCTION`). | Les profils fictifs sont marqués « démo » et ne doivent jamais masquer une panne. |
+| 2026-11-27 | **v2 : disponibilités ouvertes** (`FEATURE_AVAILABILITY=true`). Une dispo est volontaire, limitée à un créneau (14 jours max., 3 à la fois), visible des seuls membres connectés, sans adresse, et n'envoie jamais d'invitation : un autre membre crée un Moment et choisit d'inviter la personne. | Demande d'Avishay : les dispos sont une deuxième porte d'entrée vers les Moments, sans changer le modèle hôte / invités. |
+| 2026-11-27 | **v2 : vidéos des membres ouvertes** (envoi direct vers Vercel Blob, 60 s / 60 Mo). | Voir docs/MEDIA.md. |
+| 2026-11-27 | **Version 1 figée** : branche `version-1` et adresse `upclose-v1-avishay.vercel.app`. | Garder une version de référence avant la v2. |
 | 2026-11 | **Tests sur une base dédiée** dont le nom contient « test ». | Jamais de test, de remise à zéro ni de seed contre la production. |
 
 ## Encore ouvertes
 
 - Ville pilote (`PILOT_CITY`, Marbella par défaut ; une piste Paris est à valider).
-- Disponibilités, souvenirs/posts, messagerie, QR d'arrivée (`FEATURE_*`).
+- Souvenirs/posts, messagerie, QR d'arrivée (`FEATURE_*`).
 - Âge minimum et vérification d'identité (aujourd'hui : case « je suis majeur·e »).
 - Domaine d'envoi des e-mails (nécessaire pour activer `REQUIRE_EMAIL_VERIFICATION`).
-- Envoi de vidéos par les membres.

@@ -312,7 +312,7 @@ export async function updateMoment(viewerIn: Viewer | null, id: string, raw: unk
   const input = momentInputSchema.parse(raw);
   const data = toMomentData(input);
 
-  let replacedMedia: string | null = null;
+  const replacedMedia: string[] = [];
   const result = await prisma.$transaction(async (tx) => {
     await tx.$queryRaw`SELECT id FROM "Moment" WHERE id = ${id} FOR UPDATE`;
     const m = await tx.moment.findUnique({ where: { id } });
@@ -357,11 +357,12 @@ export async function updateMoment(viewerIn: Viewer | null, id: string, raw: unk
         { type: "MOMENT_UPDATED", momentId: id, actorId: viewer.id, body: `L'horaire ou le lieu de « ${updated.title} » a changé.` },
       );
     }
-    if (m.mediaUrl && m.mediaUrl !== updated.mediaUrl) replacedMedia = m.mediaUrl;
+    if (m.mediaUrl && m.mediaUrl !== updated.mediaUrl) replacedMedia.push(m.mediaUrl);
+    if (m.posterUrl && m.posterUrl !== updated.posterUrl) replacedMedia.push(m.posterUrl);
     return { id: updated.id, status: updated.status };
   });
   // Après validation de la transaction seulement : l'ancien visuel n'est plus référencé.
-  if (replacedMedia) await deleteStoredFile(replacedMedia);
+  for (const url of replacedMedia) await deleteStoredFile(url);
   return result;
 }
 

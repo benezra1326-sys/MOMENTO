@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { categories, productConfig } from "@/config/product";
+import { availabilitySlots, categories, productConfig } from "@/config/product";
 import { isValidTimeZone } from "./time";
 import { isAllowedVideoUrl, isAllowedMediaUrl } from "./media";
 
@@ -49,8 +49,8 @@ export const momentInputSchema = z
     if (v.mediaType !== "TEXT" && !v.mediaUrl) {
       ctx.addIssue({ code: "custom", path: ["mediaUrl"], message: "Ajoute un visuel ou choisis une carte texte." });
     }
-    if (v.mediaType === "VIDEO" && v.mediaUrl && !isAllowedVideoUrl(v.mediaUrl)) {
-      ctx.addIssue({ code: "custom", path: ["mediaUrl"], message: "L'envoi de vidéos n'est pas encore ouvert : choisis une image." });
+    if (v.mediaType === "VIDEO" && v.mediaUrl && !isAllowedVideoUrl(v.mediaUrl, productConfig.features.memberVideos)) {
+      ctx.addIssue({ code: "custom", path: ["mediaUrl"], message: "Cette vidéo doit être envoyée depuis Upclose." });
     }
     if (!productConfig.enabledVisibilities.includes(v.visibility)) {
       ctx.addIssue({ code: "custom", path: ["visibility"], message: "Ce mode d'accès n'est pas disponible." });
@@ -123,3 +123,23 @@ export const feedQuerySchema = z.object({
 });
 
 export type FeedQuery = z.infer<typeof feedQuerySchema>;
+
+const slotIds = availabilitySlots.map((s) => s.id) as [string, ...string[]];
+
+export const availabilityInputSchema = z.object({
+  /** Jour local « AAAA-MM-JJ » dans `timezone`. */
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Choisis un jour."),
+  slot: z.enum(slotIds, { errorMap: () => ({ message: "Choisis un créneau." }) }),
+  timezone: z.string().refine(isValidTimeZone, "Fuseau horaire inconnu.").default("Europe/Madrid"),
+  city: z.string().trim().min(2, "Indique une ville.").max(60),
+  area: z.string().trim().max(80).default(""),
+  categories: z.array(z.enum(categoryIds)).max(4, "4 envies maximum.").default([]),
+  note: z.string().trim().max(200, "200 caractères maximum.").default(""),
+});
+
+export const availabilityUpdateSchema = availabilityInputSchema.partial().extend({ hidden: z.boolean().optional() });
+
+export const availabilityQuerySchema = z.object({
+  city: z.string().trim().max(60).optional(),
+  when: z.enum(["today", "tomorrow", "weekend", "week"]).optional(),
+});

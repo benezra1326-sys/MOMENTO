@@ -1,45 +1,83 @@
 import { redirect } from "next/navigation";
 import { getViewerSafe } from "@/lib/auth";
-import { productConfig } from "@/config/product";
-import { utcToZonedLocal } from "@/lib/time";
-import { MomentForm } from "@/components/MomentForm";
+import { availabilitySlots, productConfig } from "@/config/product";
+import { utcToZonedLocal, zonedLocalToUtc } from "@/lib/time";
+import { MomentForm, type Invitee } from "@/components/MomentForm";
 import { PageTitle } from "@/components/States";
-import { getT, pageTitle } from "@/lib/i18n/server";
+import { getLocale, getT, pageTitle } from "@/lib/i18n/server";
+import { getAvailability, type AvailabilityDTO } from "@/server/availability";
+import { availabilityWhen } from "@/lib/availability-labels";
 
 export const generateMetadata = pageTitle("Créer un Moment");
 export const dynamic = "force-dynamic";
 
-export default async function NewMomentPage() {
+type SP = Promise<Record<string, string | string[] | undefined>>;
+
+/** Raccourcis de date dans le fuseau du lieu : ce soir, demain soir, samedi. */
+function quickDates(tz: string, t: (s: string) => string) {
+  const now = new Date();
+  const ymd = (d: Date) => utcToZonedLocal(d, tz).slice(0, 10);
+  const out: { label: string; value: string }[] = [];
+  const tonight = `${ymd(now)}T20:00`;
+  if (zonedLocalToUtc(tonight, tz) > new Date(now.getTime() + 3600_000)) out.push({ label: t("Ce soir 20 h"), value: tonight });
+  out.push({ label: t("Demain 19 h"), value: `${ymd(new Date(now.getTime() + 86400_000))}T19:00` });
+  const weekday = new Intl.DateTimeFormat("en-US", { timeZone: tz, weekday: "short" }).format(now);
+  const idx = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(weekday);
+  const toSat = (6 - idx + 7) % 7 || 7;
+  if (toSat > 1) out.push({ label: t("Samedi 18 h"), value: `${ymd(new Date(now.getTime() + toSat * 86400_000))}T18:00` });
+  const toSun = (7 - idx) % 7 || 7;
+  if (toSun > 1) out.push({ label: t("Dimanche 11 h"), value: `${ymd(new Date(now.getTime() + toSun * 86400_000))}T11:00` });
+  return out;
+}
+
+export default async function NewMomentPage({ searchParams }: { searchParams: SP }) {
   const viewer = await getViewerSafe();
-  if (!viewer) redirect("/connexion?suite=/moments/nouveau");
-  const tz = productConfig.defaultTimezone;
+  const sp = await searchParams;
+  const dispoId = typeof sp.dispo === "string" ? sp.dispo : null;
+  if (!viewer) redirect(`/connexion?suite=${encodeURIComponent(dispoId ? `/moments/nouveau?dispo=${dispoId}` : "/moments/nouveau")}`);
   const t = await getT();
+  const locale = await getLocale();
+
+  let dispo: AvailabilityDTO | null = null;
+  if (dispoId && productConfig.features.availability) {
+    dispo = await getAvailability(viewer, dispoId).catch(() => null);
+    if (dispo?.isMine) dispo = null;
+  }
+  const tz = dispo?.timezone ?? productConfig.defaultTimezone;
   const tomorrow = utcToZonedLocal(new Date(Date.now() + 86400_000), tz).slice(0, 10);
+  const slot = dispo ? availabilitySlots.find((s) => s.id === dispo.slot) : null;
+  const slotStart = slot?.id === "day" ? "18:00" : slot?.start;
+  const invitee: Invitee | null = dispo ? { ...dispo.person, slotLabel: availabilityWhen(dispo, locale, t) } : null;
+  const category = dispo?.categories[0] ?? "drinks";
+
   return (
     <>
-      <PageTitle eyebrow={t("Nouveau")} title={t("Crée ton Moment")} />
+      <PageTitle eyebrow={t("Nouveau")} title={invitee ? t("Propose un Moment à {name}", { name: invitee.name.split(" ")[0] }) : t("Crée ton Moment")} />
       <MomentForm
         mode="create"
         host={{ id: viewer.id, name: viewer.name, username: viewer.username, photoUrl: viewer.photoUrl, isDemo: viewer.isDemo }}
+        invitee={invitee}
+        quickDates={dispo ? [] : quickDates(tz, t)}
+        memberVideos={productConfig.features.memberVideos}
         initial={{
           title: "",
           description: "",
-          category: "drinks",
+          category,
           vibeTags: [],
           mediaType: "TEXT",
           mediaUrl: null,
           posterUrl: null,
           textTheme: "dusk",
-          city: viewer.city || productConfig.pilotCity,
-          area: "",
+          city: dispo?.city || viewer.city || productConfig.pilotCity,
+          area: dispo?.area ?? "",
           placeName: "",
           address: "",
           addressMembersOnly: true,
-          startsAtLocal: `${tomorrow}T19:00`,
+          startsAtLocal: dispo && slotStart ? `${dispo.date}T${slotStart}` : `${tomorrow}T19:00`,
           endsAtLocal: "",
           timezone: tz,
-          capacity: 6,
-          visibility: "REQUEST",
+          capacity: dispo ? 3 : 6,
+          visibility: dispo ? "INVITE_ONLY" : "REQUEST",
           showAttendees: true,
         }}
       />

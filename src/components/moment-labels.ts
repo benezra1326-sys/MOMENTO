@@ -30,3 +30,12 @@ export function accessLabel(visibility: MomentCardDTO["visibility"], t: T): stri
   if (visibility === "INVITE_ONLY") return t("Sur invitation");
   return t("Sur demande");
 }
+
+/** Couleur du badge d'état du viewer sur une carte (place confirmée, demande envoyée…). */
+export function membershipTone(ms: MomentCardDTO["viewerMembership"]): "ok" | "wait" | "invite" | "off" | null {
+  if (!ms) return null;
+  if (ms.status === "ACCEPTED") return "ok";
+  if (ms.status === "PENDING") return ms.kind === "INVITE" ? "invite" : "wait";
+  if (ms.status === "DECLINED") return "off";
+  return null;
+}

@@ -259,3 +259,21 @@ export function demoCover(m: SeedMoment): string | null {
   const n = m.key ? (m.key.charCodeAt(m.key.length - 1) % 2) + 1 : 1;
   return img(`${m.category}-${n}`);
 }
+
+/** Disponibilités fictives (jours relatifs, fuseau Europe/Madrid). */
+export type SeedAvailability = { person: string; day: number; slot: "morning" | "lunch" | "afternoon" | "evening" | "day"; city: string; area: string; categories: string[]; note: string };
+
+export const availabilities: SeedAvailability[] = [
+  { person: "clara", day: 0, slot: "evening", city: "Marbella", area: "Casco Antiguo", categories: ["drinks", "dinner"], note: "Nouvelle en ville, partante pour un verre ou des tapas." },
+  { person: "sam", day: 1, slot: "morning", city: "Marbella", area: "Paseo Marítimo", categories: ["sport", "coffee"], note: "Un footing tranquille puis un café ?" },
+  { person: "yael", day: 1, slot: "lunch", city: "Marbella", area: "Nueva Andalucía", categories: ["brunch"], note: "Envie d'un brunch sans prise de tête." },
+  { person: "maya", day: 1, slot: "afternoon", city: "Marbella", area: "Centre", categories: ["gallery", "coffee"], note: "Je dessine dans les cafés, accompagnez-moi à une expo !" },
+  { person: "jules", day: 2, slot: "evening", city: "Marbella", area: "Puerto Banús", categories: ["party", "drinks"], note: "Erasmus, je connais encore peu de monde." },
+  { person: "tom", day: 2, slot: "evening", city: "Marbella", area: "Golden Mile", categories: ["sunset", "drinks"], note: "Un rooftop au coucher du soleil ?" },
+  { person: "rafael", day: 3, slot: "afternoon", city: "Málaga", area: "Soho", categories: ["walk", "gallery"], note: "Balade street art dans le Soho." },
+  { person: "elena", day: 3, slot: "evening", city: "Marbella", area: "Casco Antiguo", categories: ["dinner"], note: "Partante pour un dîner, je peux conseiller le vin." },
+  { person: "hugo", day: 4, slot: "day", city: "Málaga", area: "", categories: ["walk", "gallery", "dinner"], note: "De passage, libre toute la journée." },
+  { person: "amira", day: 5, slot: "morning", city: "Marbella", area: "Playa de la Fontanilla", categories: ["sport"], note: "Séance sur la plage, tous niveaux." },
+  { person: "sofia", day: 5, slot: "evening", city: "Marbella", area: "Puerto Deportivo", categories: ["boat", "sunset"], note: "Libre pour un sunset en mer." },
+  { person: "lucas", day: 6, slot: "evening", city: "Madrid", area: "Malasaña", categories: ["drinks", "other"], note: "Ciné puis un verre ?" },
+];

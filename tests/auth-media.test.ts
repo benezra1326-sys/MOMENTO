@@ -27,7 +27,7 @@ import { getMomentDetail } from "@/server/moments";
 import { inviteUser, requestToJoin, respondToMembership } from "@/server/memberships";
 import { blockUser } from "@/server/safety";
 import { uploadImage } from "@/server/uploads";
-import { isAllowedMediaUrl } from "@/lib/media";
+import { isAllowedVideoUrl, isAllowedMediaUrl } from "@/lib/media";
 import { momentInputSchema } from "@/lib/validation";
 import { makeMoment, makeUser, resetDb } from "./helpers";
 
@@ -327,6 +327,17 @@ describe("médias", () => {
     expect(bad.success).toBe(false);
     const ext = momentInputSchema.safeParse({ ...base, mediaType: "IMAGE", mediaUrl: "https://images.example.com/a.jpg" });
     expect(ext.success).toBe(false);
+  });
+
+  it("accepte les vidéos des membres seulement dans notre stockage, au bon chemin", () => {
+    const base = { title: "Vidéo test", description: "Une description assez longue.", category: "sunset", city: "Paris", startsAtLocal: "2030-01-01T10:00", timezone: "Europe/Paris", capacity: 4 };
+    const blob = "https://abc.public.blob.vercel-storage.com/media/video/0b6f0e3a-1a2b-4c3d-8e9f-001122334455.mp4";
+    expect(momentInputSchema.safeParse({ ...base, mediaType: "VIDEO", mediaUrl: blob }).success).toBe(true);
+    expect(momentInputSchema.safeParse({ ...base, mediaType: "VIDEO", mediaUrl: "/uploads/video/0b6f0e3a-1a2b-4c3d-8e9f-001122334455.webm" }).success).toBe(true);
+    expect(isAllowedVideoUrl("https://abc.public.blob.vercel-storage.com/media/video/x.exe")).toBe(false);
+    expect(isAllowedVideoUrl("https://evil.example.com/media/video/a.mp4")).toBe(false);
+    expect(isAllowedVideoUrl("/uploads/video/../../x.mp4")).toBe(false);
+    expect(isAllowedVideoUrl(blob, false)).toBe(false);
   });
 
   describe("envoi d'image (stockage local)", () => {
