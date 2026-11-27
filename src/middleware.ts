@@ -14,7 +14,7 @@ const SESSION_COOKIE = "momento_session";
 export function middleware(req: NextRequest) {
   const url = req.nextUrl;
   const lang = url.searchParams.get("lang");
-  // Adresse de démo dédiée (ex. momento-en….vercel.app) : toujours dans cette langue, sans cookie.
+  // Adresse de démo dédiée (ex. upclose-en.vercel.app) : toujours dans cette langue, sans cookie.
   const hostLocale = localeFromHost(req.headers.get("host"));
   const linkLocale = isLocale(lang) ? lang : null;
   const remember = (res: NextResponse) => {
@@ -42,4 +42,4 @@ export function middleware(req: NextRequest) {
   return remember(NextResponse.next({ request: { headers } }));
 }
 
-export const config = { matcher: ["/((?!api|_next|demo|uploads|favicon.ico|.*\\.(?:png|jpg|webp|svg|mp4|ico)$).*)"] };
+export const config = { matcher: ["/((?!api|_next|demo|uploads|favicon.ico|.*\\.(?:png|jpg|webp|svg|mp4|ico|webmanifest)$).*)"] };

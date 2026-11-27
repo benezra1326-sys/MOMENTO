@@ -12,7 +12,7 @@ export function ShareButton({ path, title, compact = false }: { path: string; ti
     const url = new URL(path, window.location.origin).toString();
     if (navigator.share) {
       try {
-        await navigator.share({ title, text: t("{title} — sur Momento", { title }), url });
+        await navigator.share({ title, text: t("{title} — sur Upclose", { title }), url });
         return;
       } catch {
         /* annulé par l'utilisateur */
@@ -28,7 +28,7 @@ export function ShareButton({ path, title, compact = false }: { path: string; ti
   }
   if (compact) {
     return (
-      <button type="button" onClick={share} className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-ink-soft hover:bg-sand" aria-label={copied ? t("Lien copié") : t("Partager ce Moment")}>
+      <button type="button" onClick={share} className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-ink-2 hover:bg-surface-2" aria-label={copied ? t("Lien copié") : t("Partager ce Moment")}>
         {copied ? <Check size={18} className="text-success" /> : <Share2 size={18} />}
       </button>
     );

@@ -1,8 +1,14 @@
-# Momento
+<p align="center"><img src="public/brand/upclose-logo.svg" alt="Upclose" height="64"></p>
+
+# Upclose
+
+*Life looks better up close.* · https://upclose.world
 
 Le réseau social des Moments réels : on découvre un Moment, on demande à le rejoindre (ou on est invité), l'hôte accepte, et on se retrouve en vrai.
 
 Stack : Next.js 15 (App Router) · React 19 · TypeScript · Tailwind v4 · Prisma 6 · PostgreSQL · zod · vitest.
+
+Charte : `public/brand/LISEZMOI.md` (logo, icônes, couleurs). Les couleurs de l'interface sont des variables de rôle dans `src/app/globals.css` (`--color-bg`, `--color-primary`, `--color-accent`…).
 
 ## Démarrer en local
 
@@ -16,7 +22,7 @@ npm run dev                   # http://localhost:3000
 
 Comptes démo : bouton « Essayer avec un compte démo » sur la page de connexion, ou mot de passe `momento-demo`. Le compte `moderation` est administrateur (page `/admin`).
 
-Vérifications : `npm run lint`, `npm run typecheck`, `npm test` (base `momento_test` dédiée, jamais la base principale), `npm run build`.
+Vérifications : `npm run lint`, `npm run typecheck`, `npm test` (base `upclose_test` dédiée, jamais la base principale), `npm run build`.
 
 ## Variables d'environnement
 

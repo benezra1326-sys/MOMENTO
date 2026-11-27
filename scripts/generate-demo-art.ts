@@ -1,5 +1,5 @@
 /**
- * Génère les visuels de démonstration de Momento (illustrations originales, aucune
+ * Génère les visuels de démonstration de Upclose (illustrations originales, aucune
  * ressource externe) : couvertures de Moments, avatars fictifs et deux courtes vidéos.
  *
  *   npm run demo:art

@@ -8,7 +8,7 @@ const categoryIds = categories.map((c) => c.id) as [string, ...string[]];
 const mediaUrl = z
   .string()
   .max(500)
-  .refine(isAllowedMediaUrl, "Ce média doit être envoyé depuis Momento.");
+  .refine(isAllowedMediaUrl, "Ce média doit être envoyé depuis Upclose.");
 
 export const textThemes = ["dusk", "ocean", "citrus", "plum", "forest", "ink"] as const;
 
@@ -71,7 +71,7 @@ export const signupSchema = z.object({
   email: z.string().trim().toLowerCase().email("Email invalide.").max(200),
   password: z.string().min(8, "8 caractères minimum.").max(200),
   city: z.string().trim().max(60).default(""),
-  acceptAge: z.literal(true, { errorMap: () => ({ message: "Momento est réservé aux personnes majeures." }) }),
+  acceptAge: z.literal(true, { errorMap: () => ({ message: "Upclose est réservé aux personnes majeures." }) }),
 });
 
 export const loginSchema = z.object({

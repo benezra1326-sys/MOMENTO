@@ -1,4 +1,4 @@
-# Architecture de Momento
+# Architecture de Upclose
 
 ## Vue d'ensemble
 
@@ -70,7 +70,7 @@ Implémentée dans `deleteMyAccount` (src/server/accounts.ts) :
 2. Les Moments à venir de la personne sont annulés, et leurs participants et demandeurs sont prévenus.
 3. Ses demandes et participations en cours sont annulées.
 4. Ses notifications et toutes ses sessions sont supprimées.
-5. Le compte est anonymisé (e-mail `deleted+<id>@momento.invalid`, nom, bio, ville, centres d'intérêt et mot de passe effacés) et passe en DELETED. La ligne reste pour garder l'intégrité des signalements et du journal de modération.
+5. Le compte est anonymisé (e-mail `deleted+<id>@upclose.invalid`, nom, bio, ville, centres d'intérêt et mot de passe effacés) et passe en DELETED. La ligne reste pour garder l'intégrité des signalements et du journal de modération.
 6. Sa photo de profil est supprimée du stockage.
 
 Les jetons e-mail et la trace des envois sont supprimés en cascade si la ligne `User` est un jour effacée.
