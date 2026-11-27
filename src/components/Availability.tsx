@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { CalendarHeart, Eye, EyeOff, Loader2, MapPin, Pencil, Plus, Sparkles, Trash2 } from "lucide-react";
+import { CalendarHeart, Eye, EyeOff, Loader2, Pencil, Plus, Sparkles, Trash2 } from "lucide-react";
 import { availabilitySlots, categories, categoryLabel, productConfig } from "@/config/product";
 import { api } from "@/lib/client";
 import { availabilityWhen } from "@/lib/availability-labels";
@@ -42,37 +42,30 @@ export function AvailabilityCard({ a, compact = false }: { a: AvailabilityDTO; c
       </article>
     );
   }
+  const where = a.area || a.city;
+  const envies = a.categories.slice(0, 2).map((c) => t(categoryLabel(c))).join(", ");
   return (
     <article className="card flex flex-col gap-3 p-4">
-      <div className="flex items-center gap-3">
-        <Link href={`/u/${a.person.username}`} className="flex min-w-0 flex-1 items-center gap-3 rounded-2xl hover:opacity-90">
-          <Avatar person={a.person} size="lg" />
-          <span className="min-w-0">
-            <span className="flex items-center gap-1.5 font-semibold">
-              <span className="truncate">{a.person.name}</span>
-              {a.isDemo && <DemoBadge />}
-            </span>
-            <span className="block text-sm font-medium text-accent">{availabilityWhen(a, locale, t)}</span>
-            <span className="flex items-center gap-1 truncate text-xs text-muted">
-              <MapPin size={12} aria-hidden /> {[a.area, a.city].filter(Boolean).join(", ")}
-            </span>
+      <Link href={`/u/${a.person.username}`} className="flex min-w-0 items-center gap-3 rounded-2xl hover:opacity-90">
+        <Avatar person={a.person} size="lg" />
+        <span className="min-w-0">
+          <span className="flex items-center gap-1.5 font-semibold">
+            <span className="truncate">{a.person.name}</span>
+            {a.isDemo && <span className="shrink-0 text-xs font-normal text-muted">· {t("Démo")}</span>}
           </span>
-        </Link>
-      </div>
-      {a.categories.length > 0 && (
-        <ul className="flex flex-wrap gap-1.5" aria-label={t("Envies")}>
-          {a.categories.map((c) => (
-            <li key={c} className="pill bg-lilac/10 text-accent">{t(categoryLabel(c))}</li>
-          ))}
-        </ul>
-      )}
-      {a.note && <p className="text-sm text-ink-2">« {t(a.note)} »</p>}
+          <span className="block truncate text-sm font-medium text-accent">
+            {availabilityWhen(a, locale, t)}{where && ` · ${where}`}
+          </span>
+          {envies && <span className="block truncate text-sm text-muted">{t("Envie de : {x}", { x: envies })}</span>}
+        </span>
+      </Link>
+      {a.note && <p className="line-clamp-2 text-sm text-ink-2">« {t(a.note)} »</p>}
       <div className="mt-auto pt-1">
         {a.isMine ? (
           <p className="text-xs text-muted">{t("C'est ta dispo")}</p>
         ) : (
-          <Link href={`/moments/nouveau?dispo=${a.id}`} className="btn-primary w-full">
-            <Sparkles size={16} /> {t("Proposer un Moment")}
+          <Link href={`/moments/nouveau?dispo=${a.id}`} className="btn-secondary w-full">
+            <Sparkles size={16} /> {t("Lui proposer un Moment")}
           </Link>
         )}
       </div>
@@ -132,7 +125,7 @@ export function MyAvailabilities({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 id="mine-title" className="font-display text-xl">{t("Tes dispos")}</h2>
-          <p className="mt-1 max-w-md text-sm text-muted">{t("Dis quand tu es libre : quelqu'un pourra te proposer un Moment. Rien n'est envoyé sans ton accord, et ta dispo disparaît après le créneau.")}</p>
+          {items.length === 0 && editing !== "new" && <p className="mt-1 max-w-md text-sm text-muted">{t("Dis quand tu es libre : on pourra t'inviter.")}</p>}
         </div>
         {editing !== "new" && items.length < max && (
           <button type="button" className="btn-primary" onClick={() => setEditing("new")}>

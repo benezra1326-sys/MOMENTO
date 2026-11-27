@@ -22,8 +22,8 @@ export default async function MePage({ searchParams }: { searchParams: Promise<{
   return (
     <div className="space-y-8">
       <ProfileHeader p={profile}>
-        <a href="#modifier" className="btn-primary">{t("Modifier mon profil")}</a>
-        <Link href={`/u/${viewer.username}`} className="btn-secondary">{t("Voir mon profil public")}</Link>
+        <a href="#modifier" className="btn-primary">{t("Modifier")}</a>
+        <Link href={`/u/${viewer.username}`} className="btn-secondary">{t("Aperçu public")}</Link>
       </ProfileHeader>
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <div className="order-2 lg:order-1"><ProfileMoments p={profile} narrow /></div>

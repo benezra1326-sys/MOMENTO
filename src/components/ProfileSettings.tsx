@@ -38,6 +38,7 @@ export function ProfileSettings({ me, blocks, welcome }: { me: Me; blocks: { use
   const fileRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
   const [adult, setAdult] = useState({ on: me.showAdult, confirm18: false, rules: false });
+  const [adultOpen, setAdultOpen] = useState(false);
   const [adultMsg, setAdultMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   const set = <K extends keyof Me>(k: K, val: Me[K]) => setV((p) => ({ ...p, [k]: val }));
@@ -119,7 +120,7 @@ export function ProfileSettings({ me, blocks, welcome }: { me: Me; blocks: { use
             {v.photoUrl && <button type="button" className="btn-ghost text-muted" onClick={() => set("photoUrl", null)}>{t("Retirer")}</button>}
           </div>
         </div>
-        <p className="field-help -mt-2">{t("Facultatif. La localisation GPS de la photo est supprimée automatiquement.")}</p>
+        <p className="field-help -mt-2">{t("Facultatif. La position GPS est retirée.")}</p>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="p-name" className="field-label">{t("Nom affiché")}</label>
@@ -177,13 +178,13 @@ export function ProfileSettings({ me, blocks, welcome }: { me: Me; blocks: { use
               maxLength={80}
             />
           </div>
-          <p className="field-help">{t("Facultatif. Affiché sur ton profil avec la mention « non vérifié » : ça rassure les gens qui hésitent à te rejoindre.")}</p>
+          <p className="field-help">{t("Facultatif. Affiché « non vérifié ».")}</p>
           {errors.instagram && <p className="field-error">{errors.instagram}</p>}
         </div>
 
         <div>
           <p className="field-label">{t("Mes photos")}</p>
-          <p className="field-help -mt-1 mb-2">{t("Jusqu'à 6 photos choisies par toi, visibles sur ton profil.")}</p>
+          <p className="field-help -mt-1 mb-2">{t("Jusqu'à 6 photos.")}</p>
           <div className="grid grid-cols-3 gap-2">
             {v.gallery.map((url) => (
               <div key={url} className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-surface-2">
@@ -235,11 +236,15 @@ export function ProfileSettings({ me, blocks, welcome }: { me: Me; blocks: { use
       <section id="espace-adulte" className="card scroll-mt-20 space-y-3 p-5 sm:p-6">
         <h2 className="flex items-center gap-2 font-display text-xl"><ShieldCheck size={20} /> {t("Espace adulte (18+)")}</h2>
         <p className="text-sm text-muted">
-          {t("Des Moments entre adultes, y compris libertins, réservés aux personnes majeures qui l'ont choisi. Jamais visibles dans le feed par défaut, jamais publics.")}
+          {t("Moments entre adultes, libertins compris. Visible seulement si tu l'actives.")}
         </p>
         {adult.on ? (
           <button type="button" className="btn-secondary" onClick={() => saveAdult(false)} disabled={!!busy}>
             {busy === "adult" && <Loader2 size={16} className="animate-spin" />} {t("Désactiver l'espace adulte")}
+          </button>
+        ) : !adultOpen ? (
+          <button type="button" className="btn-secondary" onClick={() => setAdultOpen(true)}>
+            {t("Activer l'espace adulte")}
           </button>
         ) : (
           <>

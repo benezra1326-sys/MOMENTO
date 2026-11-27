@@ -126,7 +126,7 @@ export const feedQuerySchema = z.object({
   city: z.string().trim().max(60).optional(),
   category: z.enum(categoryIds).optional(),
   from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-  when: z.enum(["today", "tomorrow", "weekend", "week"]).optional(),
+  when: z.enum(["today", "tomorrow", "weekend", "later", "week"]).optional(),
   sort: z.enum(["best", "date", "recent"]).optional(),
   cursor: z.string().max(200).optional(),
   limit: z.coerce.number().int().min(1).max(30).optional(),
@@ -151,5 +151,5 @@ export const availabilityUpdateSchema = availabilityInputSchema.partial().extend
 
 export const availabilityQuerySchema = z.object({
   city: z.string().trim().max(60).optional(),
-  when: z.enum(["today", "tomorrow", "weekend", "week"]).optional(),
+  when: z.enum(["today", "tomorrow", "weekend", "later", "week"]).optional(),
 });

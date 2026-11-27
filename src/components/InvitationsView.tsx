@@ -31,7 +31,7 @@ export type InvitationsData = {
 };
 
 const tabs = [
-  { id: "agenda", label: "Mon agenda" },
+  { id: "agenda", label: "Agenda" },
   { id: "recues", label: "Reçues" },
   { id: "envoyees", label: "Envoyées" },
   { id: "hote", label: "Mes Moments" },
@@ -124,7 +124,7 @@ export function InvitationsView({ data: raw, initialTab }: { data: InvitationsDa
 
   return (
     <div>
-      <div role="tablist" aria-label={t("Invitations")} className="scroll-row -mx-4 mb-5 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+      <div role="tablist" aria-label={t("Invitations")} className="mb-5 flex flex-wrap gap-2">
         {tabs.map((x) => (
           <button key={x.id} role="tab" type="button" aria-selected={tab === x.id} onClick={() => setTab(x.id)} className={`chip ${tab === x.id ? "chip-active" : ""}`}>
             {t(x.label)}

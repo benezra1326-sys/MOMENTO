@@ -79,6 +79,8 @@ export function whenRange(when: FeedQuery["when"], now = new Date(), tz = produc
   if (when === "today") return { gte: now, lt: dayStart(now, tz, 1) };
   if (when === "tomorrow") return { gte: dayStart(now, tz, 1), lt: dayStart(now, tz, 2) };
   if (when === "week") return { gte: now, lt: dayStart(now, tz, 8) };
+  // « Plus tard » : à partir d'après-demain.
+  if (when === "later") return { gte: dayStart(now, tz, 2), lt: new Date(now.getTime() + 400 * 86400_000) };
   // week-end : du vendredi 18 h au dimanche soir (dans le fuseau par défaut)
   const weekday = new Intl.DateTimeFormat("en-US", { timeZone: tz, weekday: "short" }).format(now);
   const idx = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(weekday);
