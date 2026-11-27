@@ -73,9 +73,9 @@ export function HostPanel({ moment }: { moment: MomentDetailDTO }) {
       <Link href={`/u/${m.user.username}`}><Avatar person={m.user} size="md" /></Link>
       <div className="min-w-0 flex-1">
         <Link href={`/u/${m.user.username}`} className="block truncate font-semibold hover:underline">{m.user.name}</Link>
-        {m.message ? <p className="line-clamp-2 text-sm text-ink-soft">« {t(m.message)} »</p> : <p className="text-xs text-muted">{m.kind === "INVITE" ? t("Invité·e") : t("Demande")} {formatRelative(m.createdAt, locale)}</p>}
+        {m.message ? <p className="line-clamp-2 text-sm text-ink-2">« {t(m.message)} »</p> : <p className="text-xs text-muted">{m.kind === "INVITE" ? t("Invité·e") : t("Demande")} {formatRelative(m.createdAt, locale)}</p>}
       </div>
-      {actions ?? <span className="pill bg-sand text-ink-soft">{t(statusText[m.status])}</span>}
+      {actions ?? <span className="pill bg-lilac/10 text-ink-2">{t(statusText[m.status])}</span>}
     </li>
   );
 
@@ -83,7 +83,7 @@ export function HostPanel({ moment }: { moment: MomentDetailDTO }) {
     <div className="space-y-6">
       <div className="flex flex-wrap gap-2">
         {moment.phase === "draft" && (
-          <button type="button" className="btn-accent" disabled={!!busy} onClick={() => run("publish", `/api/moments/${moment.id}/publish`, {}, t("Moment publié."))}>
+          <button type="button" className="btn-primary" disabled={!!busy} onClick={() => run("publish", `/api/moments/${moment.id}/publish`, {}, t("Moment publié."))}>
             {busy === "publish" && <Loader2 size={16} className="animate-spin" />} {t("Publier")}
           </button>
         )}
@@ -112,7 +112,7 @@ export function HostPanel({ moment }: { moment: MomentDetailDTO }) {
           <input id="cancel-reason" className="input" maxLength={280} value={reason} onChange={(e) => setReason(e.target.value)} placeholder={t("Ex. : météo, imprévu…")} />
           <div className="flex gap-2">
             <button type="button" className="btn-ghost" onClick={() => setShowCancel(false)}>{t("Garder le Moment")}</button>
-            <button type="submit" className="btn bg-danger text-white hover:bg-danger/90 inline-flex min-h-11 items-center gap-2 rounded-full px-5 font-semibold" disabled={!!busy}>
+            <button type="submit" className="btn bg-danger text-night hover:bg-danger/90 inline-flex min-h-11 items-center gap-2 rounded-full px-5 font-semibold" disabled={!!busy}>
               {busy === "cancel" && <Loader2 size={16} className="animate-spin" />} {t("Confirmer l'annulation")}
             </button>
           </div>
@@ -127,7 +127,7 @@ export function HostPanel({ moment }: { moment: MomentDetailDTO }) {
         {requests.length === 0 ? (
           <p className="mt-1 text-sm text-muted">{t("Aucune demande en attente.")}</p>
         ) : (
-          <ul className="divide-y divide-line">
+          <ul className="divide-y divide-border">
             {requests.map((m) =>
               row(
                 m,
@@ -161,10 +161,10 @@ export function HostPanel({ moment }: { moment: MomentDetailDTO }) {
               <UserPlus size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted" aria-hidden />
               <input id="invitee" className="input !pl-10" placeholder={t("Nom ou @pseudo")} value={invitee} onChange={(e) => setInvitee(e.target.value)} autoComplete="off" autoCapitalize="none" role="combobox" aria-expanded={shownSuggestions.length > 0} aria-controls="invitee-list" />
               {shownSuggestions.length > 0 && (
-                <ul id="invitee-list" role="listbox" className="absolute inset-x-0 top-full z-20 mt-1 overflow-hidden rounded-2xl border border-line bg-paper shadow-lg">
+                <ul id="invitee-list" role="listbox" className="absolute inset-x-0 top-full z-20 mt-1 overflow-hidden rounded-2xl border border-border bg-surface shadow-lg">
                   {shownSuggestions.map((p) => (
                     <li key={p.username} role="option" aria-selected={false}>
-                      <button type="button" className="flex w-full items-center gap-3 px-3 py-2 text-left hover:bg-sand/60" onClick={() => setInvitee(p.username)}>
+                      <button type="button" className="flex w-full items-center gap-3 px-3 py-2 text-left hover:bg-surface-2/60" onClick={() => setInvitee(p.username)}>
                         <Avatar person={p} size="sm" />
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-sm font-semibold">{p.name}</span>
@@ -188,7 +188,7 @@ export function HostPanel({ moment }: { moment: MomentDetailDTO }) {
       {invited.length > 0 && (
         <section>
           <h3 className="font-semibold">{t("Invitations en attente")}</h3>
-          <ul className="divide-y divide-line">
+          <ul className="divide-y divide-border">
             {invited.map((m) =>
               row(
                 m,
@@ -203,13 +203,13 @@ export function HostPanel({ moment }: { moment: MomentDetailDTO }) {
 
       <section>
         <h3 className="font-semibold">{t("Participants confirmés")} <span className="text-muted">({confirmed.length}/{moment.capacity})</span></h3>
-        {confirmed.length === 0 ? <p className="mt-1 text-sm text-muted">{t("Personne pour l'instant.")}</p> : <ul className="divide-y divide-line">{confirmed.map((m) => row(m))}</ul>}
+        {confirmed.length === 0 ? <p className="mt-1 text-sm text-muted">{t("Personne pour l'instant.")}</p> : <ul className="divide-y divide-border">{confirmed.map((m) => row(m))}</ul>}
       </section>
 
       {others.length > 0 && (
         <details>
           <summary className="cursor-pointer text-sm font-medium text-muted">{t("Historique")} ({others.length})</summary>
-          <ul className="divide-y divide-line">{others.map((m) => row(m))}</ul>
+          <ul className="divide-y divide-border">{others.map((m) => row(m))}</ul>
         </details>
       )}
     </div>

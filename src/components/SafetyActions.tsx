@@ -56,13 +56,13 @@ export function SafetyActions({ username, momentId, blocked = false, label }: { 
         </button>
       </div>
       {open === "report" && (
-        <form onSubmit={report} className="space-y-3 rounded-2xl border border-line bg-sand/50 p-4">
+        <form onSubmit={report} className="space-y-3 rounded-2xl border border-border bg-surface-2/50 p-4">
           <fieldset>
             <legend className="field-label">{t("Que se passe-t-il ?")}</legend>
             <div className="space-y-1.5">
               {reasons.map((r) => (
                 <label key={r.id} className="flex items-center gap-2.5 text-sm">
-                  <input type="radio" name="reason" value={r.id} checked={reason === r.id} onChange={() => setReason(r.id)} className="h-4 w-4 accent-[var(--color-violet)]" />
+                  <input type="radio" name="reason" value={r.id} checked={reason === r.id} onChange={() => setReason(r.id)} className="h-4 w-4 accent-[var(--color-accent)]" />
                   {t(r.label)}
                 </label>
               ))}
@@ -71,7 +71,7 @@ export function SafetyActions({ username, momentId, blocked = false, label }: { 
           <label htmlFor="report-details" className="field-label">{t("Précisions (facultatif)")}</label>
           <textarea id="report-details" className="input min-h-20" maxLength={1000} value={details} onChange={(e) => setDetails(e.target.value)} />
           <p className="text-xs text-muted">{t("En cas de danger immédiat, contacte les services d'urgence (112).")}</p>
-          <button type="submit" className="btn-primary" disabled={busy}>{busy && <Loader2 size={16} className="animate-spin" />} {t("Envoyer le signalement")}</button>
+          <button type="submit" className="btn-ink" disabled={busy}>{busy && <Loader2 size={16} className="animate-spin" />} {t("Envoyer le signalement")}</button>
         </form>
       )}
       {msg && <p role="status" className={`text-sm ${msg.ok ? "text-success" : "text-danger"}`}>{msg.text}</p>}

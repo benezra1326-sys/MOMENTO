@@ -98,8 +98,8 @@ export function Divider() {
   const t = useT();
   return (
     <div className="my-5 flex items-center gap-3 text-xs font-medium uppercase tracking-wider text-muted">
-      <span className="h-px flex-1 bg-line" /> {t("ou")}{" "}
-      <span className="h-px flex-1 bg-line" />
+      <span className="h-px flex-1 bg-border" /> {t("ou")}{" "}
+      <span className="h-px flex-1 bg-border" />
     </div>
   );
 }
@@ -146,7 +146,7 @@ export function LoginForm({ next }: { next?: string | null }) {
           </label>
           <Link
             href="/mot-de-passe-oublie"
-            className="text-sm font-medium text-muted underline-offset-2 hover:text-ink hover:underline"
+            className="text-sm font-medium text-accent underline-offset-2 hover:underline"
           >
             {t("Mot de passe oublié ?")}
           </Link>
@@ -287,7 +287,7 @@ export function SignupForm({ next }: { next?: string | null }) {
       <label className="flex items-start gap-3 text-sm">
         <input
           type="checkbox"
-          className="mt-0.5 h-5 w-5 accent-[var(--color-violet)]"
+          className="mt-0.5 h-5 w-5 accent-[var(--color-accent)]"
           checked={v.acceptAge}
           onChange={(e) => set("acceptAge", e.target.checked)}
         />
@@ -305,7 +305,7 @@ export function SignupForm({ next }: { next?: string | null }) {
       )}
       <button
         type="submit"
-        className="btn-accent w-full !min-h-12"
+        className="btn-primary w-full !min-h-12"
         disabled={busy}
       >
         {busy && <Loader2 size={16} className="animate-spin" />}{" "}
@@ -383,7 +383,7 @@ export function DemoPicker({
                         router.push(safeNext(next));
                         router.refresh();
                       }}
-                      className="flex w-full items-center gap-3 rounded-2xl border border-line bg-paper p-2.5 text-left hover:border-ink/30 hover:bg-sand/50"
+                      className="flex w-full items-center gap-3 rounded-2xl border border-border bg-surface p-2.5 text-left hover:border-ink/30 hover:bg-surface-2/50"
                     >
                       <Avatar person={a} size="md" />
                       <span className="min-w-0 flex-1">

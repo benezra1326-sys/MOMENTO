@@ -9,7 +9,7 @@ export function DemoBadge({ className = "" }: { className?: string }) {
   if (!demoLabelsVisible) return null;
   return (
     <span
-      className={`pill bg-warn-soft text-warn ${className}`}
+      className={`pill bg-surface-2 text-accent ${className}`}
       title={t("Profil ou Moment fictif, créé pour la démonstration")}
     >
       {t("Démo")}

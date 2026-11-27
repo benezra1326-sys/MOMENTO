@@ -186,7 +186,7 @@ export function MomentForm({
             <label htmlFor="tags" className="field-label">{t("Tags d'ambiance")} <span className="font-normal text-muted">{t("(6 max.)")}</span></label>
             <div className="flex flex-wrap gap-1.5">
               {v.vibeTags.map((tag) => (
-                <button key={tag} type="button" onClick={() => set("vibeTags", v.vibeTags.filter((x) => x !== tag))} className="pill bg-violet-soft text-violet" aria-label={t("Retirer le tag {tag}", { tag })}>
+                <button key={tag} type="button" onClick={() => set("vibeTags", v.vibeTags.filter((x) => x !== tag))} className="pill bg-lilac/10 text-accent" aria-label={t("Retirer le tag {tag}", { tag })}>
                   #{t(tag)} <X size={12} />
                 </button>
               ))}
@@ -249,7 +249,7 @@ export function MomentForm({
             <label htmlFor="address" className="field-label">{t("Adresse exacte")} <span className="font-normal text-muted">{t("(facultatif)")}</span></label>
             <input id="address" className="input" value={v.address ?? ""} onChange={(e) => set("address", e.target.value)} placeholder={t("Rue, numéro, étage…")} />
             <label className="mt-3 flex items-start gap-3 text-sm">
-              <input type="checkbox" className="mt-0.5 h-5 w-5 accent-[var(--color-violet)]" checked={v.addressMembersOnly} onChange={(e) => set("addressMembersOnly", e.target.checked)} />
+              <input type="checkbox" className="mt-0.5 h-5 w-5 accent-[var(--color-accent)]" checked={v.addressMembersOnly} onChange={(e) => set("addressMembersOnly", e.target.checked)} />
               <span>
                 <strong>{t("Ne révéler l'adresse qu'aux participants confirmés")}</strong>
                 <span className="block text-muted">{t("Recommandé pour un lieu privé. Les autres voient seulement la zone et le nom du lieu, y compris dans les liens partagés.")}</span>
@@ -269,7 +269,7 @@ export function MomentForm({
             <legend className="field-label">{t("Qui peut voir et rejoindre")}</legend>
             <div className="grid gap-2 sm:grid-cols-2">
               {productConfig.enabledVisibilities.map((key) => (
-                <label key={key} className={`cursor-pointer rounded-2xl border p-4 transition-colors ${v.visibility === key ? "border-ink bg-sand/60" : "border-line bg-paper hover:border-ink/30"}`}>
+                <label key={key} className={`cursor-pointer rounded-2xl border p-4 transition-colors ${v.visibility === key ? "border-ink bg-surface-2/60" : "border-border bg-surface hover:border-ink/30"}`}>
                   <input type="radio" name="visibility" className="sr-only" checked={v.visibility === key} onChange={() => set("visibility", key)} />
                   <span className="font-semibold">{t(visibilityInfo[key].label)}</span>
                   <span className="mt-1 block text-sm text-muted">{t(visibilityInfo[key].help)}</span>
@@ -278,7 +278,7 @@ export function MomentForm({
             </div>
           </fieldset>
           <label className="flex items-start gap-3 text-sm">
-            <input type="checkbox" className="mt-0.5 h-5 w-5 accent-[var(--color-violet)]" checked={v.showAttendees} onChange={(e) => set("showAttendees", e.target.checked)} />
+            <input type="checkbox" className="mt-0.5 h-5 w-5 accent-[var(--color-accent)]" checked={v.showAttendees} onChange={(e) => set("showAttendees", e.target.checked)} />
             <span>{t("Afficher les participants confirmés")} <span className="block text-muted">{t("Chacun peut aussi choisir de ne pas apparaître.")}</span></span>
           </label>
         </Section>
@@ -319,13 +319,13 @@ export function MomentForm({
           {err("mediaUrl")}
         </Section>
 
-        <div className="form-actions sticky bottom-20 z-10 flex flex-wrap gap-2 rounded-3xl border border-line bg-paper/95 p-3 shadow-[var(--shadow-lift)] backdrop-blur lg:bottom-4">
+        <div className="form-actions sticky bottom-20 z-10 flex flex-wrap gap-2 rounded-3xl border border-border bg-surface/95 p-3 shadow-[var(--shadow-lift)] backdrop-blur lg:bottom-4">
           {!isPublished && (
             <button type="button" className="btn-secondary flex-1" disabled={!!busy} onClick={() => submit(false)}>
               {busy === "draft" && <Loader2 size={16} className="animate-spin" />} {t("Enregistrer le brouillon")}
             </button>
           )}
-          <button type="submit" className="btn-accent flex-1" disabled={!!busy}>
+          <button type="submit" className="btn-primary flex-1" disabled={!!busy}>
             {busy === "publish" && <Loader2 size={16} className="animate-spin" />}
             {isPublished ? t("Enregistrer les modifications") : t("Publier le Moment")}
           </button>
@@ -353,7 +353,7 @@ function Section({ n, title, children }: { n: number; title: string; children: R
   return (
     <section className="card space-y-5 p-5 sm:p-6" aria-labelledby={`s${n}`}>
       <h2 id={`s${n}`} className="flex items-center gap-3 font-display text-xl">
-        <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-ink text-sm font-semibold text-white font-sans">{n}</span>
+        <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-ink text-sm font-semibold text-night font-sans">{n}</span>
         {title}
       </h2>
       {children}

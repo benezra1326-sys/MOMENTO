@@ -34,14 +34,21 @@ export function JoinPanel({ moment, signedIn, readOnly = false }: { moment: Mome
 
   const box = (tone: "ok" | "wait" | "off" | "lock", title: string, text?: string, actions?: React.ReactNode) => {
     const Icon = { ok: CheckCircle2, wait: Clock, off: XCircle, lock: Lock }[tone];
-    const color = { ok: "text-success bg-success-soft", wait: "text-violet bg-violet-soft", off: "text-muted bg-sand", lock: "text-ink-soft bg-sand" }[tone];
+    const color = { ok: "text-ink bg-lilac/10", wait: "text-accent bg-lilac/10", off: "text-muted bg-lilac/10", lock: "text-ink-2 bg-lilac/10" }[tone];
     return (
       <div className="space-y-4">
         <div className={`flex items-start gap-3 rounded-2xl px-4 py-3.5 ${color}`}>
-          <Icon size={20} className="mt-0.5 shrink-0" />
+          {tone === "ok" ? (
+            // Place confirmée : un des rares moments forts, marqué par le dégradé signature.
+            <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-signature text-white" aria-hidden>
+              <Icon size={16} />
+            </span>
+          ) : (
+            <Icon size={20} className="mt-0.5 shrink-0" />
+          )}
           <div>
             <p className="font-semibold text-ink">{t(title)}</p>
-            {text && <p className="mt-0.5 text-sm text-ink-soft">{t(text)}</p>}
+            {text && <p className="mt-0.5 text-sm text-ink-2">{t(text)}</p>}
           </div>
         </div>
         {actions}
@@ -58,7 +65,7 @@ export function JoinPanel({ moment, signedIn, readOnly = false }: { moment: Mome
   if (!signedIn) {
     return (
       <div className="space-y-3">
-        <Link href={`/connexion?suite=/moments/${moment.id}`} className="btn-accent w-full">
+        <Link href={`/connexion?suite=/moments/${moment.id}`} className="btn-primary w-full">
           {moment.visibility === "PUBLIC" ? t("Rejoindre ce Moment") : t("Demander à rejoindre")}
         </Link>
         <p className="text-center text-sm text-muted">{t("Connecte-toi ou crée un compte en 30 secondes.")}</p>
@@ -95,7 +102,7 @@ export function JoinPanel({ moment, signedIn, readOnly = false }: { moment: Mome
         <button type="button" className="btn-secondary" disabled={!!busy} onClick={() => run("decline", `/api/requests/${ms.id}/decline`)}>
           {busy === "decline" && <Loader2 size={16} className="animate-spin" />} {t("Décliner")}
         </button>
-        <button type="button" className="btn-accent" disabled={!!busy || moment.spotsLeft === 0} onClick={() => run("accept", `/api/requests/${ms.id}/accept`)}>
+        <button type="button" className="btn-primary" disabled={!!busy || moment.spotsLeft === 0} onClick={() => run("accept", `/api/requests/${ms.id}/accept`)}>
           {busy === "accept" && <Loader2 size={16} className="animate-spin" />} {t("Accepter")}
         </button>
       </div>,
@@ -125,10 +132,10 @@ export function JoinPanel({ moment, signedIn, readOnly = false }: { moment: Mome
         </div>
       )}
       <label className="flex items-start gap-3 text-sm">
-        <input type="checkbox" className="mt-0.5 h-5 w-5 accent-[var(--color-violet)]" checked={showOnMoment} onChange={(e) => setShowOnMoment(e.target.checked)} />
+        <input type="checkbox" className="mt-0.5 h-5 w-5 accent-[var(--color-accent)]" checked={showOnMoment} onChange={(e) => setShowOnMoment(e.target.checked)} />
         <span>{t("Apparaître dans la liste des participants visible par les autres")}</span>
       </label>
-      <button type="submit" className="btn-accent w-full" disabled={!!busy}>
+      <button type="submit" className="btn-primary w-full" disabled={!!busy}>
         {busy === "join" && <Loader2 size={16} className="animate-spin" />}
         {instant ? t("Rejoindre ce Moment") : t("Demander à rejoindre")}
       </button>

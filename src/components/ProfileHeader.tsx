@@ -27,30 +27,30 @@ export async function ProfileHeader({ p, children }: { p: Profile; children?: Re
   const lived = p.attended.filter((m) => m.phase === "ended").length + p.hosted.filter((m) => m.phase === "ended").length;
   return (
     <section className="card overflow-hidden">
-      <div className="h-28 bg-gradient-to-br from-rose via-[#a0479f] to-violet sm:h-36" />
+      <div className="h-28 bg-signature sm:h-36" />
       <div className="px-5 pb-6 sm:px-8">
         <div className="-mt-12 flex flex-wrap items-end justify-between gap-4">
-          <span className="rounded-full bg-paper p-1"><Avatar person={p} size="xl" /></span>
+          <span className="rounded-full bg-surface p-1"><Avatar person={p} size="xl" /></span>
           {children}
         </div>
         <h1 className="font-display mt-3 flex flex-wrap items-center gap-2 text-3xl">
           {p.name} {p.isDemo && <DemoBadge />}
         </h1>
         <p className="text-muted">@{p.username}</p>
-        {p.bio && <p className="mt-3 max-w-xl text-ink-soft">{t(p.bio)}</p>}
+        {p.bio && <p className="mt-3 max-w-xl text-ink-2">{t(p.bio)}</p>}
         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted">
           {p.city && <span className="flex items-center gap-1"><MapPin size={14} /> {p.city}</span>}
           <span>{t("Membre depuis {date}", { date: since })}</span>
         </div>
         {p.interests.length > 0 && (
           <ul className="mt-4 flex flex-wrap gap-1.5" aria-label={t("Centres d'intérêt")}>
-            {p.interests.map((i) => <li key={i} className="pill bg-sand text-ink-soft">{t(i)}</li>)}
+            {p.interests.map((i) => <li key={i} className="pill bg-lilac/10 text-ink-2">{t(i)}</li>)}
           </ul>
         )}
         <dl className="mt-5 grid max-w-sm grid-cols-3 gap-2 text-center">
-          <div className="rounded-2xl bg-sand/60 py-2.5"><dt className="text-xs text-muted">{t("Créés")}</dt><dd className="font-display text-xl">{p.hosted.filter((m) => m.status !== "DRAFT").length}</dd></div>
-          <div className="rounded-2xl bg-sand/60 py-2.5"><dt className="text-xs text-muted">{t("Rejoints")}</dt><dd className="font-display text-xl">{p.attended.length}</dd></div>
-          <div className="rounded-2xl bg-sand/60 py-2.5"><dt className="text-xs text-muted">{t("Vécus")}</dt><dd className="font-display text-xl">{lived}</dd></div>
+          <div className="rounded-2xl bg-surface-2/60 py-2.5"><dt className="text-xs text-muted">{t("Créés")}</dt><dd className="font-display text-xl">{p.hosted.filter((m) => m.status !== "DRAFT").length}</dd></div>
+          <div className="rounded-2xl bg-surface-2/60 py-2.5"><dt className="text-xs text-muted">{t("Rejoints")}</dt><dd className="font-display text-xl">{p.attended.length}</dd></div>
+          <div className="rounded-2xl bg-surface-2/60 py-2.5"><dt className="text-xs text-muted">{t("Vécus")}</dt><dd className="font-display text-xl">{lived}</dd></div>
         </dl>
       </div>
     </section>

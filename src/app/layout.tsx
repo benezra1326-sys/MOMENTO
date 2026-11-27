@@ -12,19 +12,28 @@ import { productConfig } from "@/config/product";
 import { I18nProvider } from "@/components/I18nProvider";
 import { getLocale, getT } from "@/lib/i18n/server";
 
+/** Adresse publique canonique (liens de partage, image de partage). */
+const SITE_URL = (process.env.APP_URL || "https://upclose.world").replace(/\/$/, "");
+
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();
+  const title = t("Upclose — La vie est plus belle de près.");
+  const description = t("Découvre un Moment près de toi, demande à le rejoindre ou crée le tien, puis rencontre les participants en vrai.");
   return {
-    title: { default: t("Momento — Moins de scroll. Plus de moments vécus."), template: "%s · Momento" },
-    description: t("Découvre un Moment près de toi, demande à le rejoindre ou crée le tien, puis rencontre les participants en vrai."),
+    metadataBase: new URL(SITE_URL),
+    title: { default: title, template: "%s · Upclose" },
+    description,
     applicationName: productConfig.appName,
+    appleWebApp: { title: productConfig.appName },
+    openGraph: { type: "website", siteName: productConfig.appName, title, description, url: SITE_URL },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#faf6f0",
+  themeColor: "#1D1626",
   viewportFit: "cover",
 };
 

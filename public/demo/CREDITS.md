@@ -19,7 +19,7 @@ Visages **générés par IA** (StyleGAN, thispersondoesnotexist.com) : ce ne son
 
 ## Photos de couverture
 
-Photos sous [licence Unsplash](https://unsplash.com/license), récupérées via [Picsum](https://picsum.photos). Elles illustrent l’ambiance d’un Moment fictif ; elles ne montrent pas un événement Momento réel.
+Photos sous [licence Unsplash](https://unsplash.com/license), récupérées via [Picsum](https://picsum.photos). Elles illustrent l’ambiance d’un Moment fictif ; elles ne montrent pas un événement Upclose réel.
 
 | Picsum | Auteur | Source | Moments |
 |---|---|---|---|

@@ -4,11 +4,11 @@ Le code est prêt (`src/server/facebook.ts`). Il faut créer une app chez Meta e
 
 ## 1. Chez Meta
 
-1. https://developers.facebook.com/apps/creation/ → cas d'usage **« Authentifier et demander des données aux utilisateurs avec Facebook Login »**, nom « Momento ».
+1. https://developers.facebook.com/apps/creation/ → cas d'usage **« Authentifier et demander des données aux utilisateurs avec Facebook Login »**, nom « Upclose ».
 2. Cas d'usage → Facebook Login → **Personnaliser** : ajouter l'autorisation `email` (en plus de `public_profile`).
 3. Facebook Login → **Paramètres** → **URI de redirection OAuth valides** :
-   - `https://momento-jade-nu.vercel.app/api/auth/facebook/callback`
-   - `https://momento-en.vercel.app/api/auth/facebook/callback`
+   - `https://upclose.world/api/auth/facebook/callback`
+   - `https://upclose-en.vercel.app/api/auth/facebook/callback`
    Laisser « Connexion OAuth Web » et « Mode strict pour les URI de redirection » activés.
 4. Paramètres de l'app → **Général** : URL de la politique de confidentialité, catégorie, icône. Noter **ID de l'app** et **Clé secrète**.
 5. Passer l'app en mode **Live** (« Publier »). En mode développement, seuls les comptes ajoutés comme testeurs peuvent se connecter.

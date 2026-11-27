@@ -72,8 +72,8 @@ export function ProfileSettings({ me, blocks, welcome }: { me: Me; blocks: { use
   return (
     <div className="space-y-6">
       {welcome && (
-        <div className="rounded-3xl bg-gradient-to-br from-rose to-violet p-5 text-white">
-          <p className="font-display text-2xl">{t("Bienvenue sur Momento !")}</p>
+        <div className="rounded-3xl bg-signature p-5 text-white">
+          <p className="font-display text-2xl">{t("Bienvenue sur Upclose !")}</p>
           <p className="mt-1 text-white/85">{t("Ajoute une photo et quelques mots : les hôtes acceptent plus volontiers un profil complété.")}</p>
         </div>
       )}
@@ -111,7 +111,7 @@ export function ProfileSettings({ me, blocks, welcome }: { me: Me; blocks: { use
           <label htmlFor="p-int" className="field-label">{t("Centres d'intérêt")}</label>
           <div className="mb-2 flex flex-wrap gap-1.5">
             {v.interests.map((i) => (
-              <button key={i} type="button" className="pill bg-sand text-ink-soft" onClick={() => set("interests", v.interests.filter((x) => x !== i))} aria-label={t("Retirer {x}", { x: i })}>
+              <button key={i} type="button" className="pill bg-lilac/10 text-ink-2" onClick={() => set("interests", v.interests.filter((x) => x !== i))} aria-label={t("Retirer {x}", { x: i })}>
                 {t(i)} <X size={12} />
               </button>
             ))}
@@ -133,14 +133,14 @@ export function ProfileSettings({ me, blocks, welcome }: { me: Me; blocks: { use
           />
         </div>
 
-        <fieldset className="space-y-3 border-t border-line pt-5">
+        <fieldset className="space-y-3 border-t border-border pt-5">
           <legend className="field-label">{t("Confidentialité et confort")}</legend>
           <label className="flex items-start gap-3 text-sm">
-            <input type="checkbox" className="mt-0.5 h-5 w-5 accent-[var(--color-violet)]" checked={v.showPastMoments} onChange={(e) => set("showPastMoments", e.target.checked)} />
+            <input type="checkbox" className="mt-0.5 h-5 w-5 accent-[var(--color-accent)]" checked={v.showPastMoments} onChange={(e) => set("showPastMoments", e.target.checked)} />
             <span>{t("Afficher les Moments que j'ai rejoints sur mon profil public")}</span>
           </label>
           <label className="flex items-start gap-3 text-sm">
-            <input type="checkbox" className="mt-0.5 h-5 w-5 accent-[var(--color-violet)]" checked={v.autoplayVideos} onChange={(e) => set("autoplayVideos", e.target.checked)} />
+            <input type="checkbox" className="mt-0.5 h-5 w-5 accent-[var(--color-accent)]" checked={v.autoplayVideos} onChange={(e) => set("autoplayVideos", e.target.checked)} />
             <span>{t("Lire automatiquement les vidéos du feed (toujours sans son)")}</span>
           </label>
         </fieldset>
@@ -172,7 +172,7 @@ export function ProfileSettings({ me, blocks, welcome }: { me: Me; blocks: { use
         {blocks.length === 0 ? (
           <p className="text-sm text-muted">{t("Tu n'as bloqué personne. Tu peux bloquer depuis un profil ou un Moment.")}</p>
         ) : (
-          <ul className="divide-y divide-line">
+          <ul className="divide-y divide-border">
             {blocks.map((b) => (
               <li key={b.username} className="flex items-center justify-between py-2.5">
                 <span className="text-sm"><strong>{b.name}</strong> <span className="text-muted">@{b.username}</span></span>

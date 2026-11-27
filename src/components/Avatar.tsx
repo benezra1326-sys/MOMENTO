@@ -12,7 +12,7 @@ export function Avatar({ person, size = "md", ring = false }: { person: Pick<Per
     .replace(/[^\p{L}]/gu, "")
     .slice(0, 2)
     .toUpperCase();
-  const cls = `relative inline-flex shrink-0 overflow-hidden rounded-full bg-violet-soft ${ring ? "ring-2 ring-paper" : ""}`;
+  const cls = `relative inline-flex shrink-0 overflow-hidden rounded-full bg-lilac/10 ${ring ? "ring-2 ring-surface" : ""}`;
   if (person.photoUrl) {
     return (
       <span className={cls} style={{ width: px, height: px }}>
@@ -22,7 +22,7 @@ export function Avatar({ person, size = "md", ring = false }: { person: Pick<Per
   }
   return (
     <span
-      className={`${cls} items-center justify-center font-semibold text-violet`}
+      className={`${cls} items-center justify-center font-semibold text-accent`}
       style={{ width: px, height: px, fontSize: Math.max(10, px * 0.38) }}
       aria-hidden
     >

@@ -1,5 +1,5 @@
 /**
- * Seed de démonstration Momento.
+ * Seed de démonstration Upclose.
  *
  *   npm run db:seed
  *

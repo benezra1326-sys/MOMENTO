@@ -9,7 +9,7 @@ export type OAuthProvider = "google" | "facebook";
 
 /**
  * Adresse publique utilisée pour l'adresse de retour OAuth : celle où la personne a cliqué.
- * Ainsi la connexion marche aussi bien sur momento-jade-nu.vercel.app que sur momento-en.vercel.app
+ * Ainsi la connexion marche aussi bien sur upclose.world que sur upclose-en.vercel.app (version anglaise)
  * (les cookies de « state » sont posés sur l'adresse de départ). Une adresse non déclarée chez
  * Google ou Facebook est simplement refusée par eux.
  */

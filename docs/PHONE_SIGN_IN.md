@@ -6,7 +6,7 @@ Le code est prêt (`src/server/phone.ts`). Les SMS passent par **Twilio Verify**
 
 1. Créer un compte : https://www.twilio.com/try-twilio
 2. Passer en compte payant (sinon seuls les numéros vérifiés reçoivent les SMS) : https://console.twilio.com/us1/billing/manage-billing/upgrade
-3. Créer le service Verify : https://console.twilio.com/us1/develop/verify/services → **Create new** → Friendly name `Momento`, canal **SMS** coché. Noter le **Service SID** (`VA…`).
+3. Créer le service Verify : https://console.twilio.com/us1/develop/verify/services → **Create new** → Friendly name `Upclose`, canal **SMS** coché. Noter le **Service SID** (`VA…`).
 4. Pays autorisés : https://console.twilio.com/us1/develop/verify/settings/geo-permissions → n'autoriser que les pays utiles (ex. France, Espagne). Limite le risque de « SMS pumping ».
 5. **Account SID** (`AC…`) et **Auth Token** : page d'accueil https://console.twilio.com/ (« Account Info »).
 

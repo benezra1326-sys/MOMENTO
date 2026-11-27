@@ -33,7 +33,7 @@ async function getJson(url: string) {
   return { ok: res.ok, body };
 }
 
-/** Échange le code contre un jeton, vérifie qu'il a été émis pour l'app Momento, puis lit le profil. */
+/** Échange le code contre un jeton, vérifie qu'il a été émis pour l'app Upclose, puis lit le profil. */
 export async function exchangeFacebookCode(req: Request, code: string): Promise<FacebookProfile> {
   const appId = process.env.FACEBOOK_APP_ID!;
   const secret = process.env.FACEBOOK_APP_SECRET!;

@@ -1,17 +1,15 @@
-export function Logo({ light = false, id = "mlogo" }: { light?: boolean; id?: string }) {
-  return (
-    <span className={`inline-flex items-center gap-2 ${light ? "text-white" : "text-ink"}`}>
-      <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden>
-        <defs>
-          <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor="#d93d74" />
-            <stop offset="1" stopColor="#6d4fe0" />
-          </linearGradient>
-        </defs>
-        <circle cx="16" cy="16" r="15" fill={`url(#${id})`} />
-        <path d="M7 21.5V11l5.2 6.2L16 11l3.8 6.2L25 11v10.5" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-      <span className="font-display text-[1.4rem] font-medium leading-none tracking-tight">momento</span>
-    </span>
-  );
+/* eslint-disable @next/next/no-img-element -- SVG du kit de marque, servi tel quel depuis public/brand. */
+
+/**
+ * Logo Upclose (kit public/brand, voir LISEZMOI.md).
+ * - par défaut (`light`) : texte crème, pour le fond sombre de l'appli ;
+ * - `light={false}` : texte encre, pour fonds clairs ;
+ * - `symbol` : symbole seul, là où la place manque.
+ */
+export function Logo({ light = true, symbol = false, height = 28 }: { light?: boolean; symbol?: boolean; height?: number }) {
+  if (symbol) {
+    return <img src="/brand/upclose-symbol.svg" alt="Upclose" height={height} width={Math.round((height * 61) / 69.4)} className="block" />;
+  }
+  const src = light ? "/brand/upclose-logo-light.svg" : "/brand/upclose-logo.svg";
+  return <img src={src} alt="Upclose" height={height} width={Math.round((height * 378.3) / 106)} className="block" />;
 }

@@ -30,13 +30,13 @@ export function EmptyState({
   const Icon = icon === "lock" ? Lock : SearchX;
   return (
     <div className="card flex flex-col items-center px-6 py-12 text-center">
-      <span className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-sand text-ink-soft">
+      <span className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-surface-2 text-ink-2">
         <Icon size={22} />
       </span>
       <h2 className="font-display text-xl">{title}</h2>
       {text && <p className="mt-2 max-w-sm text-sm text-muted">{text}</p>}
       {action && (
-        <Link href={action.href} className="btn-primary mt-6">
+        <Link href={action.href} className="btn-ink mt-6">
           {action.label}
         </Link>
       )}

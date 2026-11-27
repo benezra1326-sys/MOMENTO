@@ -380,7 +380,7 @@ describe("suppression de compte", () => {
     await deleteMyAccount(host, host.username);
     const u = await prisma.user.findUniqueOrThrow({ where: { id: host.id } });
     expect(u.status).toBe("DELETED");
-    expect(u.email).toMatch(/@momento\.invalid$/);
+    expect(u.email).toMatch(/@upclose\.invalid$/);
     expect(u.passwordHash).toBeNull();
     expect(await prisma.session.count({ where: { userId: host.id } })).toBe(0);
     expect((await prisma.moment.findUniqueOrThrow({ where: { id } })).status).toBe("CANCELLED");

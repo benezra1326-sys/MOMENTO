@@ -192,7 +192,7 @@ export async function deleteMyAccount(viewerIn: Viewer | null, confirmUsername: 
       where: { id: viewer.id },
       data: {
         status: "DELETED",
-        email: `deleted+${viewer.id}@momento.invalid`,
+        email: `deleted+${viewer.id}@upclose.invalid`,
         username: `supprime_${viewer.id.slice(-10)}`,
         name: "Compte supprimé",
         bio: "",

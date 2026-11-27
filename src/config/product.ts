@@ -12,9 +12,9 @@ function flag(name: string, fallback: boolean): boolean {
 }
 
 export const productConfig = {
-  appName: "Momento",
-  tagline: "Moins de scroll. Plus de moments vécus.",
-  mantra: "Don't scroll life. Live it.",
+  appName: "Upclose",
+  tagline: "La vie est plus belle de près.",
+  mantra: "Life looks better up close.",
 
   /** Décision ouverte n°1 : ville pilote. Marbella n'est qu'un exemple historique. */
   pilotCity: process.env.PILOT_CITY || "Marbella",

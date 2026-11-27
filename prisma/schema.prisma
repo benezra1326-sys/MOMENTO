@@ -1,4 +1,4 @@
-// Momento — modèle de données du MVP.
+// Upclose — modèle de données du MVP.
 // Voir docs/ARCHITECTURE.md pour les règles métier (capacité, visibilité, blocage).
 
 generator client {
@@ -81,7 +81,7 @@ model User {
   passwordHash String?
   /// Identifiant Google (claim « sub ») si le compte utilise la connexion Google.
   googleId     String?       @unique
-  /// Identifiant Facebook (propre à l'app Momento) si le compte utilise la connexion Facebook.
+  /// Identifiant Facebook (propre à l'app Upclose) si le compte utilise la connexion Facebook.
   facebookId   String?       @unique
   /// Numéro de téléphone au format international (+33612345678), confirmé par un code SMS.
   phone        String?       @unique

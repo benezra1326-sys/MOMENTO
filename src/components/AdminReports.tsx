@@ -56,9 +56,9 @@ export function AdminReports({ reports, status }: { reports: Report[]; status: "
                 <span className="pill bg-danger-soft text-danger">{t(reasonLabel[r.reason] ?? r.reason)}</span>
                 <span className="text-xs text-muted">{t("par @{u}", { u: r.reporter.username })} · {formatRelative(r.createdAt, locale)}</span>
               </div>
-              {r.moment && <p className="text-sm">{t("Moment :")} <Link className="font-semibold underline" href={`/moments/${r.moment.id}`}>{r.moment.title}</Link> ({r.moment.status})</p>}
-              {r.target && <p className="text-sm">{t("Profil :")} <Link className="font-semibold underline" href={`/u/${r.target.username}`}>@{r.target.username}</Link> ({r.target.status})</p>}
-              {r.details && <p className="text-sm text-ink-soft">« {r.details} »</p>}
+              {r.moment && <p className="text-sm">{t("Moment :")} <Link className="font-semibold text-accent underline" href={`/moments/${r.moment.id}`}>{r.moment.title}</Link> ({r.moment.status})</p>}
+              {r.target && <p className="text-sm">{t("Profil :")} <Link className="font-semibold text-accent underline" href={`/u/${r.target.username}`}>@{r.target.username}</Link> ({r.target.status})</p>}
+              {r.details && <p className="text-sm text-ink-2">« {r.details} »</p>}
               {status === "OPEN" && (
                 <div className="flex flex-wrap gap-2 pt-1">
                   <button type="button" className="btn-ghost !min-h-9 text-sm" disabled={busy === r.id} onClick={() => act(r.id, "dismiss")}>{t("Classer sans suite")}</button>
