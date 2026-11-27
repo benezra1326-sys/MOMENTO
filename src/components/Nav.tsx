@@ -10,15 +10,15 @@ type Item = { href: string; label: string; icon: typeof Home; match: (p: string)
 const explorer: Item = { href: "/explorer", label: "Explorer", icon: Compass, match: (p: string) => p.startsWith("/explorer") };
 const dispos: Item = { href: "/dispos", label: "Dispos", icon: CalendarHeart, match: (p: string) => p.startsWith("/dispos") };
 
-// Quatre entrées, comme dans la bible produit : Feed / Créer / Activité / Profil.
-// Les Dispos vivent dans le Feed (deuxième univers) ; l'agenda vit dans Activité.
+// Feed (les invitations) / Dispos (qui est libre) / Créer / Activité (agenda) / Profil.
 const items: Item[] = [
-  { href: "/", label: "Feed", icon: Home, match: (p: string) => p === "/" || p.startsWith("/dispos") },
+  { href: "/", label: "Feed", icon: Home, match: (p: string) => p === "/" },
+  dispos,
   { href: "/creer", label: "Créer", icon: Plus, match: (p: string) => p === "/creer" || p === "/moments/nouveau", primary: true },
   { href: "/activite", label: "Activité", icon: CalendarDays, match: (p: string) => p.startsWith("/activite") || p.startsWith("/invitations") || p.startsWith("/notifications") },
   { href: "/moi", label: "Profil", icon: User, match: (p: string) => p.startsWith("/moi") || p.startsWith("/u/") },
 ];
-const PRIVATE = ["/creer", "/activite", "/moi"];
+const PRIVATE = ["/dispos", "/creer", "/activite", "/moi"];
 
 export function BottomNav({ signedIn, unread }: { signedIn: boolean; unread: number }) {
   const path = usePathname();
@@ -28,7 +28,7 @@ export function BottomNav({ signedIn, unread }: { signedIn: boolean; unread: num
       aria-label={t("Navigation principale")}
       className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md lg:hidden"
     >
-      <ul className="mx-auto grid max-w-lg grid-cols-4">
+      <ul className="mx-auto grid max-w-lg grid-cols-5">
         {items.map(({ href, label, icon: Icon, match, primary }) => {
           const active = match(path);
           const target = !signedIn && PRIVATE.includes(href) ? `/connexion?suite=${encodeURIComponent(href)}` : href;
@@ -47,7 +47,7 @@ export function BottomNav({ signedIn, unread }: { signedIn: boolean; unread: num
                   <Icon size={22} strokeWidth={active ? 2.4 : 1.9} />
                 )}
                 <span className={primary ? "sr-only" : ""}>{t(label)}</span>
-                {href === "/activite" && unread > 0 && <span className="absolute right-[32%] top-3 h-2 w-2 rounded-full bg-coral" />}
+                {href === "/activite" && unread > 0 && <span className="absolute right-[30%] top-3 h-2 w-2 rounded-full bg-coral" />}
               </Link>
             </li>
           );
@@ -61,8 +61,7 @@ export function SideNav({ signedIn, unread }: { signedIn: boolean; unread: numbe
   const path = usePathname();
   const t = useT();
   const base = items.filter((i) => !i.primary);
-  const feed = { ...base[0], match: (p: string) => p === "/" };
-  const list = [feed, dispos, explorer, base[1], base[2], { href: "/notifications", label: "Notifications", icon: Bell, match: (p: string) => p.startsWith("/notifications") }];
+  const list = [base[0], base[1], explorer, base[2], base[3], { href: "/notifications", label: "Notifications", icon: Bell, match: (p: string) => p.startsWith("/notifications") }];
   return (
     <nav aria-label={t("Navigation principale")} className="space-y-1">
       <Link href={signedIn ? "/creer" : "/connexion?suite=/creer"} className="btn-primary mb-5 w-full">
