@@ -19,8 +19,8 @@
   --color-ink-2: #3b3346;         /* Texte secondaire */
   --color-muted: #6e6578;         /* Texte discret (#8a8194 de la charte : 3,4:1 sur crème, sous le seuil AA) */
   --color-border: #e7e0d6;        /* Bordures */
-  --color-primary: #d93d74;       /* Magenta : action principale */
-  --color-primary-hover: #c8386b; /* Magenta assombri de 8 % */
+  --color-primary: #d03a6f;       /* Magenta des boutons (charte #d93d74 assombri : blanc à 4,65:1, AA) */
+  --color-primary-hover: #bf3566; /* Magenta assombri de 8 % */
   --color-accent: #6d4fe0;        /* Violet : liens, focus, onglet actif, sélection */
   --color-coral: #ef6a5a;         /* Corail : notifications, nouveautés */
   --color-lilac: #9a6cf0;         /* Lilas : fonds teintés (à 10 %) */

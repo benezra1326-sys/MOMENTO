@@ -112,7 +112,7 @@ export function actionEmail(opts: {
 <tr><td style="padding-bottom:20px"><img src="${EMAIL_LOGO_URL}" width="${EMAIL_LOGO_W}" height="36" alt="Upclose" style="display:block;border:0"></td></tr>
 <tr><td style="font-size:16px;line-height:1.5;padding-bottom:8px">${escapeHtml(opts.greeting)}</td></tr>
 <tr><td style="font-size:16px;line-height:1.5;padding-bottom:24px">${escapeHtml(opts.intro)}</td></tr>
-<tr><td style="padding-bottom:24px"><a href="${escapeHtml(opts.url)}" style="display:inline-block;background:#D93D74;color:#FFFFFF;text-decoration:none;font-weight:bold;padding:14px 24px;border-radius:999px">${escapeHtml(opts.cta)}</a></td></tr>
+<tr><td style="padding-bottom:24px"><a href="${escapeHtml(opts.url)}" style="display:inline-block;background:#D03A6F;color:#FFFFFF;text-decoration:none;font-weight:bold;padding:14px 24px;border-radius:999px">${escapeHtml(opts.cta)}</a></td></tr>
 <tr><td style="font-size:13px;line-height:1.5;color:#6E6578">${escapeHtml(opts.outro)}<br><br>${escapeHtml(fallback)} ${escapeHtml(opts.url)}</td></tr>
 </table></td></tr></table></body></html>`;
   return { to: opts.to, subject: opts.subject, text, html };
