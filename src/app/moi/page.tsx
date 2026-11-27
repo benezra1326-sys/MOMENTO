@@ -15,15 +15,19 @@ export default async function MePage({ searchParams }: { searchParams: Promise<{
   if (!viewer) redirect("/connexion?suite=/moi");
   const { bienvenue } = await searchParams;
   const t = await getT();
-  const [me, profile, blocks] = await Promise.all([getMyProfile(viewer), getPublicProfile(viewer, viewer.username), listMyBlocks(viewer)]);
+  // Requêtes séquentielles : une seule connexion à la base en production.
+  const me = await getMyProfile(viewer);
+  const profile = await getPublicProfile(viewer, viewer.username);
+  const blocks = await listMyBlocks(viewer);
   return (
     <div className="space-y-8">
       <ProfileHeader p={profile}>
+        <a href="#modifier" className="btn-primary">{t("Modifier mon profil")}</a>
         <Link href={`/u/${viewer.username}`} className="btn-secondary">{t("Voir mon profil public")}</Link>
       </ProfileHeader>
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-        <ProfileMoments p={profile} narrow />
-        <ProfileSettings me={me} blocks={blocks} welcome={bienvenue === "1"} />
+        <div className="order-2 lg:order-1"><ProfileMoments p={profile} narrow /></div>
+        <div id="modifier" className="order-1 scroll-mt-20 lg:order-2"><ProfileSettings me={me} blocks={blocks} welcome={bienvenue === "1"} /></div>
       </div>
     </div>
   );
