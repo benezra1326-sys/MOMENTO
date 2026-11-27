@@ -56,13 +56,13 @@ async function consumeToken(token: string, kind: AuthTokenKind) {
 /** Envoie (ou renvoie) le lien de confirmation d'adresse à l'utilisateur connecté. */
 export async function sendVerificationEmail(userId: string): Promise<{ sent: boolean }> {
   const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user || user.emailVerifiedAt || user.isDemo || user.status !== "ACTIVE") return { sent: false };
+  if (!user || !user.email || user.emailVerifiedAt || user.isDemo || user.status !== "ACTIVE") return { sent: false };
   const token = await issueToken(user.id, "VERIFY_EMAIL");
   if (!token) throw new AppError("RATE_LIMITED", "Trop d'e-mails envoyés. Réessaie dans une heure.");
   const url = `${await publicBaseUrl()}/verifier-email?jeton=${token}`;
   const sent = await sendEmail(
     actionEmail({
-      to: user.email,
+      to: user.email!,
       subject: "Confirme ton adresse e-mail",
       greeting: `Bonjour ${user.name},`,
       intro: "Bienvenue sur Momento ! Confirme ton adresse pour pouvoir créer et rejoindre des Moments.",
@@ -92,7 +92,7 @@ const forgotSchema = z.object({ email: z.string().trim().toLowerCase().email("Ad
 export async function requestPasswordReset(raw: unknown) {
   const { email } = forgotSchema.parse(raw);
   const user = await prisma.user.findUnique({ where: { email } });
-  if (user && user.status === "ACTIVE" && !user.isDemo) {
+  if (user?.email && user.status === "ACTIVE" && !user.isDemo) {
     const token = await issueToken(user.id, "RESET_PASSWORD");
     if (token) {
       const url = `${await publicBaseUrl()}/nouveau-mot-de-passe?jeton=${token}`;

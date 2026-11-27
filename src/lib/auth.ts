@@ -7,10 +7,10 @@ import { AppError } from "./errors";
 export const SESSION_COOKIE = "momento_session";
 const SESSION_DAYS = 30;
 
-export type Viewer = Pick<User, "id" | "role" | "status" | "name" | "username" | "photoUrl" | "isDemo" | "city" | "emailVerifiedAt">;
+export type Viewer = Pick<User, "id" | "role" | "status" | "name" | "username" | "photoUrl" | "isDemo" | "city" | "emailVerifiedAt" | "phoneVerifiedAt">;
 
 const viewerSelect = {
-  id: true, role: true, status: true, name: true, username: true, photoUrl: true, isDemo: true, city: true, emailVerifiedAt: true,
+  id: true, role: true, status: true, name: true, username: true, photoUrl: true, isDemo: true, city: true, emailVerifiedAt: true, phoneVerifiedAt: true,
 } as const;
 
 export function hashSecret(token: string) {
@@ -82,7 +82,7 @@ export function emailVerificationRequired(): boolean {
 /** Comme requireActive, plus l'adresse e-mail confirmée quand la vérification est exigée. */
 export function requireVerified(viewer: Viewer | null): Viewer {
   const v = requireActive(viewer);
-  if (!v.isDemo && !v.emailVerifiedAt && emailVerificationRequired()) {
+  if (!v.isDemo && !v.emailVerifiedAt && !v.phoneVerifiedAt && emailVerificationRequired()) {
     throw new AppError("EMAIL_NOT_VERIFIED", "Confirme ton adresse e-mail pour continuer : le lien est dans ta boîte de réception.");
   }
   return v;

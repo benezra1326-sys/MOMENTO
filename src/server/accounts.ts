@@ -87,6 +87,7 @@ export async function getMyProfile(viewerIn: Viewer | null) {
   return {
     id: u.id,
     email: u.email,
+    phone: u.phone,
     name: u.name,
     username: u.username,
     bio: u.bio,
@@ -201,6 +202,10 @@ export async function deleteMyAccount(viewerIn: Viewer | null, confirmUsername: 
         city: "",
         interests: [],
         passwordHash: null,
+        googleId: null,
+        facebookId: null,
+        phone: null,
+        phoneVerifiedAt: null,
       },
     });
   });

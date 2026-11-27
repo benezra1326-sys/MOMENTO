@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Smartphone } from "lucide-react";
 import { api } from "@/lib/client";
 import { Avatar } from "./Avatar";
 import { useT } from "./I18nProvider";
@@ -57,13 +57,15 @@ export function SocialButtons({
   next,
   google,
   facebook,
+  phone = false,
 }: {
   next?: string | null;
   google: boolean;
   facebook: boolean;
+  phone?: boolean;
 }) {
   const t = useT();
-  if (!google && !facebook) return null;
+  if (!google && !facebook && !phone) return null;
   const suite = encodeURIComponent(safeNext(next));
   return (
     <>
@@ -79,6 +81,12 @@ export function SocialButtons({
             <FacebookLogo />
             {t("Continuer avec Facebook")}
           </a>
+        )}
+        {phone && (
+          <Link href={`/connexion/telephone${next ? `?suite=${suite}` : ""}`} className={socialClass}>
+            <Smartphone size={20} aria-hidden />
+            {t("Continuer avec mon numéro")}
+          </Link>
         )}
       </div>
       <Divider />
@@ -414,5 +422,117 @@ export function DemoPicker({
         <Link href="/">{t("Retour")}</Link>
       </p>
     </section>
+  );
+}
+
+/** Connexion par SMS : numéro, puis code à 6 chiffres. Un nouveau numéro crée un compte. */
+export function PhoneLoginForm({ next }: { next?: string | null }) {
+  const router = useRouter();
+  const t = useT();
+  const [phone, setPhone] = useState("");
+  const [sentTo, setSentTo] = useState<string | null>(null);
+  const [code, setCode] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  async function sendCode() {
+    setBusy(true);
+    setError(null);
+    const lang = typeof document !== "undefined" ? document.documentElement.lang : undefined;
+    const res = await api<{ phone: string }>("/api/auth/phone/start", { body: { phone, locale: lang } });
+    setBusy(false);
+    if (!res.ok) return setError(res.error.message);
+    setSentTo(res.data.phone);
+    setCode("");
+  }
+
+  if (!sentTo) {
+    return (
+      <form
+        className="space-y-4"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          await sendCode();
+        }}
+      >
+        <div>
+          <label htmlFor="phone" className="field-label">
+            {t("Numéro de téléphone")}
+          </label>
+          <input
+            id="phone"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            className="input"
+            placeholder="+33 6 12 34 56 78"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            required
+          />
+          <p className="mt-1.5 text-sm text-muted">{t("Tu vas recevoir un code par SMS.")}</p>
+        </div>
+        {error && (
+          <p role="alert" className="field-error">
+            {error}
+          </p>
+        )}
+        <button type="submit" className="btn-primary w-full !min-h-12" disabled={busy}>
+          {busy && <Loader2 size={16} className="animate-spin" />} {t("Recevoir le code")}
+        </button>
+      </form>
+    );
+  }
+
+  return (
+    <form
+      className="space-y-4"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        setBusy(true);
+        setError(null);
+        const res = await api<{ isNew: boolean }>("/api/auth/phone/verify", { body: { phone: sentTo, code } });
+        setBusy(false);
+        if (!res.ok) return setError(res.error.message);
+        router.push(res.data.isNew ? "/moi?bienvenue=1" : safeNext(next));
+        router.refresh();
+      }}
+    >
+      <div>
+        <label htmlFor="code" className="field-label">
+          {t("Code reçu par SMS")}
+        </label>
+        <input
+          id="code"
+          type="text"
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          pattern="[0-9]*"
+          maxLength={8}
+          className="input text-center text-2xl tracking-[0.4em]"
+          value={code}
+          onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+          required
+          autoFocus
+        />
+        <p className="mt-1.5 text-sm text-muted">{t("Envoyé au {phone}.", { phone: sentTo })}</p>
+      </div>
+      {error && (
+        <p role="alert" className="field-error">
+          {error}
+        </p>
+      )}
+      <button type="submit" className="btn-primary w-full !min-h-12" disabled={busy || code.length < 4}>
+        {busy && <Loader2 size={16} className="animate-spin" />} {t("Se connecter")}
+      </button>
+      <div className="flex justify-between text-sm">
+        <button type="button" className="font-medium text-muted hover:text-ink" onClick={() => setSentTo(null)}>
+          {t("Changer de numéro")}
+        </button>
+        <button type="button" className="font-medium text-muted hover:text-ink" disabled={busy} onClick={() => void sendCode()}>
+          {t("Renvoyer le code")}
+        </button>
+      </div>
+    </form>
   );
 }

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getViewerSafe } from "@/lib/auth";
 import { facebookEnabled } from "@/server/facebook";
 import { googleEnabled } from "@/server/google";
+import { phoneEnabled } from "@/server/phone";
 import { listDemoAccounts } from "@/server/accounts";
 import { DemoPicker, LoginForm, SocialButtons } from "@/components/AuthForms";
 import { getT, pageTitle } from "@/lib/i18n/server";
@@ -36,7 +37,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         <p className="mt-1 text-muted">{t("Connecte-toi pour rejoindre ou créer des Moments.")}</p>
         {erreur && errors[erreur] && <p role="alert" className="mt-4 rounded-2xl bg-danger-soft px-4 py-2.5 text-sm text-danger">{t(errors[erreur])}</p>}
         <div className="mt-6">
-          <SocialButtons next={suite} google={googleEnabled()} facebook={facebookEnabled()} />
+          <SocialButtons next={suite} google={googleEnabled()} facebook={facebookEnabled()} phone={phoneEnabled()} />
           <LoginForm next={suite} />
         </div>
         <p className="mt-6 text-center text-sm text-muted">
