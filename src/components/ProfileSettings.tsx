@@ -11,7 +11,8 @@ import { useT } from "./I18nProvider";
 type Me = {
   name: string;
   username: string;
-  email: string;
+  email: string | null;
+  phone?: string | null;
   bio: string;
   city: string;
   interests: string[];
@@ -152,7 +153,7 @@ export function ProfileSettings({ me, blocks, welcome }: { me: Me; blocks: { use
 
       <section className="card space-y-3 p-5 sm:p-6">
         <h2 className="font-display text-xl">{t("Compte")}</h2>
-        <p className="text-sm text-muted">{t("Connecté avec")} <strong className="text-ink">{me.isDemo ? t("un profil de démo") : me.email}</strong> · @{me.username}</p>
+        <p className="text-sm text-muted">{t("Connecté avec")} <strong className="text-ink">{me.isDemo ? t("un profil de démo") : (me.email ?? me.phone)}</strong> · @{me.username}</p>
         <button
           type="button"
           className="btn-secondary"

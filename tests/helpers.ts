@@ -24,7 +24,7 @@ export async function makeUser(name = "User", extra: Partial<{ role: "USER" | "A
       emailVerifiedAt: extra.verified === false ? null : new Date(),
     },
   });
-  return { id: u.id, role: u.role, status: u.status, name: u.name, username: u.username, photoUrl: null, isDemo: false, city: "", emailVerifiedAt: u.emailVerifiedAt };
+  return { id: u.id, role: u.role, status: u.status, name: u.name, username: u.username, photoUrl: null, isDemo: false, city: "", emailVerifiedAt: u.emailVerifiedAt, phoneVerifiedAt: null };
 }
 
 export function localIn(days: number, tz = "Europe/Madrid") {

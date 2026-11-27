@@ -22,6 +22,7 @@ import { confirmEmail, requestPasswordReset, resetPassword } from "@/server/auth
 import { outbox } from "@/server/email";
 import { upsertGoogleUser } from "@/server/google";
 import { upsertFacebookUser } from "@/server/facebook";
+import { normalizePhone, phoneOutbox, startPhoneLogin, verifyPhoneLogin } from "@/server/phone";
 import { getMomentDetail } from "@/server/moments";
 import { inviteUser, requestToJoin, respondToMembership } from "@/server/memberships";
 import { blockUser } from "@/server/safety";
@@ -160,7 +161,7 @@ describe("connexion Google", () => {
 
   it("relie un compte e-mail existant et confirme son adresse", async () => {
     const u = await makeUser("Lien", { verified: false });
-    const email = (await prisma.user.findUniqueOrThrow({ where: { id: u.id } })).email;
+    const email = (await prisma.user.findUniqueOrThrow({ where: { id: u.id } })).email!;
     const res = await upsertGoogleUser({ sub: "g2", email, email_verified: true });
     expect(res).toEqual({ id: u.id, isNew: false });
     const after = await prisma.user.findUniqueOrThrow({ where: { id: u.id } });
@@ -213,6 +214,43 @@ describe("connexion Facebook", () => {
   it("refuse une adresse déjà reliée à un autre compte Facebook", async () => {
     await upsertFacebookUser({ id: "f5", email: "pris@test.local" });
     await expectCode(upsertFacebookUser({ id: "f6", email: "pris@test.local" }), "CONFLICT");
+  });
+});
+
+describe("connexion par téléphone", () => {
+  it("met les numéros au format international", () => {
+    expect(normalizePhone("06 12 34 56 78")).toBe("+33612345678");
+    expect(normalizePhone("0034 612 345 678")).toBe("+34612345678");
+    expect(normalizePhone("+972-54-123-4567")).toBe("+972541234567");
+    expect(() => normalizePhone("12345")).toThrow(AppError);
+  });
+
+  it("crée un compte sans e-mail au premier code, puis le retrouve", async () => {
+    const { phone } = await startPhoneLogin({ phone: "06 11 22 33 44" });
+    await expectCode(verifyPhoneLogin({ phone, code: "000000" === phoneOutbox.get(phone) ? "111111" : "000000" }), "UNAUTHENTICATED");
+    await startPhoneLogin({ phone });
+    const first = await verifyPhoneLogin({ phone, code: phoneOutbox.get(phone)! });
+    expect(first.isNew).toBe(true);
+    const u = await prisma.user.findUniqueOrThrow({ where: { id: first.id } });
+    expect(u.email).toBeNull();
+    expect(u.phone).toBe("+33611223344");
+    expect(u.phoneVerifiedAt).not.toBeNull();
+    await startPhoneLogin({ phone });
+    expect(await verifyPhoneLogin({ phone, code: phoneOutbox.get(phone)! })).toEqual({ id: first.id, isNew: false });
+  });
+
+  it("un code ne sert qu'une fois", async () => {
+    const { phone } = await startPhoneLogin({ phone: "+33699887766" });
+    const code = phoneOutbox.get(phone)!;
+    await verifyPhoneLogin({ phone, code });
+    await expectCode(verifyPhoneLogin({ phone, code }), "UNAUTHENTICATED");
+  });
+
+  it("refuse un compte suspendu", async () => {
+    const u = await makeUser("Susp", { status: "SUSPENDED" });
+    await prisma.user.update({ where: { id: u.id }, data: { phone: "+33600000001" } });
+    const { phone } = await startPhoneLogin({ phone: "+33600000001" });
+    await expectCode(verifyPhoneLogin({ phone, code: phoneOutbox.get(phone)! }), "ACCOUNT_SUSPENDED");
   });
 });
 
