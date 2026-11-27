@@ -236,13 +236,19 @@ export const FEATURED_DEMO = ["lea", "karim", "sofia", "noah", "tom", "marco", "
 
 /** Foule de démonstration générée par scripts/make-crowd.ts (profils et Moments fictifs). */
 export const people: Person[] = [...scriptedPeople, ...(crowd.people as Person[])];
+const avatars = media.avatars as Record<string, string>;
+const covers = media.covers as Record<string, string>;
+/** Visuels de la galerie proposée à la création d'un Moment et des tuiles Explorer (photos sous licence libre). */
+export const demoGallery = ((media as { gallery?: Record<string, string> }).gallery ?? {}) as Record<string, string>;
+
+/** Un Moment qui a une photo de couverture devient un Moment « image » (les autres restent texte). */
+const withPhoto = (m: SeedMoment): SeedMoment =>
+  m.key && covers[m.key] && m.media !== "IMAGE" ? { ...m, media: "IMAGE", mediaUrl: undefined, posterUrl: undefined, textTheme: undefined } : m;
+
 export const moments: SeedMoment[] = [
   ...scriptedMoments.map((m, i) => ({ ...m, key: m.key ?? `s${String(i + 1).padStart(3, "0")}` })),
   ...(crowd.moments as SeedMoment[]),
-];
-
-const avatars = media.avatars as Record<string, string>;
-const covers = media.covers as Record<string, string>;
+].map(withPhoto);
 
 /** Photo de profil : visage généré (personne qui n'existe pas) si disponible, sinon illustration locale. */
 export function demoPhoto(p: Person): string | null {
