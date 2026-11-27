@@ -56,7 +56,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
   if (!token) {
     return (
       <p role="alert" className="rounded-2xl bg-danger-soft px-4 py-3 text-sm text-danger">
-        {t("Lien incomplet.")} <Link href="/mot-de-passe-oublie" className="font-semibold underline">{t("Refais une demande")}</Link>.
+        {t("Lien incomplet.")} <Link href="/mot-de-passe-oublie" className="font-semibold text-accent underline">{t("Refais une demande")}</Link>.
       </p>
     );
   }
@@ -86,7 +86,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
       </div>
       {error && (
         <p role="alert" className="field-error">
-          {error} {/(Refais|Request)/.test(error) && <Link href="/mot-de-passe-oublie" className="font-semibold underline">{t("Nouveau lien")}</Link>}
+          {error} {/(Refais|Request)/.test(error) && <Link href="/mot-de-passe-oublie" className="font-semibold text-accent underline">{t("Nouveau lien")}</Link>}
         </p>
       )}
       <button type="submit" className="btn-primary w-full !min-h-12" disabled={busy}>
@@ -111,7 +111,7 @@ export function ConfirmEmail({ token }: { token: string }) {
         <p role="status" className="flex items-center gap-2 rounded-2xl bg-success-soft px-4 py-3 text-sm text-success">
           <CheckCircle2 size={18} /> {t("Adresse confirmée. Tu peux créer et rejoindre des Moments.")}
         </p>
-        <Link href="/" className="btn-primary w-full">{t("Aller au feed")}</Link>
+        <Link href="/" className="btn-ink w-full">{t("Aller au feed")}</Link>
       </div>
     );
   }
@@ -146,7 +146,7 @@ export function VerifyEmailBanner({ required }: { required: boolean }) {
   const [state, setState] = useState<"idle" | "busy" | "sent">("idle");
   const [error, setError] = useState<string | null>(null);
   return (
-    <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 border-b border-violet/15 bg-violet-soft px-4 py-2 text-center text-sm text-violet">
+    <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 border-b border-accent/15 bg-lilac/10 px-4 py-2 text-center text-sm text-accent">
       <MailWarning size={16} aria-hidden />
       <span>
         {required ? t("Confirme ton adresse e-mail pour créer ou rejoindre des Moments.") : t("Pense à confirmer ton adresse e-mail.")}

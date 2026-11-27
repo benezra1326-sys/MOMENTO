@@ -29,7 +29,7 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
       </ProfileHeader>
       <ProfileMoments p={p} />
       {viewer && !p.isSelf && (
-        <div className="border-t border-line pt-4">
+        <div className="border-t border-border pt-4">
           <SafetyActions username={p.username} blocked={p.viewerBlocked} label={t("ce profil")} />
         </div>
       )}

@@ -14,7 +14,7 @@ export default async function ForgotPasswordPage() {
         <ForgotPasswordForm />
       </div>
       <p className="mt-6 text-center text-sm text-muted">
-        <Link href="/connexion" className="font-semibold text-ink underline-offset-2 hover:underline">{t("Retour à la connexion")}</Link>
+        <Link href="/connexion" className="font-semibold text-accent underline-offset-2 hover:underline">{t("Retour à la connexion")}</Link>
       </p>
     </section>
   );

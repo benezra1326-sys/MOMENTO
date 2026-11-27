@@ -19,7 +19,7 @@ export function BottomNav({ signedIn, unread }: { signedIn: boolean; unread: num
   return (
     <nav
       aria-label={t("Navigation principale")}
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-paper/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md lg:hidden"
     >
       <ul className="mx-auto grid max-w-lg grid-cols-5">
         {items.map(({ href, label, icon: Icon, match, primary }) => {
@@ -30,17 +30,17 @@ export function BottomNav({ signedIn, unread }: { signedIn: boolean; unread: num
               <Link
                 href={target}
                 aria-current={active ? "page" : undefined}
-                className={`relative flex h-16 flex-col items-center justify-center gap-0.5 text-[11px] font-medium ${active ? "text-ink" : "text-muted"}`}
+                className={`relative flex h-16 flex-col items-center justify-center gap-0.5 text-[11px] font-medium ${active ? "text-accent" : "text-muted"}`}
               >
                 {primary ? (
-                  <span className="-mt-1 inline-flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-rose to-violet text-white shadow-lg shadow-rose/25">
+                  <span className="-mt-1 inline-flex h-11 w-11 items-center justify-center rounded-full bg-signature text-white shadow-lg shadow-primary/25">
                     <Icon size={22} strokeWidth={2.4} />
                   </span>
                 ) : (
                   <Icon size={22} strokeWidth={active ? 2.4 : 1.9} />
                 )}
                 <span className={primary ? "sr-only" : ""}>{t(label)}</span>
-                {href === "/invitations" && unread > 0 && <span className="absolute right-[30%] top-3 h-2 w-2 rounded-full bg-rose" />}
+                {href === "/invitations" && unread > 0 && <span className="absolute right-[30%] top-3 h-2 w-2 rounded-full bg-coral" />}
               </Link>
             </li>
           );
@@ -56,7 +56,7 @@ export function SideNav({ signedIn, unread }: { signedIn: boolean; unread: numbe
   const list = [...items.filter((i) => !i.primary), { href: "/notifications", label: "Notifications", icon: Bell, match: (p: string) => p.startsWith("/notifications") }];
   return (
     <nav aria-label={t("Navigation principale")} className="space-y-1">
-      <Link href={signedIn ? "/moments/nouveau" : "/connexion?suite=/moments/nouveau"} className="btn-accent mb-5 w-full">
+      <Link href={signedIn ? "/moments/nouveau" : "/connexion?suite=/moments/nouveau"} className="btn-primary mb-5 w-full">
         <Plus size={18} strokeWidth={2.4} /> {t("Créer un Moment")}
       </Link>
       {list.map(({ href, label, icon: Icon, match }) => {
@@ -66,12 +66,12 @@ export function SideNav({ signedIn, unread }: { signedIn: boolean; unread: numbe
             key={href}
             href={href}
             aria-current={active ? "page" : undefined}
-            className={`flex items-center gap-3 rounded-2xl px-3 py-2.5 text-[15px] font-medium transition-colors ${active ? "bg-ink text-white" : "text-ink-soft hover:bg-sand"}`}
+            className={`flex items-center gap-3 rounded-2xl px-3 py-2.5 text-[15px] font-medium transition-colors ${active ? "bg-ink text-white" : "text-ink-2 hover:bg-surface-2"}`}
           >
             <Icon size={20} strokeWidth={active ? 2.3 : 1.9} />
             {t(label)}
             {href === "/notifications" && unread > 0 && (
-              <span className={`ml-auto rounded-full px-2 text-xs font-semibold ${active ? "bg-white text-ink" : "bg-rose text-white"}`}>{unread}</span>
+              <span className={`ml-auto rounded-full px-2 text-xs font-semibold ${active ? "bg-white text-ink" : "bg-coral text-ink"}`}>{unread}</span>
             )}
           </Link>
         );

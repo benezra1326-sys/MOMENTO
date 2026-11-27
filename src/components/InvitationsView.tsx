@@ -40,10 +40,10 @@ const tabs = [
 type Tab = (typeof tabs)[number]["id"];
 
 const statusPill: Record<Row["status"], { text: string; cls: string }> = {
-  PENDING: { text: "En attente", cls: "bg-violet-soft text-violet" },
+  PENDING: { text: "En attente", cls: "bg-lilac/10 text-accent" },
   ACCEPTED: { text: "Confirmé", cls: "bg-success-soft text-success" },
-  DECLINED: { text: "Décliné", cls: "bg-sand text-muted" },
-  CANCELLED: { text: "Retiré", cls: "bg-sand text-muted" },
+  DECLINED: { text: "Décliné", cls: "bg-lilac/10 text-muted" },
+  CANCELLED: { text: "Retiré", cls: "bg-lilac/10 text-muted" },
 };
 
 export function InvitationsView({ data: raw, initialTab }: { data: InvitationsData; initialTab?: string }) {
@@ -108,7 +108,7 @@ export function InvitationsView({ data: raw, initialTab }: { data: InvitationsDa
               <span className="text-muted">· {formatRelative(r.createdAt, locale)}</span>
             </div>
           )}
-          {r.message && <p className="mt-1.5 line-clamp-2 text-sm text-ink-soft">« {t(r.message)} »</p>}
+          {r.message && <p className="mt-1.5 line-clamp-2 text-sm text-ink-2">« {t(r.message)} »</p>}
           {opts.actions && <div className="mt-3 flex flex-wrap gap-2">{opts.actions}</div>}
         </div>
       </li>
@@ -118,7 +118,7 @@ export function InvitationsView({ data: raw, initialTab }: { data: InvitationsDa
   const empty = (text: string, cta?: { href: string; label: string }) => (
     <div className="card px-6 py-10 text-center">
       <p className="text-muted">{t(text)}</p>
-      {cta && <Link href={cta.href} className="btn-primary mt-4">{t(cta.label)}</Link>}
+      {cta && <Link href={cta.href} className="btn-ink mt-4">{t(cta.label)}</Link>}
     </div>
   );
 
@@ -128,7 +128,7 @@ export function InvitationsView({ data: raw, initialTab }: { data: InvitationsDa
         {tabs.map((x) => (
           <button key={x.id} role="tab" type="button" aria-selected={tab === x.id} onClick={() => setTab(x.id)} className={`chip ${tab === x.id ? "chip-active" : ""}`}>
             {t(x.label)}
-            {counts[x.id] > 0 && <span className={`rounded-full px-1.5 text-xs ${tab === x.id ? "bg-white text-ink" : "bg-rose text-white"}`}>{counts[x.id]}</span>}
+            {counts[x.id] > 0 && <span className={`rounded-full px-1.5 text-xs ${tab === x.id ? "bg-white text-ink" : "bg-coral text-ink"}`}>{counts[x.id]}</span>}
           </button>
         ))}
       </div>
@@ -152,7 +152,7 @@ export function InvitationsView({ data: raw, initialTab }: { data: InvitationsDa
                     r.status === "PENDING" && r.moment.phase !== "cancelled" && r.moment.phase !== "ended" ? (
                       <>
                         {btn(r.id, "decline", "Décliner", "btn-secondary")}
-                        {btn(r.id, "accept", "Accepter", "btn-accent", r.moment.spotsLeft === 0)}
+                        {btn(r.id, "accept", "Accepter", "btn-primary", r.moment.spotsLeft === 0)}
                       </>
                     ) : undefined,
                 }),

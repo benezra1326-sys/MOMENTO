@@ -43,7 +43,7 @@ export function FeedFilters({ showCategories = true }: { showCategories?: boolea
           <select
             value={city}
             onChange={(e) => set("city", e.target.value)}
-            className="min-h-10 appearance-none rounded-full border border-line bg-paper py-2 pl-9 pr-8 text-sm font-semibold"
+            className="min-h-10 appearance-none rounded-full border border-border bg-surface py-2 pl-9 pr-8 text-sm font-semibold"
           >
             <option value="">{t("Toutes les villes")}</option>
             {productConfig.cities.map((c) => (
@@ -52,7 +52,7 @@ export function FeedFilters({ showCategories = true }: { showCategories?: boolea
           </select>
           <span className="pointer-events-none absolute right-3 text-xs text-muted" aria-hidden>▾</span>
         </label>
-        <div className="ml-auto inline-flex rounded-full border border-line bg-paper p-1 text-sm" role="group" aria-label={t("Trier")}>
+        <div className="ml-auto inline-flex rounded-full border border-border bg-surface p-1 text-sm" role="group" aria-label={t("Trier")}>
           {[
             { id: "date", label: "Par date" },
             { id: "recent", label: "Nouveautés" },

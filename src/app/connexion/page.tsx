@@ -41,7 +41,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           <LoginForm next={suite} />
         </div>
         <p className="mt-6 text-center text-sm text-muted">
-          {t("Pas encore de compte ?")} <Link href={`/inscription${suite ? `?suite=${encodeURIComponent(suite)}` : ""}`} className="font-semibold text-ink underline-offset-2 hover:underline">{t("Inscris-toi")}</Link>
+          {t("Pas encore de compte ?")} <Link href={`/inscription${suite ? `?suite=${encodeURIComponent(suite)}` : ""}`} className="font-semibold text-accent underline-offset-2 hover:underline">{t("Inscris-toi")}</Link>
         </p>
         <p className="mt-3 text-center text-xs text-muted">
           <Link href="/confidentialite" className="underline-offset-2 hover:underline">{t("Confidentialité")}</Link>

@@ -31,14 +31,14 @@ export function FeedList({ initial, query, autoplay, signedIn }: { initial: Feed
   if (items.length === 0) {
     return (
       <div className="card flex flex-col items-center px-6 py-14 text-center">
-        <span className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full bg-violet-soft text-violet">
+        <span className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full bg-lilac/10 text-accent">
           <Sparkles size={26} />
         </span>
         <h2 className="font-display text-2xl">{t("Aucun Moment pour ces filtres")}</h2>
         <p className="mt-2 max-w-sm text-muted">{t("Élargis la date ou la ville… ou lance le tien : il suffit d'une idée et de quelques places.")}</p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <Link href="/" className="btn-secondary">{t("Voir tous les Moments")}</Link>
-          <Link href={signedIn ? "/moments/nouveau" : "/connexion?suite=/moments/nouveau"} className="btn-accent">{t("Créer un Moment")}</Link>
+          <Link href={signedIn ? "/moments/nouveau" : "/connexion?suite=/moments/nouveau"} className="btn-primary">{t("Créer un Moment")}</Link>
         </div>
       </div>
     );

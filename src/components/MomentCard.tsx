@@ -14,7 +14,7 @@ import { accessLabel, membershipLabel, spotsLabel, statusTone } from "./moment-l
 
 const toneClass = {
   neutral: "bg-white/90 text-ink",
-  hot: "bg-rose text-white",
+  hot: "bg-primary text-white",
   full: "bg-ink text-white",
   off: "bg-white/80 text-muted line-through",
 };
@@ -34,7 +34,7 @@ export function MomentCard({ moment, autoplay = true, priority = false }: { mome
         <div className="absolute left-3 top-3 flex flex-wrap items-center gap-1.5">
           <span className="pill bg-white/90 text-ink">{t(categoryLabel(moment.category))}</span>
           {moment.isDemo && <DemoBadge />}
-          {moment.isHost && <span className="pill bg-violet text-white">{t("Ton Moment")}</span>}
+          {moment.isHost && <span className="pill bg-accent text-white">{t("Ton Moment")}</span>}
         </div>
         <div className="absolute inset-x-0 bottom-0 p-4 text-white">
           <div className="mb-2 flex flex-wrap items-center gap-1.5 text-[13px] font-medium">

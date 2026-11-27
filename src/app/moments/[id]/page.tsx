@@ -84,22 +84,22 @@ export default async function MomentPage({ params }: Props) {
         <div className="space-y-6">
           <header>
             {m.phase === "cancelled" && <p className="pill mb-3 bg-danger-soft text-danger">{t("Annulé")}</p>}
-            {m.phase === "ended" && <p className="pill mb-3 bg-sand text-muted">{t("Terminé")}</p>}
+            {m.phase === "ended" && <p className="pill mb-3 bg-lilac/10 text-muted">{t("Terminé")}</p>}
             {m.phase === "ongoing" && <p className="pill mb-3 bg-success-soft text-success">{t("En cours")}</p>}
             {m.phase === "draft" && <p className="pill mb-3 bg-warn-soft text-warn">{t("Brouillon, visible par toi seul")}</p>}
             <h1 className="font-display text-[clamp(2rem,5.5vw,3.1rem)] leading-[1.04] [text-wrap:balance]">{title}</h1>
             {m.vibeTags.length > 0 && (
               <ul className="mt-3 flex flex-wrap gap-1.5" aria-label={t("Ambiance")}>
                 {m.vibeTags.map((tag) => (
-                  <li key={tag} className="pill bg-violet-soft text-violet">#{t(tag)}</li>
+                  <li key={tag} className="pill bg-lilac/10 text-accent">#{t(tag)}</li>
                 ))}
               </ul>
             )}
           </header>
 
-          <dl className="card divide-y divide-line">
+          <dl className="card divide-y divide-border">
             <div className="flex items-start gap-3 px-5 py-4">
-              <CalendarDays size={20} className="mt-0.5 shrink-0 text-rose" aria-hidden />
+              <CalendarDays size={20} className="mt-0.5 shrink-0 text-primary" aria-hidden />
               <div>
                 <dt className="sr-only">{t("Date")}</dt>
                 <dd className="font-semibold first-letter:uppercase">{formatLongDate(m.startsAt, m.timezone, locale)}</dd>
@@ -107,7 +107,7 @@ export default async function MomentPage({ params }: Props) {
               </div>
             </div>
             <div className="flex items-start gap-3 px-5 py-4">
-              <MapPin size={20} className="mt-0.5 shrink-0 text-rose" aria-hidden />
+              <MapPin size={20} className="mt-0.5 shrink-0 text-primary" aria-hidden />
               <div>
                 <dt className="sr-only">{t("Lieu")}</dt>
                 <dd className="font-semibold">{t(m.placeName || m.area)}</dd>
@@ -119,17 +119,17 @@ export default async function MomentPage({ params }: Props) {
               </div>
             </div>
             <div className="flex items-start gap-3 px-5 py-4">
-              <Users size={20} className="mt-0.5 shrink-0 text-rose" aria-hidden />
+              <Users size={20} className="mt-0.5 shrink-0 text-primary" aria-hidden />
               <div className="min-w-0 flex-1">
                 <dt className="sr-only">{t("Places")}</dt>
                 <dd className="font-semibold">{spotsLabel(m, t)}</dd>
-                <dd className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-sand" aria-hidden>
-                  <span className="block h-full rounded-full bg-gradient-to-r from-rose to-violet" style={{ width: `${Math.min(100, (m.acceptedCount / m.capacity) * 100)}%` }} />
+                <dd className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-surface-2" aria-hidden>
+                  <span className="block h-full rounded-full bg-signature-x" style={{ width: `${Math.min(100, (m.acceptedCount / m.capacity) * 100)}%` }} />
                 </dd>
               </div>
             </div>
             <div className="flex items-start gap-3 px-5 py-4">
-              <Eye size={20} className="mt-0.5 shrink-0 text-rose" aria-hidden />
+              <Eye size={20} className="mt-0.5 shrink-0 text-primary" aria-hidden />
               <div>
                 <dt className="sr-only">{t("Accès")}</dt>
                 <dd className="font-semibold">{t(vis.label)}</dd>
@@ -151,11 +151,11 @@ export default async function MomentPage({ params }: Props) {
 
           <section>
             <h2 className="font-display text-xl">{t("L'ambiance")}</h2>
-            <p className="mt-2 whitespace-pre-line leading-relaxed text-ink-soft">{t(m.description)}</p>
+            <p className="mt-2 whitespace-pre-line leading-relaxed text-ink-2">{t(m.description)}</p>
           </section>
 
           <section className="flex items-center gap-3">
-            <Link href={`/u/${m.host.username}`} className="flex min-w-0 flex-1 items-center gap-3 rounded-2xl p-1 hover:bg-sand/60">
+            <Link href={`/u/${m.host.username}`} className="flex min-w-0 flex-1 items-center gap-3 rounded-2xl p-1 hover:bg-surface-2/60">
               <Avatar person={m.host} size="lg" />
               <span className="min-w-0">
                 <span className="eyebrow">{t("Hôte")}</span>
@@ -177,7 +177,7 @@ export default async function MomentPage({ params }: Props) {
                 <ul className="mt-3 flex flex-wrap gap-3">
                   {m.attendees.map((p) => (
                     <li key={p.id}>
-                      <Link href={`/u/${p.username}`} className="flex items-center gap-2 rounded-full border border-line bg-paper py-1 pl-1 pr-3 text-sm font-medium hover:bg-sand">
+                      <Link href={`/u/${p.username}`} className="flex items-center gap-2 rounded-full border border-border bg-surface py-1 pl-1 pr-3 text-sm font-medium hover:bg-surface-2">
                         <Avatar person={p} size="sm" /> {p.name}
                       </Link>
                     </li>
@@ -191,7 +191,7 @@ export default async function MomentPage({ params }: Props) {
           )}
 
           {viewer && !m.isHost && source === "database" && (
-            <div className="border-t border-line pt-4">
+            <div className="border-t border-border pt-4">
               <SafetyActions username={m.host.username} momentId={m.id} label={t("ce Moment")} />
             </div>
           )}

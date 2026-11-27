@@ -21,7 +21,7 @@ export default async function PhoneLoginPage({ searchParams }: { searchParams: P
         <PhoneLoginForm next={suite} />
       </div>
       <p className="mt-6 text-center text-sm text-muted">
-        <Link href={`/connexion${suite ? `?suite=${encodeURIComponent(suite)}` : ""}`} className="font-semibold text-ink underline-offset-2 hover:underline">
+        <Link href={`/connexion${suite ? `?suite=${encodeURIComponent(suite)}` : ""}`} className="font-semibold text-accent underline-offset-2 hover:underline">
           {t("Autres façons de se connecter")}
         </Link>
       </p>

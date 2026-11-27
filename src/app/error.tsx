@@ -16,7 +16,7 @@ export default function ErrorPage({ error, reset }: { error: Error & { digest?: 
           : t("Réessaie. Si le problème continue, recharge la page.")}
       </p>
       {error.digest && <p className="mt-3 text-xs text-muted">{t("Référence :")} {error.digest}</p>}
-      <button type="button" onClick={reset} className="btn-primary mt-6">
+      <button type="button" onClick={reset} className="btn-ink mt-6">
         <RefreshCw size={16} /> {t("Réessayer")}
       </button>
     </div>
