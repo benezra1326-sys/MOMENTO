@@ -353,7 +353,7 @@ function Section({ n, title, children }: { n: number; title: string; children: R
   return (
     <section className="card space-y-5 p-5 sm:p-6" aria-labelledby={`s${n}`}>
       <h2 id={`s${n}`} className="flex items-center gap-3 font-display text-xl">
-        <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-ink text-sm font-semibold text-white font-sans">{n}</span>
+        <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-ink text-sm font-semibold text-night font-sans">{n}</span>
         {title}
       </h2>
       {children}

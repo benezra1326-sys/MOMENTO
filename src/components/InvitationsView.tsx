@@ -90,7 +90,7 @@ export function InvitationsView({ data: raw, initialTab }: { data: InvitationsDa
     const m = r.moment;
     return (
       <li key={r.id} className="card flex gap-4 p-3 sm:p-4">
-        <Link href={`/moments/${m.id}`} className="relative aspect-[4/5] w-20 shrink-0 overflow-hidden rounded-2xl bg-ink sm:w-24" aria-label={t(m.title)}>
+        <Link href={`/moments/${m.id}`} className="relative aspect-[4/5] w-20 shrink-0 overflow-hidden rounded-2xl bg-night sm:w-24" aria-label={t(m.title)}>
           <MomentMedia moment={m} autoplay={false} sizes="96px" />
         </Link>
         <div className="flex min-w-0 flex-1 flex-col">
@@ -128,7 +128,7 @@ export function InvitationsView({ data: raw, initialTab }: { data: InvitationsDa
         {tabs.map((x) => (
           <button key={x.id} role="tab" type="button" aria-selected={tab === x.id} onClick={() => setTab(x.id)} className={`chip ${tab === x.id ? "chip-active" : ""}`}>
             {t(x.label)}
-            {counts[x.id] > 0 && <span className={`rounded-full px-1.5 text-xs ${tab === x.id ? "bg-white text-ink" : "bg-coral text-ink"}`}>{counts[x.id]}</span>}
+            {counts[x.id] > 0 && <span className={`rounded-full px-1.5 text-xs ${tab === x.id ? "bg-night text-cream" : "bg-coral text-night"}`}>{counts[x.id]}</span>}
           </button>
         ))}
       </div>

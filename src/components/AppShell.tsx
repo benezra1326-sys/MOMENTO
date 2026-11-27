@@ -19,7 +19,7 @@ export async function AppShell({ viewer, unread, children }: { viewer: Viewer | 
           <Link href="/connexion" aria-label={t("Upclose, accueil")}><Logo /></Link>
         </header>
         {demo && (
-          <div className="border-b border-warn/15 bg-warn-soft px-4 py-2 text-center text-[13px] text-warn">
+          <div className="border-b border-lilac/20 bg-lilac/10 px-4 py-2 text-center text-[13px] text-ink-2">
             {t("Version de démonstration : les profils et Moments marqués « Démo » sont fictifs.")}
           </div>
         )}
@@ -31,7 +31,7 @@ export async function AppShell({ viewer, unread, children }: { viewer: Viewer | 
   }
   return (
     <div className="min-h-dvh lg:flex">
-      <a href="#contenu" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-white">
+      <a href="#contenu" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-night">
         {t("Aller au contenu")}
       </a>
 
@@ -79,7 +79,7 @@ export async function AppShell({ viewer, unread, children }: { viewer: Viewer | 
         </header>
 
         {demo && demoLabelsVisible && (
-          <div className="border-b border-warn/15 bg-warn-soft px-4 py-2 text-center text-[13px] text-warn">
+          <div className="border-b border-lilac/20 bg-lilac/10 px-4 py-2 text-center text-[13px] text-ink-2">
             {t("Version de démonstration : les profils et Moments marqués « Démo » sont fictifs.")}
           </div>
         )}

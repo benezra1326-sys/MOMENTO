@@ -112,7 +112,7 @@ export function HostPanel({ moment }: { moment: MomentDetailDTO }) {
           <input id="cancel-reason" className="input" maxLength={280} value={reason} onChange={(e) => setReason(e.target.value)} placeholder={t("Ex. : météo, imprévu…")} />
           <div className="flex gap-2">
             <button type="button" className="btn-ghost" onClick={() => setShowCancel(false)}>{t("Garder le Moment")}</button>
-            <button type="submit" className="btn bg-danger text-white hover:bg-danger/90 inline-flex min-h-11 items-center gap-2 rounded-full px-5 font-semibold" disabled={!!busy}>
+            <button type="submit" className="btn bg-danger text-night hover:bg-danger/90 inline-flex min-h-11 items-center gap-2 rounded-full px-5 font-semibold" disabled={!!busy}>
               {busy === "cancel" && <Loader2 size={16} className="animate-spin" />} {t("Confirmer l'annulation")}
             </button>
           </div>

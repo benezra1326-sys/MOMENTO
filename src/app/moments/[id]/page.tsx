@@ -71,11 +71,11 @@ export default async function MomentPage({ params }: Props) {
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-10">
         <div className="lg:sticky lg:top-8 lg:self-start">
-          <div className="relative aspect-[4/5] max-h-[72vh] w-full overflow-hidden rounded-[2rem] bg-ink shadow-[var(--shadow-lift)]">
+          <div className="relative aspect-[4/5] max-h-[72vh] w-full overflow-hidden rounded-[2rem] bg-night shadow-[var(--shadow-lift)]">
             <MomentMedia moment={m} priority sizes="(min-width: 1024px) 45vw, 100vw" />
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
             <div className="absolute left-4 top-4 flex gap-1.5">
-              <span className="pill bg-white/90 text-ink">{t(categoryLabel(m.category))}</span>
+              <span className="pill bg-white/90 text-night">{t(categoryLabel(m.category))}</span>
               {m.isDemo && <DemoBadge />}
             </div>
           </div>
@@ -86,7 +86,7 @@ export default async function MomentPage({ params }: Props) {
             {m.phase === "cancelled" && <p className="pill mb-3 bg-danger-soft text-danger">{t("Annulé")}</p>}
             {m.phase === "ended" && <p className="pill mb-3 bg-lilac/10 text-muted">{t("Terminé")}</p>}
             {m.phase === "ongoing" && <p className="pill mb-3 bg-success-soft text-success">{t("En cours")}</p>}
-            {m.phase === "draft" && <p className="pill mb-3 bg-warn-soft text-warn">{t("Brouillon, visible par toi seul")}</p>}
+            {m.phase === "draft" && <p className="pill mb-3 bg-surface-2 text-accent">{t("Brouillon, visible par toi seul")}</p>}
             <h1 className="font-display text-[clamp(2rem,5.5vw,3.1rem)] leading-[1.04] [text-wrap:balance]">{title}</h1>
             {m.vibeTags.length > 0 && (
               <ul className="mt-3 flex flex-wrap gap-1.5" aria-label={t("Ambiance")}>

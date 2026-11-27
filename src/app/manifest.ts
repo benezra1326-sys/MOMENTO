@@ -8,8 +8,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Life looks better up close.",
     start_url: "/",
     display: "standalone",
-    background_color: "#FAF6F0",
-    theme_color: "#FAF6F0",
+    background_color: "#1D1626",
+    theme_color: "#1D1626",
     icons: [
       { src: "/brand/icon-192.png", sizes: "192x192", type: "image/png" },
       { src: "/brand/icon-512.png", sizes: "512x512", type: "image/png" },

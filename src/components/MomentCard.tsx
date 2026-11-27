@@ -13,9 +13,9 @@ import { ShareButton } from "./ShareButton";
 import { accessLabel, membershipLabel, spotsLabel, statusTone } from "./moment-labels";
 
 const toneClass = {
-  neutral: "bg-white/90 text-ink",
+  neutral: "bg-white/90 text-night",
   hot: "bg-primary text-white",
-  full: "bg-ink text-white",
+  full: "bg-night text-white",
   off: "bg-white/80 text-muted line-through",
 };
 
@@ -28,13 +28,13 @@ export function MomentCard({ moment, autoplay = true, priority = false }: { mome
   const tone = statusTone(moment);
   return (
     <article className="card group overflow-hidden transition-shadow hover:shadow-[var(--shadow-lift)]">
-      <Link href={href} className="relative block aspect-[4/5] overflow-hidden bg-ink" aria-label={t("Voir le Moment : {title}", { title })}>
+      <Link href={href} className="relative block aspect-[4/5] overflow-hidden bg-night" aria-label={t("Voir le Moment : {title}", { title })}>
         <MomentMedia moment={moment} autoplay={autoplay} priority={priority} className="transition-transform duration-700 group-hover:scale-[1.03]" />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-black/25" />
         <div className="absolute left-3 top-3 flex flex-wrap items-center gap-1.5">
-          <span className="pill bg-white/90 text-ink">{t(categoryLabel(moment.category))}</span>
+          <span className="pill bg-white/90 text-night">{t(categoryLabel(moment.category))}</span>
           {moment.isDemo && <DemoBadge />}
-          {moment.isHost && <span className="pill bg-accent text-white">{t("Ton Moment")}</span>}
+          {moment.isHost && <span className="pill bg-violet text-white">{t("Ton Moment")}</span>}
         </div>
         <div className="absolute inset-x-0 bottom-0 p-4 text-white">
           <div className="mb-2 flex flex-wrap items-center gap-1.5 text-[13px] font-medium">

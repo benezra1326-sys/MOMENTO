@@ -62,7 +62,7 @@ export function FeedFilters({ showCategories = true }: { showCategories?: boolea
               type="button"
               aria-pressed={sort === o.id}
               onClick={() => set("sort", o.id === "date" ? "" : o.id)}
-              className={`rounded-full px-3 py-1.5 font-medium ${sort === o.id ? "bg-ink text-white" : "text-muted hover:text-ink"}`}
+              className={`rounded-full px-3 py-1.5 font-medium ${sort === o.id ? "bg-ink text-night" : "text-muted hover:text-ink"}`}
             >
               {t(o.label)}
             </button>

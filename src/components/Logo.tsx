@@ -2,11 +2,11 @@
 
 /**
  * Logo Upclose (kit public/brand, voir LISEZMOI.md).
- * - variante par défaut : logo complet, texte encre, pour fonds clairs ;
- * - `light` : texte crème, pour fonds sombres ;
+ * - par défaut (`light`) : texte crème, pour le fond sombre de l'appli ;
+ * - `light={false}` : texte encre, pour fonds clairs ;
  * - `symbol` : symbole seul, là où la place manque.
  */
-export function Logo({ light = false, symbol = false, height = 28 }: { light?: boolean; symbol?: boolean; height?: number }) {
+export function Logo({ light = true, symbol = false, height = 28 }: { light?: boolean; symbol?: boolean; height?: number }) {
   if (symbol) {
     return <img src="/brand/upclose-symbol.svg" alt="Upclose" height={height} width={Math.round((height * 61) / 69.4)} className="block" />;
   }
