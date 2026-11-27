@@ -11,6 +11,7 @@ export type ErrorCode =
   | "BLOCKED"
   | "ACCOUNT_SUSPENDED"
   | "EMAIL_NOT_VERIFIED"
+  | "ADULT_ONLY"
   | "DATABASE_UNAVAILABLE"
   | "INTERNAL";
 
@@ -26,6 +27,7 @@ const httpStatus: Record<ErrorCode, number> = {
   BLOCKED: 403,
   ACCOUNT_SUSPENDED: 403,
   EMAIL_NOT_VERIFIED: 403,
+  ADULT_ONLY: 403,
   DATABASE_UNAVAILABLE: 503,
   INTERNAL: 500,
 };

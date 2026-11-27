@@ -87,6 +87,16 @@ export const profileSchema = z.object({
   photoUrl: mediaUrl.optional().nullable(),
   showPastMoments: z.boolean().default(true),
   autoplayVideos: z.boolean().default(true),
+  /** Compte Instagram (facultatif), sans @ ni lien. */
+  instagram: z
+    .string()
+    .trim()
+    .transform((v) => v.replace(/^@/, "").replace(/^https?:\/\/(www\.)?instagram\.com\//i, "").replace(/\/.*$/, ""))
+    .refine((v) => v === "" || /^[a-zA-Z0-9._]{1,30}$/.test(v), "Nom de compte Instagram invalide.")
+    .optional()
+    .nullable(),
+  /** Photos du profil (6 maximum), envoyées depuis Upclose. */
+  gallery: z.array(mediaUrl).max(6, "6 photos maximum.").optional(),
 });
 
 export const joinRequestSchema = z.object({
@@ -117,7 +127,7 @@ export const feedQuerySchema = z.object({
   category: z.enum(categoryIds).optional(),
   from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   when: z.enum(["today", "tomorrow", "weekend", "week"]).optional(),
-  sort: z.enum(["date", "recent"]).optional(),
+  sort: z.enum(["best", "date", "recent"]).optional(),
   cursor: z.string().max(200).optional(),
   limit: z.coerce.number().int().min(1).max(30).optional(),
 });

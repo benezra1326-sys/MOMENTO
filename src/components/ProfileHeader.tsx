@@ -1,4 +1,4 @@
-import { MapPin } from "lucide-react";
+import { AtSign, MapPin, Star } from "lucide-react";
 import type { MomentCardDTO } from "@/server/types";
 import { Avatar } from "./Avatar";
 import { DemoBadge } from "./DemoBadge";
@@ -19,6 +19,9 @@ type Profile = {
   attended: MomentCardDTO[];
   showPastMoments: boolean;
   isSelf: boolean;
+  instagram?: string | null;
+  gallery?: string[];
+  reputation?: { avg: number | null; count: number; hostAvg: number | null; hostCount: number; badges: string[] } | null;
 };
 
 export async function ProfileHeader({ p, children }: { p: Profile; children?: React.ReactNode }) {
@@ -41,10 +44,41 @@ export async function ProfileHeader({ p, children }: { p: Profile; children?: Re
         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted">
           {p.city && <span className="flex items-center gap-1"><MapPin size={14} /> {p.city}</span>}
           <span>{t("Membre depuis {date}", { date: since })}</span>
+          {p.reputation && (p.reputation.hostAvg ?? p.reputation.avg) !== null && (
+            <span className="flex items-center gap-1 text-ink-2">
+              <Star size={14} className="fill-current text-amber-400" /> {(p.reputation.hostAvg ?? p.reputation.avg)!.toFixed(1).replace(".", ",")}/5
+              <span className="text-muted">· {t("{n} avis", { n: p.reputation.hostAvg !== null ? p.reputation.hostCount : p.reputation.count })}</span>
+            </span>
+          )}
         </div>
+        {p.instagram && (
+          <a
+            href={`https://instagram.com/${p.instagram}`}
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+            className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-surface-2/70 px-3 py-1.5 text-sm text-ink-2 hover:text-ink"
+          >
+            <AtSign size={14} /> instagram.com/{p.instagram} <span className="text-xs text-muted">· {t("non vérifié")}</span>
+          </a>
+        )}
+        {p.reputation && p.reputation.badges.length > 0 && (
+          <ul className="mt-3 flex flex-wrap gap-1.5" aria-label={t("Badges")}>
+            {p.reputation.badges.map((b) => <li key={b} className="pill bg-accent/15 text-ink">{t(b)}</li>)}
+          </ul>
+        )}
         {p.interests.length > 0 && (
           <ul className="mt-4 flex flex-wrap gap-1.5" aria-label={t("Centres d'intérêt")}>
             {p.interests.map((i) => <li key={i} className="pill bg-lilac/10 text-ink-2">{t(i)}</li>)}
+          </ul>
+        )}
+        {p.gallery && p.gallery.length > 0 && (
+          <ul className="mt-5 flex snap-x gap-2 overflow-x-auto pb-1" aria-label={t("Photos")}>
+            {p.gallery.map((url) => (
+              <li key={url} className="aspect-[4/5] w-28 shrink-0 snap-start overflow-hidden rounded-2xl bg-surface-2 sm:w-36">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={url} alt="" loading="lazy" className="h-full w-full object-cover" />
+              </li>
+            ))}
           </ul>
         )}
         <dl className="mt-5 grid max-w-sm grid-cols-3 gap-2 text-center">

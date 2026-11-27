@@ -55,6 +55,7 @@ export function MomentForm({
   invitee,
   quickDates = [],
   memberVideos = true,
+  showAdult = false,
 }: {
   mode: "create" | "edit";
   momentId?: string;
@@ -65,6 +66,8 @@ export function MomentForm({
   /** Raccourcis de date (« Ce soir 19 h », « Demain 19 h »…) calculés côté serveur dans le fuseau du lieu. */
   quickDates?: { label: string; value: string }[];
   memberVideos?: boolean;
+  /** Catégorie Adulte 18+ proposée seulement aux personnes qui ont activé l'espace adulte. */
+  showAdult?: boolean;
 }) {
   const router = useRouter();
   const t = useT();
@@ -184,6 +187,7 @@ export function MomentForm({
     status: "PUBLISHED",
     visibility: v.visibility,
     phase: "upcoming",
+    isAdult: v.category === "adult",
     isDemo: false,
     host,
     attendeesPreview: [],
@@ -239,7 +243,7 @@ export function MomentForm({
           <div>
             <span className="field-label" id="cat-label">{t("Type de Moment")}</span>
             <div className="flex flex-wrap gap-2" role="radiogroup" aria-labelledby="cat-label">
-              {categories.map((c) => (
+              {categories.filter((c) => showAdult || c.id !== "adult" || v.category === "adult").map((c) => (
                 <button key={c.id} type="button" role="radio" aria-checked={v.category === c.id} onClick={() => set("category", c.id)} className={`chip ${v.category === c.id ? "chip-active" : ""}`}>
                   {t(c.label)}
                 </button>
@@ -366,7 +370,7 @@ export function MomentForm({
           <fieldset>
             <legend className="field-label">{t("Qui peut voir et rejoindre")}</legend>
             <div className="grid gap-2 sm:grid-cols-2">
-              {productConfig.enabledVisibilities.map((key) => (
+              {productConfig.enabledVisibilities.filter((key) => v.category !== "adult" || key !== "PUBLIC").map((key) => (
                 <label key={key} className={`cursor-pointer rounded-2xl border p-4 transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent ${v.visibility === key ? "border-ink bg-surface-2/60" : "border-border bg-surface hover:border-ink/30"}`}>
                   <input type="radio" name="visibility" className="sr-only" checked={v.visibility === key} onChange={() => set("visibility", key)} />
                   <span className="font-semibold">{t(visibilityInfo[key].label)}</span>

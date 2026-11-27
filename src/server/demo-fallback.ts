@@ -50,6 +50,7 @@ function build(): MomentDetailDTO[] {
       status,
       visibility: s.visibility ?? "REQUEST",
       phase: momentPhase({ status, startsAt, endsAt }),
+      isAdult: false,
       isDemo: true,
       host: person(s.host),
       attendeesPreview: accepted.slice(0, 5),

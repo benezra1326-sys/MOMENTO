@@ -2,12 +2,12 @@ import type { Availability, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { AppError } from "@/lib/errors";
 import { requireActive, type Viewer } from "@/lib/auth";
-import { availabilitySlots, productConfig } from "@/config/product";
+import { ADULT_CATEGORY, availabilitySlots, productConfig } from "@/config/product";
 import { availabilityInputSchema, availabilityQuerySchema, availabilityUpdateSchema } from "@/lib/validation";
 import { utcToZonedLocal, zonedLocalToUtc } from "@/lib/time";
 import { blockedUserIds, isBlockedBetween } from "./safety";
 import { personSelect, toPerson } from "./mappers";
-import { whenRange } from "./moments";
+import { canSeeAdult, whenRange } from "./moments";
 import type { PersonSummary } from "./types";
 
 /**
@@ -31,6 +31,7 @@ export type AvailabilityDTO = {
   categories: string[];
   note: string;
   hidden: boolean;
+  isAdult: boolean;
   isDemo: boolean;
   isMine: boolean;
 };
@@ -60,6 +61,7 @@ export function toAvailabilityDTO(a: Row, viewerId: string | null): Availability
     categories: a.categories,
     note: a.note,
     hidden: a.hidden,
+    isAdult: a.isAdult,
     isDemo: a.isDemo,
     isMine: a.userId === viewerId,
   };
@@ -95,6 +97,7 @@ export async function listAvailabilities(viewerIn: Viewer | null, rawQuery: unkn
     endsAt: { gt: range ? (range.gte > now ? range.gte : now) : now },
     ...(range ? { startsAt: { lt: range.lt } } : {}),
     user: { status: "ACTIVE" },
+    ...(canSeeAdult(viewer) ? {} : { isAdult: false }),
     ...(blocked.length ? { userId: { notIn: blocked } } : {}),
     ...(q.city ? { city: { equals: q.city, mode: "insensitive" } } : {}),
   };
@@ -127,6 +130,7 @@ export async function getAvailability(viewerIn: Viewer | null, id: string): Prom
   if (a.userId !== viewer.id) {
     if (a.hidden || a.endsAt <= new Date() || a.user.status !== "ACTIVE") throw notFound;
     if (await isBlockedBetween(viewer.id, a.userId)) throw notFound;
+    if (a.isAdult && !canSeeAdult(viewer)) throw notFound;
   }
   return toAvailabilityDTO(a, viewer.id);
 }
@@ -135,6 +139,10 @@ export async function createAvailability(viewerIn: Viewer | null, raw: unknown) 
   const viewer = requireActive(viewerIn);
   const input = availabilityInputSchema.parse(raw ?? {});
   const { startsAt, endsAt } = slotRange(input.date, input.slot, input.timezone);
+  const isAdult = input.categories.includes(ADULT_CATEGORY);
+  if (isAdult && !canSeeAdult(viewer)) {
+    throw new AppError("ADULT_ONLY", "Active l'espace adulte (18+) dans ton profil pour publier ce type d'envie.");
+  }
   const now = new Date();
   const active = await prisma.availability.count({ where: { userId: viewer.id, endsAt: { gt: now } } });
   if (active >= productConfig.limits.availabilitiesActiveMax) {
@@ -159,6 +167,7 @@ export async function createAvailability(viewerIn: Viewer | null, raw: unknown) 
       area: input.area,
       categories: [...new Set(input.categories)],
       note: input.note,
+      isAdult,
       isDemo: viewer.isDemo,
     },
     include: { user: { select: userSelect } },
@@ -186,7 +195,12 @@ export async function updateAvailability(viewerIn: Viewer | null, id: string, ra
   }
   if (input.city !== undefined) data.city = input.city;
   if (input.area !== undefined) data.area = input.area;
-  if (input.categories !== undefined) data.categories = [...new Set(input.categories)];
+  if (input.categories !== undefined) {
+    const isAdult = input.categories.includes(ADULT_CATEGORY);
+    if (isAdult && !canSeeAdult(viewer)) throw new AppError("ADULT_ONLY", "Active l'espace adulte (18+) dans ton profil.");
+    data.categories = [...new Set(input.categories)];
+    data.isAdult = isAdult;
+  }
   if (input.note !== undefined) data.note = input.note;
   if (input.hidden !== undefined) data.hidden = input.hidden;
   const updated = await prisma.availability.update({ where: { id }, data, include: { user: { select: userSelect } } });

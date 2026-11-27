@@ -40,7 +40,12 @@ export type MomentCardDTO = {
   status: MomentStatus;
   visibility: MomentVisibility;
   phase: MomentPhase;
+  isAdult: boolean;
   isDemo: boolean;
+  /** Note moyenne de l'hôte (null tant qu'il n'a pas assez d'avis). */
+  hostRating?: { avg: number; count: number } | null;
+  /** Pourquoi ce Moment est suggéré (radar personnalisé). */
+  reasons?: string[];
   host: PersonSummary;
   /** Participants visibles : seulement si l'hôte et chaque participant l'acceptent. */
   attendeesPreview: PersonSummary[];

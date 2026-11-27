@@ -12,7 +12,7 @@ export async function resetDb() {
   );
 }
 
-export async function makeUser(name = "User", extra: Partial<{ role: "USER" | "ADMIN"; status: "ACTIVE" | "SUSPENDED"; verified: boolean }> = {}): Promise<Viewer> {
+export async function makeUser(name = "User", extra: Partial<{ role: "USER" | "ADMIN"; status: "ACTIVE" | "SUSPENDED"; verified: boolean; adult: boolean }> = {}): Promise<Viewer> {
   n++;
   const u = await prisma.user.create({
     data: {
@@ -22,9 +22,10 @@ export async function makeUser(name = "User", extra: Partial<{ role: "USER" | "A
       role: extra.role ?? "USER",
       status: extra.status ?? "ACTIVE",
       emailVerifiedAt: extra.verified === false ? null : new Date(),
+      ...(extra.adult ? { showAdult: true, adultConfirmedAt: new Date() } : {}),
     },
   });
-  return { id: u.id, role: u.role, status: u.status, name: u.name, username: u.username, photoUrl: null, isDemo: false, city: "", emailVerifiedAt: u.emailVerifiedAt, phoneVerifiedAt: null };
+  return { id: u.id, role: u.role, status: u.status, name: u.name, username: u.username, photoUrl: null, isDemo: false, city: "", emailVerifiedAt: u.emailVerifiedAt, phoneVerifiedAt: null, showAdult: u.showAdult, adultConfirmedAt: u.adultConfirmedAt };
 }
 
 export function localIn(days: number, tz = "Europe/Madrid") {

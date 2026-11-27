@@ -2,13 +2,14 @@ import type { Moment, MomentMembership, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { AppError } from "@/lib/errors";
 import { requireActive, requireVerified, type Viewer } from "@/lib/auth";
-import { productConfig } from "@/config/product";
+import { ADULT_CATEGORY, productConfig } from "@/config/product";
 import { cancelMomentSchema, feedQuerySchema, momentInputSchema, type FeedQuery } from "@/lib/validation";
 import { momentEnd, utcToZonedLocal, zonedLocalToUtc } from "@/lib/time";
 import { blockedUserIds, isBlockedBetween } from "./safety";
 import { deleteStoredFile } from "./storage";
 import { notifyMany } from "./notifications";
 import { momentPhase, personSelect, toCard, toPerson } from "./mappers";
+import { rankContext, scoreMoment } from "./recommend";
 import type { FeedPage, MemberRow, MomentCardDTO, MomentDetailDTO } from "./types";
 
 const cardInclude = {
@@ -40,11 +41,17 @@ async function viewerMemberships(viewerId: string | null, momentIds: string[]) {
 
 export async function toCards(moments: (Moment & Prisma.MomentGetPayload<{ include: typeof cardInclude }>)[], viewerId: string | null) {
   const ids = moments.map((m) => m.id);
-  const [counts, mine] = await Promise.all([acceptedCounts(ids), viewerMemberships(viewerId, ids)]);
+  const counts = await acceptedCounts(ids);
+  const mine = await viewerMemberships(viewerId, ids);
   return moments.map((m) => toCard(m, counts.get(m.id) ?? 0, viewerId, mine.get(m.id) ?? null));
 }
 
 // ——— Feed ———
+
+/** L'espace adulte n'est visible que pour les membres majeurs qui l'ont activé eux-mêmes. */
+export function canSeeAdult(viewer: Pick<Viewer, "showAdult" | "adultConfirmedAt"> | null): boolean {
+  return !!viewer && productConfig.features.adultSpace && viewer.showAdult && !!viewer.adultConfirmedAt;
+}
 
 function encodeCursor(date: Date, id: string) {
   return Buffer.from(`${date.toISOString()}|${id}`).toString("base64url");
@@ -105,10 +112,31 @@ export async function getFeed(viewer: Viewer | null, rawQuery: unknown): Promise
     visibility: { in: ["PUBLIC", "REQUEST"] },
     startsAt,
     host: { status: "ACTIVE" },
+    ...(canSeeAdult(viewer) ? {} : { isAdult: false }),
     ...(blocked.length ? { hostId: { notIn: blocked } } : {}),
     ...(q.city ? { city: { equals: q.city, mode: "insensitive" } } : {}),
     ...(q.category ? { category: q.category } : {}),
   };
+
+  if (sort === "best") {
+    // « Pour toi » : on classe une fenêtre de Moments à venir, puis on pagine par position.
+    const offset = q.cursor?.startsWith("o") ? Math.max(0, parseInt(q.cursor.slice(1), 10) || 0) : 0;
+    const pool = await prisma.moment.findMany({ where, include: cardInclude, orderBy: [{ startsAt: "asc" }, { id: "asc" }], take: 150 });
+    const counts = await acceptedCounts(pool.map((m) => m.id));
+    const ctx = await rankContext(viewer, pool.map((m) => m.hostId));
+    const ranked = pool
+      .filter((m) => momentPhase(m, now) !== "ended")
+      .map((m) => ({ m, s: scoreMoment(m, counts.get(m.id) ?? 0, ctx, now) }))
+      .sort((a, b) => b.s.score - a.s.score || a.m.startsAt.getTime() - b.m.startsAt.getTime());
+    const slice = ranked.slice(offset, offset + limit);
+    const mine = await viewerMemberships(viewer?.id ?? null, slice.map((x) => x.m.id));
+    const items = slice.map(({ m, s }) => {
+      const rep = ctx.reps.get(m.hostId);
+      const card = toCard(m, counts.get(m.id) ?? 0, viewer?.id ?? null, mine.get(m.id) ?? null);
+      return { ...card, reasons: viewer ? s.reasons : [], hostRating: rep && (rep.hostAvg ?? rep.avg) !== null ? { avg: (rep.hostAvg ?? rep.avg)!, count: rep.hostAvg !== null ? rep.hostCount : rep.count } : null };
+    });
+    return { items, nextCursor: offset + limit < ranked.length ? `o${offset + limit}` : null, source: "database" };
+  }
 
   const cursor = q.cursor ? decodeCursor(q.cursor) : null;
   const sortField = sort === "recent" ? "publishedAt" : "startsAt";
@@ -171,12 +199,13 @@ export async function getMomentDetail(viewer: Viewer | null, id: string): Promis
     if (m.visibility === "INVITE_ONLY" && !membership) {
       throw new AppError("FORBIDDEN", "Ce Moment est sur invitation uniquement.");
     }
+    if (m.isAdult && !canSeeAdult(viewer) && !membership) {
+      throw new AppError("ADULT_ONLY", "Ce Moment fait partie de l'espace adulte (18+). Active-le dans ton profil pour le voir.");
+    }
   }
 
-  const [counts, pendingCount] = await Promise.all([
-    acceptedCounts([id]),
-    isHost ? prisma.momentMembership.count({ where: { momentId: id, status: "PENDING", kind: "REQUEST" } }) : Promise.resolve(0),
-  ]);
+  const counts = await acceptedCounts([id]);
+  const pendingCount = isHost ? await prisma.momentMembership.count({ where: { momentId: id, status: "PENDING", kind: "REQUEST" } }) : 0;
   const card = toCard(m, counts.get(id) ?? 0, viewerId, membership);
   const canSeeAddress = !m.addressMembersOnly || isHost || membership?.status === "ACCEPTED";
 
@@ -223,7 +252,18 @@ export async function getMomentDetail(viewer: Viewer | null, id: string): Promis
 
 // ——— Création / édition ———
 
-function toMomentData(input: ReturnType<typeof momentInputSchema.parse>) {
+function toMomentData(input: ReturnType<typeof momentInputSchema.parse>, viewer: Viewer) {
+  const isAdult = input.category === ADULT_CATEGORY;
+  if (isAdult && !canSeeAdult(viewer)) {
+    throw new AppError("ADULT_ONLY", "Active l'espace adulte (18+) dans ton profil pour créer ce type de Moment.", {
+      category: "Active d'abord l'espace adulte dans ton profil.",
+    });
+  }
+  if (isAdult && input.visibility === "PUBLIC") {
+    throw new AppError("VALIDATION", "Un Moment adulte se fait sur demande ou sur invitation : tu choisis chaque personne.", {
+      visibility: "Choisis « Sur demande » ou « Sur invitation ».",
+    });
+  }
   const startsAt = zonedLocalToUtc(input.startsAtLocal, input.timezone);
   const endsAt = input.endsAtLocal ? zonedLocalToUtc(input.endsAtLocal, input.timezone) : null;
   if (Number.isNaN(startsAt.getTime())) throw new AppError("VALIDATION", "Date invalide.", { startsAtLocal: "Date invalide." });
@@ -249,14 +289,16 @@ function toMomentData(input: ReturnType<typeof momentInputSchema.parse>) {
     timezone: input.timezone,
     capacity: input.capacity,
     visibility: input.visibility,
-    showAttendees: input.showAttendees,
+    // Espace adulte : participants jamais affichés publiquement.
+    showAttendees: isAdult ? false : input.showAttendees,
+    isAdult,
   };
 }
 
 export async function createMoment(viewerIn: Viewer | null, raw: unknown) {
   const viewer = requireVerified(viewerIn);
   const input = momentInputSchema.parse(raw);
-  const data = toMomentData(input);
+  const data = toMomentData(input, viewer);
   if (input.publish && data.startsAt < new Date()) {
     throw new AppError("VALIDATION", "Choisis une date à venir.", { startsAtLocal: "Choisis une date à venir." });
   }
@@ -310,7 +352,7 @@ export async function getMomentForEdit(viewerIn: Viewer | null, id: string) {
 export async function updateMoment(viewerIn: Viewer | null, id: string, raw: unknown) {
   const viewer = requireActive(viewerIn);
   const input = momentInputSchema.parse(raw);
-  const data = toMomentData(input);
+  const data = toMomentData(input, viewer);
 
   const replacedMedia: string[] = [];
   const result = await prisma.$transaction(async (tx) => {
@@ -420,7 +462,7 @@ export async function hostedMoments(viewer: Viewer | null, hostId: string): Prom
   const rows = await prisma.moment.findMany({
     where: {
       hostId,
-      ...(isSelf ? {} : { status: "PUBLISHED", visibility: { in: ["PUBLIC", "REQUEST"] } }),
+      ...(isSelf ? {} : { status: "PUBLISHED", visibility: { in: ["PUBLIC", "REQUEST"] }, ...(canSeeAdult(viewer) ? {} : { isAdult: false }) }),
     },
     include: cardInclude,
     orderBy: { startsAt: "desc" },
@@ -435,7 +477,8 @@ export async function attendedMoments(viewer: Viewer | null, userId: string): Pr
   const rows = await prisma.moment.findMany({
     where: {
       memberships: { some: { userId, status: "ACCEPTED", ...(isSelf ? {} : { showOnMoment: true }) } },
-      ...(isSelf ? {} : { status: "PUBLISHED", visibility: { in: ["PUBLIC", "REQUEST"] } }),
+      // Participation à un Moment adulte : jamais montrée sur le profil aux autres.
+      ...(isSelf ? {} : { status: "PUBLISHED", visibility: { in: ["PUBLIC", "REQUEST"] }, isAdult: false }),
     },
     include: cardInclude,
     orderBy: { startsAt: "desc" },

@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { getViewerSafe } from "@/lib/auth";
 import { AppError } from "@/lib/errors";
-import { getMomentForEdit } from "@/server/moments";
+import { canSeeAdult, getMomentForEdit } from "@/server/moments";
 import { productConfig } from "@/config/product";
 import { MomentForm } from "@/components/MomentForm";
 import { EmptyState, PageTitle } from "@/components/States";
@@ -38,6 +38,7 @@ export default async function EditMomentPage({ params }: { params: Promise<{ id:
         momentId={id}
         status={status}
         host={{ id: viewer.id, name: viewer.name, username: viewer.username, photoUrl: viewer.photoUrl, isDemo: viewer.isDemo }}
+        showAdult={canSeeAdult(viewer)}
         memberVideos={productConfig.features.memberVideos}
         initial={{ ...values, address: values.address ?? "", endsAtLocal: values.endsAtLocal ?? "" }}
       />

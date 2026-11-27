@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { Camera, Loader2, LogOut, X } from "lucide-react";
+import { AtSign, Camera, ImagePlus, Loader2, LogOut, ShieldCheck, X } from "lucide-react";
 import { api } from "@/lib/client";
 import { shrinkForUpload } from "@/lib/image-client";
 import { Avatar } from "./Avatar";
@@ -19,6 +19,10 @@ type Me = {
   photoUrl: string | null;
   showPastMoments: boolean;
   autoplayVideos: boolean;
+  instagram: string | null;
+  gallery: string[];
+  showAdult: boolean;
+  adultConfirmedAt: string | null;
   isDemo: boolean;
 };
 
@@ -32,6 +36,9 @@ export function ProfileSettings({ me, blocks, welcome }: { me: Me; blocks: { use
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [confirmDelete, setConfirmDelete] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+  const galleryRef = useRef<HTMLInputElement>(null);
+  const [adult, setAdult] = useState({ on: me.showAdult, confirm18: false, rules: false });
+  const [adultMsg, setAdultMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   const set = <K extends keyof Me>(k: K, val: Me[K]) => setV((p) => ({ ...p, [k]: val }));
 
@@ -41,7 +48,17 @@ export function ProfileSettings({ me, blocks, welcome }: { me: Me; blocks: { use
     setMsg(null);
     const res = await api("/api/me/profile", {
       method: "PATCH",
-      body: { name: v.name, bio: v.bio, city: v.city, interests: v.interests, photoUrl: v.photoUrl, showPastMoments: v.showPastMoments, autoplayVideos: v.autoplayVideos },
+      body: {
+        name: v.name,
+        bio: v.bio,
+        city: v.city,
+        interests: v.interests,
+        photoUrl: v.photoUrl,
+        showPastMoments: v.showPastMoments,
+        autoplayVideos: v.autoplayVideos,
+        instagram: v.instagram?.trim() ? v.instagram.trim() : null,
+        gallery: v.gallery,
+      },
     });
     setBusy(null);
     if (!res.ok) {
@@ -53,20 +70,32 @@ export function ProfileSettings({ me, blocks, welcome }: { me: Me; blocks: { use
     router.refresh();
   }
 
-  async function upload(file: File) {
-    setBusy("photo");
+  async function upload(file: File, purpose: "avatar" | "cover" = "avatar") {
+    setBusy(purpose === "avatar" ? "photo" : "gallery");
     const fd = new FormData();
     fd.set("file", await shrinkForUpload(file));
-    fd.set("purpose", "avatar");
+    fd.set("purpose", purpose);
     try {
       const res = await fetch("/api/uploads", { method: "POST", body: fd });
       const json = await res.json();
-      if (json.ok) set("photoUrl", json.data.url);
-      else setMsg({ ok: false, text: json.error.message });
+      if (!json.ok) setMsg({ ok: false, text: json.error.message });
+      else if (purpose === "avatar") set("photoUrl", json.data.url);
+      else setV((p) => ({ ...p, gallery: [...p.gallery, json.data.url].slice(0, 6) }));
     } catch {
       setMsg({ ok: false, text: t("Envoi impossible.") });
     }
     setBusy(null);
+  }
+
+  async function saveAdult(enable: boolean) {
+    setBusy("adult");
+    setAdultMsg(null);
+    const res = await api("/api/me/adult", { method: "PATCH", body: { enable, confirm18: adult.confirm18, acceptRules: adult.rules } });
+    setBusy(null);
+    if (!res.ok) return setAdultMsg({ ok: false, text: res.error.message });
+    setAdult((a) => ({ ...a, on: enable }));
+    setAdultMsg({ ok: true, text: enable ? t("Espace adulte activé.") : t("Espace adulte désactivé.") });
+    router.refresh();
   }
 
   return (
@@ -133,6 +162,58 @@ export function ProfileSettings({ me, blocks, welcome }: { me: Me; blocks: { use
           />
         </div>
 
+        <div>
+          <label htmlFor="p-ig" className="field-label">{t("Instagram")}</label>
+          <div className="relative">
+            <AtSign size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+            <input
+              id="p-ig"
+              className="input pl-9"
+              value={v.instagram ?? ""}
+              onChange={(e) => set("instagram", e.target.value)}
+              placeholder={t("ton.pseudo")}
+              autoCapitalize="none"
+              autoCorrect="off"
+              maxLength={80}
+            />
+          </div>
+          <p className="field-help">{t("Facultatif. Affiché sur ton profil avec la mention « non vérifié » : ça rassure les gens qui hésitent à te rejoindre.")}</p>
+          {errors.instagram && <p className="field-error">{errors.instagram}</p>}
+        </div>
+
+        <div>
+          <p className="field-label">{t("Mes photos")}</p>
+          <p className="field-help -mt-1 mb-2">{t("Jusqu'à 6 photos choisies par toi, visibles sur ton profil.")}</p>
+          <div className="grid grid-cols-3 gap-2">
+            {v.gallery.map((url) => (
+              <div key={url} className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-surface-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={url} alt="" className="h-full w-full object-cover" />
+                <button
+                  type="button"
+                  className="absolute right-1.5 top-1.5 grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white"
+                  onClick={() => set("gallery", v.gallery.filter((x) => x !== url))}
+                  aria-label={t("Retirer")}
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            ))}
+            {v.gallery.length < 6 && (
+              <button
+                type="button"
+                className="grid aspect-[4/5] place-items-center rounded-2xl border border-dashed border-border text-muted"
+                onClick={() => galleryRef.current?.click()}
+                disabled={busy === "gallery"}
+              >
+                {busy === "gallery" ? <Loader2 size={20} className="animate-spin" /> : <ImagePlus size={22} />}
+              </button>
+            )}
+          </div>
+          <input ref={galleryRef} type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0], "cover")} />
+          {errors.gallery && <p className="field-error">{errors.gallery}</p>}
+        </div>
+
         <fieldset className="space-y-3 border-t border-border pt-5">
           <legend className="field-label">{t("Confidentialité et confort")}</legend>
           <label className="flex items-start gap-3 text-sm">
@@ -150,6 +231,39 @@ export function ProfileSettings({ me, blocks, welcome }: { me: Me; blocks: { use
           {busy === "save" && <Loader2 size={16} className="animate-spin" />} {t("Enregistrer")}
         </button>
       </form>
+
+      <section id="espace-adulte" className="card scroll-mt-20 space-y-3 p-5 sm:p-6">
+        <h2 className="flex items-center gap-2 font-display text-xl"><ShieldCheck size={20} /> {t("Espace adulte (18+)")}</h2>
+        <p className="text-sm text-muted">
+          {t("Des Moments entre adultes, y compris libertins, réservés aux personnes majeures qui l'ont choisi. Jamais visibles dans le feed par défaut, jamais publics.")}
+        </p>
+        {adult.on ? (
+          <button type="button" className="btn-secondary" onClick={() => saveAdult(false)} disabled={!!busy}>
+            {busy === "adult" && <Loader2 size={16} className="animate-spin" />} {t("Désactiver l'espace adulte")}
+          </button>
+        ) : (
+          <>
+            <ul className="list-disc space-y-1 pl-5 text-sm text-muted">
+              <li>{t("Consentement explicite, à tout moment, et un non est un non.")}</li>
+              <li>{t("Respect et bienveillance : aucune pression, aucun jugement.")}</li>
+              <li>{t("Discrétion : rien de ce qui est vécu ou partagé ne sort du Moment.")}</li>
+              <li>{t("Tout comportement déplacé se signale : la modération intervient.")}</li>
+            </ul>
+            <label className="flex items-start gap-3 text-sm">
+              <input type="checkbox" className="mt-0.5 h-5 w-5 accent-[var(--color-accent)]" checked={adult.confirm18} onChange={(e) => setAdult((a) => ({ ...a, confirm18: e.target.checked }))} />
+              <span>{t("J'ai 18 ans ou plus.")}</span>
+            </label>
+            <label className="flex items-start gap-3 text-sm">
+              <input type="checkbox" className="mt-0.5 h-5 w-5 accent-[var(--color-accent)]" checked={adult.rules} onChange={(e) => setAdult((a) => ({ ...a, rules: e.target.checked }))} />
+              <span>{t("J'accepte ces règles.")}</span>
+            </label>
+            <button type="button" className="btn-secondary" onClick={() => saveAdult(true)} disabled={!!busy || !adult.confirm18 || !adult.rules}>
+              {busy === "adult" && <Loader2 size={16} className="animate-spin" />} {t("Activer l'espace adulte")}
+            </button>
+          </>
+        )}
+        {adultMsg && <p role="status" className={`text-sm ${adultMsg.ok ? "text-success" : "text-danger"}`}>{adultMsg.text}</p>}
+      </section>
 
       <section className="card space-y-3 p-5 sm:p-6">
         <h2 className="font-display text-xl">{t("Compte")}</h2>

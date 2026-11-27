@@ -6,6 +6,7 @@ import { productConfig } from "@/config/product";
 import { utcToZonedLocal, zonedLocalToUtc } from "@/lib/time";
 import { dayLabel } from "@/lib/availability-labels";
 import { listAvailabilities, myAvailabilities } from "@/server/availability";
+import { canSeeAdult } from "@/server/moments";
 import { AvailabilityCard, MyAvailabilities } from "@/components/Availability";
 import { PageTitle } from "@/components/States";
 import { getLocale, getT, pageTitle } from "@/lib/i18n/server";
@@ -13,7 +14,7 @@ import { getLocale, getT, pageTitle } from "@/lib/i18n/server";
 export const generateMetadata = pageTitle("Dispos");
 export const dynamic = "force-dynamic";
 
-type SP = Promise<{ city?: string; when?: string }>;
+type SP = Promise<{ city?: string; when?: string; nouveau?: string; date?: string; slot?: string; cat?: string; area?: string; note?: string; ville?: string }>;
 
 const whenOptions = [
   { id: "", label: "À venir" },
@@ -66,7 +67,18 @@ export default async function DisposPage({ searchParams }: { searchParams: SP })
         {t("Des membres ont dit quand ils sont libres. Une envie en commun ? Propose-leur un Moment : ils reçoivent une invitation et choisissent librement.")}
       </p>
 
-      <MyAvailabilities initial={mine} defaultCity={viewer.city || productConfig.pilotCity} timezone={tz} dates={dates} />
+      <MyAvailabilities
+        initial={mine}
+        defaultCity={viewer.city || productConfig.pilotCity}
+        timezone={tz}
+        dates={dates}
+        showAdult={canSeeAdult(viewer)}
+        prefill={
+          sp.nouveau
+            ? { date: sp.date, slot: sp.slot, city: sp.ville, area: sp.area, categories: sp.cat ? sp.cat.split(",").filter(Boolean) : [], note: sp.note }
+            : null
+        }
+      />
 
       <section aria-labelledby="others-title" className="space-y-4">
         <h2 id="others-title" className="font-display text-2xl">{t("Les dispos des autres")}</h2>

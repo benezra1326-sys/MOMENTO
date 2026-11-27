@@ -81,12 +81,28 @@ export function AvailabilityCard({ a, compact = false }: { a: AvailabilityDTO; c
 }
 
 /** Mes disponibilités : publier, modifier, masquer, supprimer. */
-export function MyAvailabilities({ initial, defaultCity, timezone, dates }: { initial: AvailabilityDTO[]; defaultCity: string; timezone: string; dates: { value: string; label: string }[] }) {
+type Prefill = { date?: string; slot?: string; city?: string; area?: string; categories?: string[]; note?: string };
+
+export function MyAvailabilities({
+  initial,
+  defaultCity,
+  timezone,
+  dates,
+  prefill,
+  showAdult = false,
+}: {
+  showAdult?: boolean;
+  initial: AvailabilityDTO[];
+  defaultCity: string;
+  timezone: string;
+  dates: { value: string; label: string }[];
+  prefill?: Prefill | null;
+}) {
   const t = useT();
   const locale = useLocale();
   const router = useRouter();
   const [items, setItems] = useState(initial);
-  const [editing, setEditing] = useState<string | "new" | null>(initial.length === 0 ? null : null);
+  const [editing, setEditing] = useState<string | "new" | null>(prefill ? "new" : null);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const max = productConfig.limits.availabilitiesActiveMax;
@@ -131,8 +147,16 @@ export function MyAvailabilities({ initial, defaultCity, timezone, dates }: { in
         <div className="mt-5">
           <AvailabilityEditor
             dates={dates}
-            initial={{ date: dates[0]?.value ?? "", slot: "evening", city: defaultCity, area: "", categories: [], note: "" }}
+            initial={{
+              date: prefill?.date && dates.some((d) => d.value === prefill.date) ? prefill.date : dates[0]?.value ?? "",
+              slot: prefill?.slot ?? "evening",
+              city: prefill?.city || defaultCity,
+              area: prefill?.area ?? "",
+              categories: prefill?.categories ?? [],
+              note: prefill?.note ?? "",
+            }}
             timezone={timezone}
+            showAdult={showAdult}
             onCancel={() => setEditing(null)}
             onSaved={(a) => {
               setItems((p) => [...p, a].sort((x, y) => x.startsAt.localeCompare(y.startsAt)));
@@ -153,6 +177,7 @@ export function MyAvailabilities({ initial, defaultCity, timezone, dates }: { in
                   dates={dates.some((d) => d.value === a.date) ? dates : [{ value: a.date, label: a.date }, ...dates]}
                   initial={{ date: a.date, slot: a.slot, city: a.city, area: a.area, categories: a.categories, note: a.note }}
                   timezone={a.timezone}
+                  showAdult={showAdult}
                   onCancel={() => setEditing(null)}
                   onSaved={(n) => {
                     setItems((p) => p.map((x) => (x.id === n.id ? n : x)));
@@ -204,7 +229,9 @@ function AvailabilityEditor({
   timezone,
   onCancel,
   onSaved,
+  showAdult = false,
 }: {
+  showAdult?: boolean;
   id?: string;
   initial: Values;
   dates: { value: string; label: string }[];
@@ -285,7 +312,7 @@ function AvailabilityEditor({
       <div>
         <span className="field-label" id={`${uid}-cats`}>{t("Envie de…")} <span className="font-normal text-muted">{t("(4 max., facultatif)")}</span></span>
         <div className="flex flex-wrap gap-1.5" role="group" aria-labelledby={`${uid}-cats`}>
-          {categories.filter((c) => c.id !== "other").map((c) => {
+          {categories.filter((c) => c.id !== "other" && (showAdult || c.id !== "adult" || v.categories.includes(c.id))).map((c) => {
             const on = v.categories.includes(c.id);
             return (
               <button

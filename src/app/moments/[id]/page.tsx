@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CalendarDays, CheckCircle2, Clock, Eye, Lock, MapPin, ShieldCheck, Users } from "lucide-react";
+import { ArrowLeft, CalendarDays, CheckCircle2, Clock, Eye, Lock, MapPin, ShieldCheck, Star, Users } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { getViewerSafe } from "@/lib/auth";
 import { AppError } from "@/lib/errors";
-import { categoryLabel, visibilityInfo } from "@/config/product";
+import { categoryLabel, productConfig, visibilityInfo } from "@/config/product";
 import { formatLongDate, formatMomentTime } from "@/lib/time";
 import { loadMomentDetail } from "@/server/loaders";
 import { Avatar } from "@/components/Avatar";
@@ -18,6 +18,9 @@ import { SafetyActions } from "@/components/SafetyActions";
 import { EmptyState, OfflineDemoNotice } from "@/components/States";
 import { spotsLabel } from "@/components/moment-labels";
 import { getLocale, getT } from "@/lib/i18n/server";
+import { HostMatches, MomentChat, RateMoment, Souvenirs } from "@/components/MomentCircle";
+import { listSouvenirs, type SouvenirDTO } from "@/server/souvenirs";
+import { reputations } from "@/server/ratings";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +33,7 @@ async function load(id: string) {
   } catch (e) {
     if (e instanceof AppError && e.code === "NOT_FOUND") notFound();
     if (e instanceof AppError && e.code === "FORBIDDEN") return { viewer, denied: true as const };
+    if (e instanceof AppError && e.code === "ADULT_ONLY") return { viewer, denied: true as const, adult: true };
     throw e;
   }
 }
@@ -52,6 +56,13 @@ export default async function MomentPage({ params, searchParams }: Props) {
   const r = await load(id);
   const t = await getT();
   const locale = await getLocale();
+  if (r.denied && "adult" in r) {
+    return (
+      <div className="mx-auto mt-6 max-w-lg">
+        <EmptyState icon="lock" title={t("Espace adulte (18+)")} text={t("Ce Moment fait partie de l'espace adulte. Il n'est visible que par les membres majeurs qui ont choisi de l'activer dans leur profil.")} action={{ href: "/moi#espace-adulte", label: t("Voir l'espace adulte") }} />
+      </div>
+    );
+  }
   if (r.denied) {
     return (
       <div className="mx-auto mt-6 max-w-lg">
@@ -76,6 +87,13 @@ export default async function MomentPage({ params, searchParams }: Props) {
   const since = hostInfo ? new Intl.DateTimeFormat(locale === "fr" ? "fr-FR" : "en-GB", { month: "long", year: "numeric" }).format(hostInfo.createdAt) : null;
   const pastHosted = hostInfo?._count.hostedMoments ?? 0;
   const invitation = sp.invitation === "envoyee" ? "sent" : sp.invitation === "echec" ? "failed" : null;
+  // Le cercle du Moment : l'hôte et les participants confirmés (discussion, souvenirs, notes).
+  const inCircle = source === "database" && !!viewer && (m.isHost || m.viewerMembership?.status === "ACCEPTED");
+  const past = m.phase === "ended" || m.phase === "ongoing";
+  const souvenirs: SouvenirDTO[] =
+    source === "database" && viewer && productConfig.features.posts && past ? await listSouvenirs(viewer, m.id).catch(() => []) : [];
+  const hostRep = source === "database" ? (await reputations([m.host.id]).catch(() => new Map())).get(m.host.id) : undefined;
+  const hostScore = hostRep ? (hostRep.hostAvg ?? hostRep.avg) : null;
 
   return (
     <div className="space-y-5">
@@ -171,6 +189,20 @@ export default async function MomentPage({ params, searchParams }: Props) {
             )}
           </section>
 
+          {inCircle && m.phase === "ended" && productConfig.features.ratings && <div id="noter" className="scroll-mt-20"><RateMoment momentId={m.id} /></div>}
+
+          {inCircle && productConfig.features.messaging && m.phase !== "ended" && <MomentChat momentId={m.id} closed={m.phase === "cancelled"} />}
+
+          {m.isHost && source === "database" && (m.phase === "upcoming" || m.phase === "ongoing") && m.spotsLeft > 0 && <HostMatches momentId={m.id} />}
+
+          {productConfig.features.posts && past && m.phase !== "cancelled" && <Souvenirs momentId={m.id} canAdd={inCircle} initial={souvenirs} />}
+
+          {!inCircle && viewer && productConfig.features.messaging && (m.phase === "upcoming" || m.phase === "ongoing") && (
+            <p className="flex items-center gap-2 rounded-2xl bg-surface-2/60 px-4 py-3 text-sm text-muted">
+              <Lock size={15} className="shrink-0" aria-hidden /> {t("Une discussion de groupe s'ouvre pour les participants confirmés.")}
+            </p>
+          )}
+
           <section>
             <h2 className="font-display text-xl">{t("L'ambiance")}</h2>
             <p className="mt-2 whitespace-pre-line leading-relaxed text-ink-2">{t(m.description)}</p>
@@ -183,6 +215,14 @@ export default async function MomentPage({ params, searchParams }: Props) {
                 <span className="eyebrow">{t("Hôte")}</span>
                 <span className="flex items-center gap-2 font-semibold">{m.host.name} {m.host.isDemo && <DemoBadge />}</span>
                 <span className="block text-sm text-muted">@{m.host.username}</span>
+                {hostScore !== null && hostScore !== undefined && (
+                  <span className="mt-0.5 flex items-center gap-1 text-xs font-semibold text-warn">
+                    <Star size={12} className="fill-warn" aria-hidden /> {hostScore.toFixed(1).replace(".", ",")}/5 · {t("{n} avis", { n: hostRep!.hostAvg !== null ? hostRep!.hostCount : hostRep!.count })}
+                    {hostRep!.badges.slice(0, 2).map((b: string) => (
+                      <span key={b} className="pill ml-1 bg-lilac/10 text-accent">{t(b)}</span>
+                    ))}
+                  </span>
+                )}
                 {since && (
                   <span className="block text-xs text-muted">
                     {t("Membre depuis {date}", { date: since })}

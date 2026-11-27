@@ -46,7 +46,7 @@ enum MediaType {
 
 enum MembershipKind {
   REQUEST // l'utilisateur demande à rejoindre
-  INVITE  // l'hôte invite l'utilisateur
+  INVITE // l'hôte invite l'utilisateur
 }
 
 enum MembershipStatus {
@@ -66,6 +66,10 @@ enum NotificationType {
   MEMBER_LEFT
   MOMENT_CANCELLED
   MOMENT_UPDATED
+  NEW_MESSAGE
+  REMINDER
+  RATE_MOMENT
+  NEW_SOUVENIR
 }
 
 enum ReportStatus {
@@ -75,47 +79,60 @@ enum ReportStatus {
 }
 
 model User {
-  id           String        @id @default(cuid())
+  id               String        @id @default(cuid())
   /// Peut être vide pour un compte créé avec un numéro de téléphone.
-  email        String?       @unique
-  passwordHash String?
+  email            String?       @unique
+  passwordHash     String?
   /// Identifiant Google (claim « sub ») si le compte utilise la connexion Google.
-  googleId     String?       @unique
+  googleId         String?       @unique
   /// Identifiant Facebook (propre à l'app Upclose) si le compte utilise la connexion Facebook.
-  facebookId   String?       @unique
+  facebookId       String?       @unique
   /// Numéro de téléphone au format international (+33612345678), confirmé par un code SMS.
-  phone        String?       @unique
-  phoneVerifiedAt DateTime?
+  phone            String?       @unique
+  phoneVerifiedAt  DateTime?
   /// Date de confirmation de l'adresse e-mail (lien reçu par e-mail, ou e-mail vérifié par Google).
-  emailVerifiedAt DateTime?
-  name         String
-  username     String        @unique
-  bio          String        @default("")
-  photoUrl     String?
-  city         String        @default("")
-  interests    String[]      @default([])
-  role         UserRole      @default(USER)
-  status       AccountStatus @default(ACTIVE)
+  emailVerifiedAt  DateTime?
+  name             String
+  username         String        @unique
+  bio              String        @default("")
+  photoUrl         String?
+  city             String        @default("")
+  interests        String[]      @default([])
+  role             UserRole      @default(USER)
+  status           AccountStatus @default(ACTIVE)
   /// Compte de démonstration : fictif, jamais présenté comme réel.
-  isDemo       Boolean       @default(false)
+  isDemo           Boolean       @default(false)
   /// L'utilisateur choisit si ses Moments vécus apparaissent sur son profil public.
-  showPastMoments Boolean    @default(true)
+  showPastMoments  Boolean       @default(true)
   /// Lecture automatique (muette) des vidéos du feed.
-  autoplayVideos  Boolean    @default(true)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  autoplayVideos   Boolean       @default(true)
+  /// Majorité confirmée par la personne (case à cocher « j'ai 18 ans ou plus »), requise pour l'espace adulte.
+  adultConfirmedAt DateTime?
+  /// Opt-in volontaire : voir et créer des Moments de l'espace adulte. Désactivé par défaut.
+  showAdult        Boolean       @default(false)
+  /// Compte Instagram déclaré par la personne (sans @), affiché sur son profil comme repère de confiance.
+  /// Déclaratif : signalé « non vérifié » tant qu'aucune connexion Instagram ne le confirme.
+  instagram        String?
+  /// Quelques photos choisies par la personne pour son profil (6 maximum), envoyées depuis Upclose.
+  gallery          String[]      @default([])
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
 
-  sessions      Session[]
-  hostedMoments Moment[]           @relation("MomentHost")
-  memberships   MomentMembership[] @relation("MembershipUser")
-  initiated     MomentMembership[] @relation("MembershipInitiator")
-  notifications Notification[]
-  reportsFiled  Report[]           @relation("ReportReporter")
-  blocksMade    Block[]            @relation("Blocker")
-  blocksGot     Block[]            @relation("Blocked")
-  authTokens    AuthToken[]
-  uploads       Upload[]
+  sessions       Session[]
+  hostedMoments  Moment[]           @relation("MomentHost")
+  memberships    MomentMembership[] @relation("MembershipUser")
+  initiated      MomentMembership[] @relation("MembershipInitiator")
+  notifications  Notification[]
+  reportsFiled   Report[]           @relation("ReportReporter")
+  blocksMade     Block[]            @relation("Blocker")
+  blocksGot      Block[]            @relation("Blocked")
+  authTokens     AuthToken[]
+  uploads        Upload[]
   availabilities Availability[]
+  messages       MomentMessage[]
+  souvenirs      Souvenir[]
+  ratingsGiven   Rating[]           @relation("RatingRater")
+  ratingsGot     Rating[]           @relation("RatingRatee")
 }
 
 model Session {
@@ -129,43 +146,48 @@ model Session {
 }
 
 model Moment {
-  id          String           @id @default(cuid())
-  hostId      String
-  title       String
-  description String
-  category    String
-  vibeTags    String[]         @default([])
-  mediaType   MediaType        @default(IMAGE)
-  mediaUrl    String?
-  posterUrl   String?
+  id                 String           @id @default(cuid())
+  hostId             String
+  title              String
+  description        String
+  category           String
+  vibeTags           String[]         @default([])
+  mediaType          MediaType        @default(IMAGE)
+  mediaUrl           String?
+  posterUrl          String?
   /// Couleur/dégradé de la carte texte (clé de thème).
-  textTheme   String?
-  city        String
+  textTheme          String?
+  city               String
   /// Zone large visible par tous (quartier, plage…).
-  area        String           @default("")
+  area               String           @default("")
   /// Nom du lieu, visible par tous (peut être générique : « Rooftop à Golden Mile »).
-  placeName   String           @default("")
+  placeName          String           @default("")
   /// Adresse exacte : visible par l'hôte et les participants acceptés si addressMembersOnly.
-  address     String?
-  addressMembersOnly Boolean   @default(true)
-  startsAt    DateTime
-  endsAt      DateTime?
-  timezone    String           @default("Europe/Madrid")
+  address            String?
+  addressMembersOnly Boolean          @default(true)
+  startsAt           DateTime
+  endsAt             DateTime?
+  timezone           String           @default("Europe/Madrid")
   /// Places pour les invités (hôte non compris).
-  capacity    Int
-  status      MomentStatus     @default(DRAFT)
-  visibility  MomentVisibility @default(REQUEST)
-  showAttendees Boolean        @default(true)
-  isDemo      Boolean          @default(false)
-  cancelReason String?
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  publishedAt DateTime?
-  cancelledAt DateTime?
+  capacity           Int
+  status             MomentStatus     @default(DRAFT)
+  visibility         MomentVisibility @default(REQUEST)
+  showAttendees      Boolean          @default(true)
+  /// Espace adulte (18+) : jamais montré aux personnes qui ne l'ont pas activé.
+  isAdult            Boolean          @default(false)
+  isDemo             Boolean          @default(false)
+  cancelReason       String?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  publishedAt        DateTime?
+  cancelledAt        DateTime?
 
   host        User               @relation("MomentHost", fields: [hostId], references: [id], onDelete: Cascade)
   memberships MomentMembership[]
   reports     Report[]
+  messages    MomentMessage[]
+  souvenirs   Souvenir[]
+  ratings     Rating[]
 
   @@index([status, visibility, startsAt])
   @@index([city, startsAt])
@@ -174,18 +196,18 @@ model Moment {
 }
 
 model MomentMembership {
-  id          String           @id @default(cuid())
-  momentId    String
-  userId      String
-  initiatorId String
-  kind        MembershipKind
-  status      MembershipStatus @default(PENDING)
-  message     String?
+  id           String           @id @default(cuid())
+  momentId     String
+  userId       String
+  initiatorId  String
+  kind         MembershipKind
+  status       MembershipStatus @default(PENDING)
+  message      String?
   /// Le participant accepte d'apparaître dans la liste visible des participants.
-  showOnMoment Boolean         @default(true)
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  respondedAt DateTime?
+  showOnMoment Boolean          @default(true)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  respondedAt  DateTime?
 
   moment    Moment @relation(fields: [momentId], references: [id], onDelete: Cascade)
   user      User   @relation("MembershipUser", fields: [userId], references: [id], onDelete: Cascade)
@@ -213,17 +235,17 @@ model Notification {
 }
 
 model Report {
-  id         String       @id @default(cuid())
-  reporterId String
+  id           String       @id @default(cuid())
+  reporterId   String
   targetUserId String?
-  momentId   String?
-  reason     String
-  details    String       @default("")
-  status     ReportStatus @default(OPEN)
+  momentId     String?
+  reason       String
+  details      String       @default("")
+  status       ReportStatus @default(OPEN)
   resolvedById String?
-  resolution String?
-  createdAt  DateTime     @default(now())
-  resolvedAt DateTime?
+  resolution   String?
+  createdAt    DateTime     @default(now())
+  resolvedAt   DateTime?
 
   reporter User    @relation("ReportReporter", fields: [reporterId], references: [id], onDelete: Cascade)
   moment   Moment? @relation(fields: [momentId], references: [id], onDelete: SetNull)
@@ -244,13 +266,13 @@ model Block {
 
 /// Journal des actions d'administration (suspension, retrait de contenu).
 model AuditEvent {
-  id        String   @id @default(cuid())
-  actorId   String
-  action    String
+  id         String   @id @default(cuid())
+  actorId    String
+  action     String
   targetType String
-  targetId  String
-  note      String   @default("")
-  createdAt DateTime @default(now())
+  targetId   String
+  note       String   @default("")
+  createdAt  DateTime @default(now())
 
   @@index([targetType, targetId])
 }
@@ -306,6 +328,8 @@ model Availability {
   note       String   @default("")
   /// Masquée par son auteur : plus visible des autres, mais conservée.
   hidden     Boolean  @default(false)
+  /// Dispo de l'espace adulte (18+) : visible uniquement par les personnes qui l'ont activé.
+  isAdult    Boolean  @default(false)
   isDemo     Boolean  @default(false)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -315,4 +339,66 @@ model Availability {
   @@index([city, endsAt])
   @@index([endsAt])
   @@index([userId, endsAt])
+}
+
+/// Message de la discussion d'un Moment : lisible et écrit par l'hôte et les participants acceptés.
+model MomentMessage {
+  id        String    @id @default(cuid())
+  momentId  String
+  authorId  String
+  body      String
+  createdAt DateTime  @default(now())
+  deletedAt DateTime?
+
+  moment Moment @relation(fields: [momentId], references: [id], onDelete: Cascade)
+  author User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([momentId, createdAt])
+  @@index([authorId, createdAt])
+}
+
+/// Souvenir partagé après un Moment vécu (photo, vidéo ou mot), par l'hôte ou un participant.
+model Souvenir {
+  id        String    @id @default(cuid())
+  momentId  String
+  authorId  String
+  body      String    @default("")
+  mediaType MediaType @default(TEXT)
+  mediaUrl  String?
+  posterUrl String?
+  createdAt DateTime  @default(now())
+
+  moment Moment @relation(fields: [momentId], references: [id], onDelete: Cascade)
+  author User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([momentId, createdAt])
+}
+
+/// Note privée laissée après un Moment vécu, par une personne présente, sur une autre personne présente.
+/// Notes de 1 à 5. Seules les moyennes (à partir d'un minimum d'avis) sont montrées ou utilisées.
+model Rating {
+  id           String   @id @default(cuid())
+  momentId     String
+  raterId      String
+  rateeId      String
+  /// La personne notée était l'hôte du Moment.
+  rateeIsHost  Boolean  @default(false)
+  punctuality  Int
+  ambiance     Int
+  respect      Int
+  /// Hôte uniquement : organisation et fidélité à la description.
+  organisation Int?
+  accuracy     Int?
+  /// Commentaire privé, lu par la modération seulement.
+  comment      String   @default("")
+  /// La personne signale ne pas être venue (no-show).
+  noShow       Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  moment Moment @relation(fields: [momentId], references: [id], onDelete: Cascade)
+  rater  User   @relation("RatingRater", fields: [raterId], references: [id], onDelete: Cascade)
+  ratee  User   @relation("RatingRatee", fields: [rateeId], references: [id], onDelete: Cascade)
+
+  @@unique([momentId, raterId, rateeId])
+  @@index([rateeId])
 }

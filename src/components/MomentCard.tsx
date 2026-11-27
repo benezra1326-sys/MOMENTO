@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useLocale, useT } from "./I18nProvider";
-import { CalendarDays, Check, Clock, Hand, Lock, Mail, MapPin, Users, Zap } from "lucide-react";
+import { CalendarDays, Check, Clock, Hand, Lock, Mail, MapPin, Sparkles, Star, Users, Zap } from "lucide-react";
 import type { MomentCardDTO } from "@/server/types";
 import { categoryLabel } from "@/config/product";
 import { formatMomentDate, formatMomentTime } from "@/lib/time";
@@ -48,6 +48,7 @@ export function MomentCard({ moment, autoplay = true, priority = false }: { mome
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-black/30" />
         <div className="absolute left-3 right-14 top-3 flex flex-wrap items-center gap-1.5">
           <span className="pill bg-white/90 text-night">{t(categoryLabel(moment.category))}</span>
+          {moment.isAdult && <span className="pill bg-night/80 text-white">18+</span>}
           {moment.isDemo && <DemoBadge />}
         </div>
         <div className="absolute inset-x-0 bottom-0 p-4 text-white">
@@ -81,11 +82,25 @@ export function MomentCard({ moment, autoplay = true, priority = false }: { mome
           )}
         </div>
       </Link>
+      {moment.reasons && moment.reasons.length > 0 && (
+        <p className="flex items-center gap-1.5 border-b border-border px-4 py-2 text-xs text-ink-2">
+          <Sparkles size={12} className="shrink-0 text-accent" aria-hidden />
+          <span className="sr-only">{t("Pourquoi pour toi")} :</span>
+          <span className="truncate">{moment.reasons.map((r) => t(r)).join(" · ")}</span>
+        </p>
+      )}
       <div className="flex items-center gap-3 px-4 py-3.5">
         <Link href={`/u/${moment.host.username}`} className="flex min-w-0 flex-1 items-center gap-2.5">
           <Avatar person={moment.host} size="sm" />
           <span className="min-w-0">
-            <span className="block truncate text-sm font-semibold">{moment.host.name}</span>
+            <span className="flex items-center gap-1.5 truncate text-sm font-semibold">
+              {moment.host.name}
+              {moment.hostRating?.avg != null && (
+                <span className="inline-flex items-center gap-0.5 text-xs font-medium text-ink-2">
+                  <Star size={11} className="fill-amber-400 text-amber-400" aria-hidden /> {moment.hostRating.avg.toFixed(1).replace(".", ",")}
+                </span>
+              )}
+            </span>
             <span className="flex items-center gap-1 truncate text-xs text-muted">
               <AccessIcon size={12} className="shrink-0" aria-hidden />
               {[accessLabel(moment.visibility, t), ...moment.vibeTags.slice(0, 1).map((tag) => `#${t(tag)}`)].join(" · ")}

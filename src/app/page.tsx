@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { ArrowRight, CalendarHeart, Compass } from "lucide-react";
+import { ArrowRight, CalendarHeart } from "lucide-react";
 import { getViewerSafe } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { productConfig } from "@/config/product";
@@ -11,6 +11,8 @@ import { OfflineDemoNotice } from "@/components/States";
 import { getT } from "@/lib/i18n/server";
 import { listAvailabilities, type AvailabilityDTO } from "@/server/availability";
 import { AvailabilityCard } from "@/components/Availability";
+import { UniverseSwitch } from "@/components/UniverseSwitch";
+import { canSeeAdult } from "@/server/moments";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +29,8 @@ export default async function FeedPage({ searchParams }: { searchParams: SP }) {
   const t = await getT();
   const query = flat(await searchParams);
   delete query.cursor;
+  const univers = query.univers;
+  delete query.univers;
   const feed = await loadFeed(viewer, query);
   const autoplay = viewer
     ? (await prisma.user.findUnique({ where: { id: viewer.id }, select: { autoplayVideos: true } }).catch(() => null))?.autoplayVideos ?? true
@@ -37,8 +41,12 @@ export default async function FeedPage({ searchParams }: { searchParams: SP }) {
   if (viewer && productConfig.features.availability && feed.source === "database") {
     dispos = (await listAvailabilities(viewer, { city: query.city, when: query.when === "week" ? undefined : query.when }).catch(() => []))
       .filter((a) => !a.isMine)
-      .slice(0, 8);
+      .slice(0, 30);
   }
+
+  const moments = (
+    <FeedList key={JSON.stringify(query)} initial={feed} query={new URLSearchParams(query).toString()} autoplay={autoplay} signedIn={!!viewer} />
+  );
 
   return (
     <div className="space-y-6">
@@ -73,48 +81,48 @@ export default async function FeedPage({ searchParams }: { searchParams: SP }) {
 
       {feed.source === "demo-fallback" && <OfflineDemoNotice />}
 
-      <Suspense>
-        <FeedFilters />
-      </Suspense>
-
-      {viewer && productConfig.features.availability && (
-        <section aria-labelledby="dispos-strip" className="space-y-3">
-          <div className="flex items-end justify-between gap-3">
-            <div>
-              <h2 id="dispos-strip" className="flex items-center gap-2 font-display text-xl">
-                <CalendarHeart size={20} className="text-primary" aria-hidden /> {t("Libres bientôt")}
-              </h2>
-              <p className="text-sm text-muted">{t("Une idée ? Propose-leur un Moment.")}</p>
-            </div>
-            <Link href="/dispos" className="shrink-0 text-sm font-semibold text-accent underline-offset-2 hover:underline">
-              {dispos.length > 0 ? t("Tout voir") : t("Je suis dispo")}
-            </Link>
+      {viewer && productConfig.features.availability && feed.source === "database" ? (
+        <UniverseSwitch labels={["Invitations", "Disponibilités"]} initial={univers === "dispos" ? 1 : 0}>
+          <div className="space-y-5">
+            <Suspense>
+              <FeedFilters showAdult={canSeeAdult(viewer)} />
+            </Suspense>
+            {moments}
           </div>
-          {dispos.length > 0 ? (
-            <ul className="scroll-row -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
-              {dispos.map((a) => (
-                <li key={a.id} className="flex">
-                  <AvailabilityCard a={a} compact />
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <Link href="/dispos" className="card flex items-center gap-3 p-4 text-sm hover:bg-surface-2/60">
-              <CalendarHeart size={20} className="shrink-0 text-accent" aria-hidden />
-              <span>{t("Personne n'a publié de dispo pour ces filtres. Dis quand tu es libre : quelqu'un pourra te proposer un Moment.")}</span>
-            </Link>
-          )}
-        </section>
+          <div className="space-y-4">
+            <div className="flex items-end justify-between gap-3">
+              <p className="max-w-md text-sm text-muted">{t("Ces personnes ont dit quand elles sont libres. Une envie en commun ? Propose-leur un Moment.")}</p>
+              <Link href="/dispos?nouveau=1" className="btn-secondary shrink-0">
+                <CalendarHeart size={16} aria-hidden /> {t("Je suis dispo")}
+              </Link>
+            </div>
+            {dispos.length > 0 ? (
+              <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {dispos.map((a) => (
+                  <li key={a.id} className="flex">
+                    <div className="flex-1 [&>article]:h-full">
+                      <AvailabilityCard a={a} />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <Link href="/dispos?nouveau=1" className="card flex items-center gap-3 p-4 text-sm hover:bg-surface-2/60">
+                <CalendarHeart size={20} className="shrink-0 text-accent" aria-hidden />
+                <span>{t("Personne n'a publié de dispo pour l'instant. Dis quand tu es libre : quelqu'un pourra te proposer un Moment.")}</span>
+              </Link>
+            )}
+            <Link href="/dispos" className="inline-flex text-sm font-semibold text-accent underline-offset-2 hover:underline">{t("Filtrer par jour et par ville")}</Link>
+          </div>
+        </UniverseSwitch>
+      ) : (
+        <>
+          <Suspense>
+            <FeedFilters showAdult={canSeeAdult(viewer)} />
+          </Suspense>
+          {moments}
+        </>
       )}
-
-      <div className="flex items-center justify-between gap-3 lg:hidden">
-        <h2 className="font-display text-xl">{t("Les Moments")}</h2>
-        <Link href="/explorer" className="inline-flex items-center gap-1 text-sm font-semibold text-accent">
-          <Compass size={15} aria-hidden /> {t("Explorer")}
-        </Link>
-      </div>
-
-      <FeedList key={JSON.stringify(query)} initial={feed} query={new URLSearchParams(query).toString()} autoplay={autoplay} signedIn={!!viewer} />
     </div>
   );
 }

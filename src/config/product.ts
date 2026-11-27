@@ -32,16 +32,20 @@ export const productConfig = {
     availability: flag("FEATURE_AVAILABILITY", true),
     /** Vidéos envoyées par les membres (Vercel Blob, envoi direct depuis le navigateur). */
     memberVideos: flag("FEATURE_MEMBER_VIDEOS", true),
-    /** Souvenirs/posts : phase 5. */
-    posts: flag("FEATURE_POSTS", false),
-    /** Décision ouverte n°4 : messagerie intégrée. */
-    messaging: flag("FEATURE_MESSAGING", false),
+    /** Souvenirs après un Moment vécu (photo, vidéo, mot). */
+    posts: flag("FEATURE_POSTS", true),
+    /** Discussion liée à chaque Moment (hôte et participants acceptés). */
+    messaging: flag("FEATURE_MESSAGING", true),
+    /** Espace adulte 18+ (opt-in, caché par défaut). */
+    adultSpace: flag("FEATURE_ADULT_SPACE", true),
+    /** Notes après un Moment vécu, utilisées dans le classement. */
+    ratings: flag("FEATURE_RATINGS", true),
     /** Décision ouverte n°5 : QR événementiel. */
     qr: flag("FEATURE_QR", false),
   },
 
-  /** Ranking du feed : « date » (chronologique) par défaut, explicable. */
-  defaultSort: "date" as "date" | "recent",
+  /** Ranking du feed : « best » (Pour toi, explicable : dispo, envies, proximité, notes, places réelles). */
+  defaultSort: "best" as "best" | "date" | "recent",
 
   limits: {
     /** Anti-spam : invitations envoyées par un hôte par heure. */
@@ -67,6 +71,14 @@ export const productConfig = {
     availabilitiesActiveMax: 3,
     availabilityDaysAhead: 14,
     availabilitiesPerDay: 10,
+    /** Discussion : messages par personne et par heure, longueur max. */
+    messagesPerHour: 60,
+    messageMaxLength: 1000,
+    /** Notes : délai pour noter après la fin, et nombre minimum d'avis avant affichage ou effet sur le classement. */
+    ratingWindowDays: 14,
+    ratingMinCount: 3,
+    /** Assistant IA : demandes par personne et par heure. */
+    aiPerHour: 30,
   },
 } as const;
 
@@ -81,8 +93,21 @@ export const categories = [
   { id: "sport", label: "Sport" },
   { id: "party", label: "Soirée" },
   { id: "boat", label: "Bateau" },
+  { id: "culture", label: "Concert & culture" },
+  { id: "travel", label: "Voyage & escapade" },
+  { id: "networking", label: "Networking" },
+  { id: "date", label: "Tête-à-tête" },
+  { id: "adult", label: "Adulte 18+" },
   { id: "other", label: "Autre" },
 ] as const;
+
+/** Catégorie de l'espace adulte : visible et utilisable seulement après opt-in 18+. */
+export const ADULT_CATEGORY = "adult";
+
+/** Catégories qu'une personne peut voir et choisir (l'espace adulte uniquement si elle l'a activé). */
+export function visibleCategories(showAdult: boolean) {
+  return categories.filter((c) => showAdult || c.id !== ADULT_CATEGORY);
+}
 
 export type CategoryId = (typeof categories)[number]["id"];
 

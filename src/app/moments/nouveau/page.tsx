@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
 import { getViewerSafe } from "@/lib/auth";
-import { availabilitySlots, productConfig } from "@/config/product";
+import { availabilitySlots, categories, productConfig } from "@/config/product";
 import { utcToZonedLocal, zonedLocalToUtc } from "@/lib/time";
 import { MomentForm, type Invitee } from "@/components/MomentForm";
 import { PageTitle } from "@/components/States";
 import { getLocale, getT, pageTitle } from "@/lib/i18n/server";
 import { getAvailability, type AvailabilityDTO } from "@/server/availability";
+import { canSeeAdult } from "@/server/moments";
 import { availabilityWhen } from "@/lib/availability-labels";
 
 export const generateMetadata = pageTitle("Créer un Moment");
@@ -48,7 +49,22 @@ export default async function NewMomentPage({ searchParams }: { searchParams: SP
   const slot = dispo ? availabilitySlots.find((s) => s.id === dispo.slot) : null;
   const slotStart = slot?.id === "day" ? "18:00" : slot?.start;
   const invitee: Invitee | null = dispo ? { ...dispo.person, slotLabel: availabilityWhen(dispo, locale, t) } : null;
-  const category = dispo?.categories[0] ?? "drinks";
+  // Pré-remplissage depuis l'assistant de création (/creer) : tout reste modifiable avant publication.
+  const str = (k: string) => (typeof sp[k] === "string" ? (sp[k] as string) : "");
+  const okCat = (c: string) => categories.some((x) => x.id === c) ? c : "";
+  const pre = {
+    title: str("titre").slice(0, 80),
+    description: str("description").slice(0, 1000),
+    category: okCat(str("cat")),
+    city: str("ville"),
+    area: str("quartier"),
+    date: /^\d{4}-\d{2}-\d{2}$/.test(str("date")) ? str("date") : "",
+    time: /^\d{2}:\d{2}$/.test(str("heure")) ? str("heure") : "",
+    capacity: Math.min(50, Math.max(2, Number(str("places")) || 0)) || 0,
+    vibes: str("vibes").split(",").map((x) => x.trim()).filter(Boolean).slice(0, 5),
+  };
+  const category = dispo?.categories[0] ?? (pre.category || "drinks");
+  const isAdultCat = category === "adult";
 
   return (
     <>
@@ -59,26 +75,27 @@ export default async function NewMomentPage({ searchParams }: { searchParams: SP
         invitee={invitee}
         quickDates={dispo ? [] : quickDates(tz, t)}
         memberVideos={productConfig.features.memberVideos}
+        showAdult={canSeeAdult(viewer)}
         initial={{
-          title: "",
-          description: "",
+          title: pre.title,
+          description: pre.description,
           category,
-          vibeTags: [],
+          vibeTags: pre.vibes,
           mediaType: "TEXT",
           mediaUrl: null,
           posterUrl: null,
           textTheme: "dusk",
-          city: dispo?.city || viewer.city || productConfig.pilotCity,
-          area: dispo?.area ?? "",
+          city: dispo?.city || pre.city || viewer.city || productConfig.pilotCity,
+          area: dispo?.area ?? pre.area,
           placeName: "",
           address: "",
           addressMembersOnly: true,
-          startsAtLocal: dispo && slotStart ? `${dispo.date}T${slotStart}` : `${tomorrow}T19:00`,
+          startsAtLocal: dispo && slotStart ? `${dispo.date}T${slotStart}` : `${pre.date || tomorrow}T${pre.time || "19:00"}`,
           endsAtLocal: "",
           timezone: tz,
-          capacity: dispo ? 3 : 6,
+          capacity: dispo ? 3 : pre.capacity || 6,
           visibility: dispo ? "INVITE_ONLY" : "REQUEST",
-          showAttendees: true,
+          showAttendees: !isAdultCat,
         }}
       />
     </>

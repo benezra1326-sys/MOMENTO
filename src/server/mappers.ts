@@ -65,6 +65,7 @@ export function toCard(
     status: m.status,
     visibility: m.visibility,
     phase: momentPhase(m),
+    isAdult: m.isAdult,
     isDemo: m.isDemo,
     host: toPerson(m.host),
     attendeesPreview: attendeesPreview.slice(0, 5),

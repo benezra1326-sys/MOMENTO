@@ -14,7 +14,7 @@ const whenOptions = [
   { id: "week", label: "7 jours" },
 ];
 
-export function FeedFilters({ showCategories = true }: { showCategories?: boolean }) {
+export function FeedFilters({ showCategories = true, showAdult = false }: { showCategories?: boolean; showAdult?: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -32,7 +32,7 @@ export function FeedFilters({ showCategories = true }: { showCategories?: boolea
   const city = params.get("city") ?? "";
   const when = params.get("when") ?? "";
   const category = params.get("category") ?? "";
-  const sort = params.get("sort") ?? "date";
+  const sort = params.get("sort") ?? productConfig.defaultSort;
 
   return (
     <div className={`space-y-3 transition-opacity ${pending ? "opacity-60" : ""}`} aria-busy={pending}>
@@ -54,6 +54,7 @@ export function FeedFilters({ showCategories = true }: { showCategories?: boolea
         </label>
         <div className="ml-auto inline-flex rounded-full border border-border bg-surface p-1 text-sm" role="group" aria-label={t("Trier")}>
           {[
+            { id: "best", label: "Pour toi" },
             { id: "date", label: "Par date" },
             { id: "recent", label: "Nouveautés" },
           ].map((o) => (
@@ -61,7 +62,7 @@ export function FeedFilters({ showCategories = true }: { showCategories?: boolea
               key={o.id}
               type="button"
               aria-pressed={sort === o.id}
-              onClick={() => set("sort", o.id === "date" ? "" : o.id)}
+              onClick={() => set("sort", o.id === productConfig.defaultSort ? "" : o.id)}
               className={`rounded-full px-3 py-1.5 font-medium ${sort === o.id ? "bg-ink text-night" : "text-muted hover:text-ink"}`}
             >
               {t(o.label)}
@@ -81,7 +82,7 @@ export function FeedFilters({ showCategories = true }: { showCategories?: boolea
           <button type="button" aria-pressed={!category} onClick={() => set("category", "")} className={`chip ${!category ? "chip-active" : ""}`}>
             {t("Tout")}
           </button>
-          {categories.map((c) => (
+          {categories.filter((c) => showAdult || c.id !== "adult").map((c) => (
             <button key={c.id} type="button" aria-pressed={category === c.id} onClick={() => set("category", c.id)} className={`chip ${category === c.id ? "chip-active" : ""}`}>
               {t(c.label)}
             </button>

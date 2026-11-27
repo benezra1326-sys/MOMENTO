@@ -1,3 +1,5 @@
+import { z } from "zod";
+import { reputations } from "./ratings";
 import { FEATURED_DEMO } from "./demo-data";
 import { prisma } from "@/lib/db";
 import { AppError, isUniqueViolation } from "@/lib/errors";
@@ -94,20 +96,49 @@ export async function getMyProfile(viewerIn: Viewer | null) {
     photoUrl: u.photoUrl,
     showPastMoments: u.showPastMoments,
     autoplayVideos: u.autoplayVideos,
+    instagram: u.instagram,
+    gallery: u.gallery,
+    showAdult: u.showAdult,
+    adultConfirmedAt: u.adultConfirmedAt ? u.adultConfirmedAt.toISOString() : null,
     isDemo: u.isDemo,
     role: u.role,
   };
 }
 
+/**
+ * Espace adulte (18+) : opt-in explicite. Pour l'activer, la personne confirme avoir 18 ans ou plus
+ * et accepte les règles (consentement, respect, discrétion). Elle peut le désactiver à tout moment.
+ */
+export async function setAdultSpace(viewerIn: Viewer | null, raw: unknown) {
+  const viewer = requireActive(viewerIn);
+  const input = z.object({ enable: z.boolean(), confirm18: z.boolean().default(false), acceptRules: z.boolean().default(false) }).parse(raw ?? {});
+  if (input.enable && (!input.confirm18 || !input.acceptRules)) {
+    throw new AppError("VALIDATION", "Confirme avoir 18 ans ou plus et accepter les règles de l'espace adulte.");
+  }
+  const u = await prisma.user.findUniqueOrThrow({ where: { id: viewer.id }, select: { adultConfirmedAt: true } });
+  await prisma.user.update({
+    where: { id: viewer.id },
+    data: { showAdult: input.enable, ...(input.enable && !u.adultConfirmedAt ? { adultConfirmedAt: new Date() } : {}) },
+  });
+  return { showAdult: input.enable };
+}
+
 export async function updateMyProfile(viewerIn: Viewer | null, raw: unknown) {
   const viewer = requireActive(viewerIn);
   const input = profileSchema.parse(raw);
-  const before = await prisma.user.findUnique({ where: { id: viewer.id }, select: { photoUrl: true } });
+  const before = await prisma.user.findUnique({ where: { id: viewer.id }, select: { photoUrl: true, gallery: true } });
+  const { instagram, gallery, ...rest } = input;
   await prisma.user.update({
     where: { id: viewer.id },
-    data: { ...input, interests: [...new Set(input.interests.map((i) => i.toLowerCase()))] },
+    data: {
+      ...rest,
+      interests: [...new Set(input.interests.map((i) => i.toLowerCase()))],
+      ...(instagram !== undefined ? { instagram: instagram ? instagram.toLowerCase() : null } : {}),
+      ...(gallery !== undefined ? { gallery: [...new Set(gallery)] } : {}),
+    },
   });
   if (before?.photoUrl && input.photoUrl !== undefined && before.photoUrl !== input.photoUrl) await deleteStoredFile(before.photoUrl);
+  if (gallery !== undefined) for (const url of before?.gallery ?? []) if (!gallery.includes(url)) await deleteStoredFile(url);
   return getMyProfile(viewer);
 }
 
@@ -124,12 +155,10 @@ export async function getPublicProfile(viewer: Viewer | null, username: string) 
     ? !!(await prisma.block.findUnique({ where: { blockerId_blockedId: { blockerId: viewer.id, blockedId: u.id } } }))
     : false;
   const suspended = u.status === "SUSPENDED";
-  const [hosted, attended] = suspended
-    ? [[], []]
-    : await Promise.all([
-        hostedMoments(viewer, u.id),
-        u.showPastMoments || isSelf ? attendedMoments(viewer, u.id) : Promise.resolve([]),
-      ]);
+  // Requêtes séquentielles : une seule connexion à la base en production.
+  const hosted = suspended ? [] : await hostedMoments(viewer, u.id);
+  const attended = suspended || !(u.showPastMoments || isSelf) ? [] : await attendedMoments(viewer, u.id);
+  const rep = (await reputations([u.id])).get(u.id) ?? null;
   return {
     id: u.id,
     name: u.name,
@@ -144,6 +173,9 @@ export async function getPublicProfile(viewer: Viewer | null, username: string) 
     viewerBlocked,
     memberSince: u.createdAt.toISOString(),
     showPastMoments: u.showPastMoments,
+    instagram: suspended ? null : u.instagram,
+    gallery: suspended ? [] : u.gallery,
+    reputation: rep ? { avg: rep.avg, count: rep.count, hostAvg: rep.hostAvg, hostCount: rep.hostCount, criteria: rep.criteria, badges: rep.badges } : null,
     hosted,
     attended,
   };
