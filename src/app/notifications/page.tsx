@@ -6,6 +6,8 @@ import { listNotifications, markAllRead } from "@/server/notifications";
 import { formatRelative } from "@/lib/time";
 import { getLocale } from "@/lib/i18n/server";
 import { PageTitle } from "@/components/States";
+import { Avatar } from "@/components/Avatar";
+import { localizeNotification } from "@/lib/i18n/notifications";
 import { getT, pageTitle } from "@/lib/i18n/server";
 
 export const generateMetadata = pageTitle("Notifications");
@@ -32,9 +34,10 @@ export default async function NotificationsPage() {
           {items.map((n) => {
             const body = (
               <div className="flex items-start gap-3 px-5 py-4">
-                <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${n.read ? "bg-transparent" : "bg-rose"}`} aria-hidden />
-                <div className="min-w-0">
-                  <p className={n.read ? "text-ink-soft" : "font-medium"}>{t(n.body)}</p>
+                <span className={`mt-4 h-2 w-2 shrink-0 rounded-full ${n.read ? "bg-transparent" : "bg-rose"}`} aria-hidden />
+                {n.actor ? <Avatar person={n.actor} size="md" /> : <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sand text-muted"><Bell size={18} aria-hidden /></span>}
+                <div className="min-w-0 pt-0.5">
+                  <p className={n.read ? "text-ink-soft" : "font-medium"}>{localizeNotification(n.body, locale)}</p>
                   <p className="mt-0.5 text-xs text-muted">{formatRelative(n.createdAt, locale)}</p>
                 </div>
               </div>

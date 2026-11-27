@@ -1,3 +1,4 @@
+import { FEATURED_DEMO } from "./demo-data";
 import { prisma } from "@/lib/db";
 import { AppError, isUniqueViolation } from "@/lib/errors";
 import { createSession, destroySession, requireActive, type Viewer } from "@/lib/auth";
@@ -66,15 +67,12 @@ export async function demoLogin(username: string) {
 export async function listDemoAccounts() {
   if (!isDemoMode()) return [];
   // Une seule requête : la base de production n'accepte qu'une connexion par fonction.
+  // Toujours les mêmes profils mis en avant, même avec une centaine de profils fictifs.
   const all = await prisma.user.findMany({
-    where: { isDemo: true, status: "ACTIVE" },
+    where: { isDemo: true, status: "ACTIVE", username: { in: FEATURED_DEMO } },
     select: { username: true, name: true, photoUrl: true, city: true, role: true, _count: { select: { hostedMoments: true } } },
-    orderBy: [{ hostedMoments: { _count: "desc" } }, { createdAt: "asc" }],
   });
-  const users = all.filter((u) => u.role !== "ADMIN");
-  const hosts = users.filter((u) => u._count.hostedMoments > 0).slice(0, 6);
-  const guests = users.filter((u) => u._count.hostedMoments === 0).slice(0, 4);
-  return [...hosts, ...guests, ...all.filter((u) => u.role === "ADMIN").slice(0, 1)];
+  return all.sort((a, b) => FEATURED_DEMO.indexOf(a.username) - FEATURED_DEMO.indexOf(b.username));
 }
 
 export async function logout() {

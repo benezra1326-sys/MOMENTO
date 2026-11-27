@@ -319,7 +319,7 @@ export function MomentForm({
           {err("mediaUrl")}
         </Section>
 
-        <div className="sticky bottom-20 z-10 flex flex-wrap gap-2 rounded-3xl border border-line bg-paper/95 p-3 shadow-[var(--shadow-lift)] backdrop-blur lg:bottom-4">
+        <div className="form-actions sticky bottom-20 z-10 flex flex-wrap gap-2 rounded-3xl border border-line bg-paper/95 p-3 shadow-[var(--shadow-lift)] backdrop-blur lg:bottom-4">
           {!isPublished && (
             <button type="button" className="btn-secondary flex-1" disabled={!!busy} onClick={() => submit(false)}>
               {busy === "draft" && <Loader2 size={16} className="animate-spin" />} {t("Enregistrer le brouillon")}

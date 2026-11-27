@@ -27,11 +27,18 @@ export async function listNotifications(viewerIn: Viewer | null, limit = 40) {
     orderBy: { createdAt: "desc" },
     take: limit,
   });
+  // Requête séquentielle (une seule connexion en production) : la personne à l'origine de chaque notification.
+  const actorIds = [...new Set(rows.map((r) => r.actorId).filter((x): x is string => !!x))];
+  const actors = actorIds.length
+    ? await prisma.user.findMany({ where: { id: { in: actorIds } }, select: { id: true, name: true, username: true, photoUrl: true } })
+    : [];
+  const byId = new Map(actors.map((a) => [a.id, a]));
   return rows.map((r) => ({
     id: r.id,
     type: r.type,
     body: r.body,
     momentId: r.momentId,
+    actor: r.actorId ? (byId.get(r.actorId) ?? null) : null,
     read: !!r.readAt,
     createdAt: r.createdAt.toISOString(),
   }));

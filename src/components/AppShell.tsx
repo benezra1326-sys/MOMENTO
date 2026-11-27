@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Bell, Shield } from "lucide-react";
 import { emailVerificationRequired, type Viewer } from "@/lib/auth";
-import { isDemoMode } from "@/lib/env";
+import { demoLabelsVisible, isDemoMode } from "@/lib/env";
 import { Avatar } from "./Avatar";
 import { VerifyEmailBanner } from "./AccountEmail";
 import { Logo } from "./Logo";
@@ -78,7 +78,7 @@ export async function AppShell({ viewer, unread, children }: { viewer: Viewer | 
           </div>
         </header>
 
-        {demo && (
+        {demo && demoLabelsVisible && (
           <div className="border-b border-warn/15 bg-warn-soft px-4 py-2 text-center text-[13px] text-warn">
             {t("Version de démonstration : les profils et Moments marqués « Démo » sont fictifs.")}
           </div>

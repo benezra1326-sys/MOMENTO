@@ -6,7 +6,7 @@
  */
 import { utcToZonedLocal, zonedLocalToUtc } from "@/lib/time";
 import { momentPhase } from "./mappers";
-import { DEMO_TZ, moments, people } from "./demo-data";
+import { DEMO_TZ, demoCover, demoPhoto, moments, people } from "./demo-data";
 import type { FeedQuery } from "@/lib/validation";
 import type { FeedPage, MomentCardDTO, MomentDetailDTO, PersonSummary } from "./types";
 
@@ -18,7 +18,7 @@ function at(dayOffset: number, hhmm: string): Date {
 
 function person(slug: string): PersonSummary {
   const p = people.find((x) => x.slug === slug)!;
-  return { id: `demo-${slug}`, name: p.name, username: slug, photoUrl: `/demo/people/${slug}.webp`, isDemo: true };
+  return { id: `demo-${slug}`, name: p.name, username: slug, photoUrl: demoPhoto(p), isDemo: true };
 }
 
 function build(): MomentDetailDTO[] {
@@ -35,7 +35,7 @@ function build(): MomentDetailDTO[] {
       category: s.category,
       vibeTags: s.tags,
       mediaType: s.media,
-      mediaUrl: s.mediaUrl ?? null,
+      mediaUrl: demoCover(s),
       posterUrl: s.posterUrl ?? null,
       textTheme: s.textTheme ?? null,
       city: s.city,

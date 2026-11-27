@@ -3,12 +3,14 @@
  * Les dates sont exprimées en jours relatifs (day) + heure locale Europe/Madrid.
  */
 import type { MediaType, MembershipStatus, MomentVisibility } from "@prisma/client";
+import crowd from "./demo-crowd.json";
+import media from "./demo-media.json";
 
 export const DEMO_TZ = "Europe/Madrid";
 
-export type Person = { slug: string; name: string; city: string; bio: string; interests: string[]; admin?: boolean; guestOnly?: boolean };
+export type Person = { slug: string; name: string; city: string; bio: string; interests: string[]; admin?: boolean; guestOnly?: boolean; joinedDaysAgo?: number };
 
-export const people: Person[] = [
+const scriptedPeople: Person[] = [
   { slug: "lea", name: "Léa M.", city: "Marbella", bio: "Designer, toujours partante pour un sunset ou une expo.", interests: ["design", "sunset", "vin nature"] },
   { slug: "karim", name: "Karim B.", city: "Marbella", bio: "Entrepreneur. Je cuisine pour mes amis le jeudi.", interests: ["cuisine", "startups", "padel"] },
   { slug: "sofia", name: "Sofía R.", city: "Marbella", bio: "Photographe. Café le matin, mer le soir.", interests: ["photo", "café", "voile"] },
@@ -33,6 +35,8 @@ export const people: Person[] = [
 ];
 
 export type SeedMoment = {
+  /** Clé stable (identifiant de la photo de couverture et de l'id en base). */
+  key?: string;
   host: string;
   title: string;
   description: string;
@@ -58,7 +62,7 @@ export type SeedMoment = {
 
 const img = (n: string) => `/demo/moments/${n}.webp`;
 
-export const moments: SeedMoment[] = [
+const scriptedMoments: SeedMoment[] = [
   {
     host: "lea", title: "Sunset + verre sur la plage", description: "On se retrouve pour regarder le soleil se coucher, un verre à la main. Ambiance détendue, on apporte chacun quelque chose à partager.",
     category: "sunset", tags: ["chill", "en plein air", "rencontres"], media: "VIDEO", mediaUrl: "/demo/video/sunset-1.mp4", posterUrl: "/demo/video/sunset-1-poster.webp",
@@ -223,3 +227,35 @@ export const moments: SeedMoment[] = [
   },
 ];
 
+
+/**
+ * Profils mis en avant sur la page de connexion (toujours les mêmes, quel que soit le volume
+ * de la foule) : 6 organisateurs, 3 participants sans Moment, la modération.
+ */
+export const FEATURED_DEMO = ["lea", "karim", "sofia", "noah", "tom", "marco", "clara", "sam", "rafael", "moderation"];
+
+/** Foule de démonstration générée par scripts/make-crowd.ts (profils et Moments fictifs). */
+export const people: Person[] = [...scriptedPeople, ...(crowd.people as Person[])];
+export const moments: SeedMoment[] = [
+  ...scriptedMoments.map((m, i) => ({ ...m, key: m.key ?? `s${String(i + 1).padStart(3, "0")}` })),
+  ...(crowd.moments as SeedMoment[]),
+];
+
+const avatars = media.avatars as Record<string, string>;
+const covers = media.covers as Record<string, string>;
+
+/** Photo de profil : visage généré (personne qui n'existe pas) si disponible, sinon illustration locale. */
+export function demoPhoto(p: Person): string | null {
+  if (p.admin) return null;
+  if (avatars[p.slug]) return avatars[p.slug];
+  return scriptedPeople.includes(p) && !p.guestOnly ? `/demo/people/${p.slug}.webp` : null;
+}
+
+/** Visuel du Moment : photo libre de droits si disponible, sinon illustration locale par catégorie. */
+export function demoCover(m: SeedMoment): string | null {
+  if (m.media === "TEXT") return null;
+  if (m.media === "IMAGE" && m.key && covers[m.key]) return covers[m.key];
+  if (m.mediaUrl) return m.mediaUrl;
+  const n = m.key ? (m.key.charCodeAt(m.key.length - 1) % 2) + 1 : 1;
+  return img(`${m.category}-${n}`);
+}
