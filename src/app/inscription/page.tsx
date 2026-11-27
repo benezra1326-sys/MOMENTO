@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getViewerSafe } from "@/lib/auth";
+import { facebookEnabled } from "@/server/facebook";
 import { googleEnabled } from "@/server/google";
-import { Divider, GoogleButton, SignupForm } from "@/components/AuthForms";
+import { SignupForm, SocialButtons } from "@/components/AuthForms";
 import { getT, pageTitle } from "@/lib/i18n/server";
 
 export const generateMetadata = pageTitle("Créer un compte");
@@ -17,8 +18,7 @@ export default async function SignupPage({ searchParams }: { searchParams: Promi
       <h1 className="font-display text-3xl">{t("Rejoins Momento")}</h1>
       <p className="mt-1 text-muted">{t("Une idée, des gens, un vrai moment.")}</p>
       <div className="mt-6">
-        <GoogleButton next={suite} enabled={googleEnabled()} />
-        {googleEnabled() && <Divider />}
+        <SocialButtons next={suite} google={googleEnabled()} facebook={facebookEnabled()} />
         <SignupForm next={suite} />
       </div>
       <p className="mt-6 text-center text-sm text-muted">

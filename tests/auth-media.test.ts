@@ -21,6 +21,7 @@ import { deleteMyAccount, signup } from "@/server/accounts";
 import { confirmEmail, requestPasswordReset, resetPassword } from "@/server/auth-tokens";
 import { outbox } from "@/server/email";
 import { upsertGoogleUser } from "@/server/google";
+import { upsertFacebookUser } from "@/server/facebook";
 import { getMomentDetail } from "@/server/moments";
 import { inviteUser, requestToJoin, respondToMembership } from "@/server/memberships";
 import { blockUser } from "@/server/safety";
@@ -177,6 +178,41 @@ describe("connexion Google", () => {
     const [a, b] = await Promise.all([upsertGoogleUser(p), upsertGoogleUser(p)]);
     expect(a.id).toBe(b.id);
     expect(await prisma.user.count({ where: { googleId: "g4" } })).toBe(1);
+  });
+});
+
+describe("connexion Facebook", () => {
+  it("refuse un compte Facebook sans adresse e-mail", async () => {
+    await expectCode(upsertFacebookUser({ id: "f1", name: "Sans Mail" }), "UNAUTHENTICATED");
+  });
+
+  it("crée un compte confirmé à la première connexion, puis le retrouve", async () => {
+    const first = await upsertFacebookUser({ id: "f2", email: "Fb@Test.local", name: "Fanny Book" });
+    expect(first.isNew).toBe(true);
+    const u = await prisma.user.findUniqueOrThrow({ where: { id: first.id } });
+    expect(u.email).toBe("fb@test.local");
+    expect(u.facebookId).toBe("f2");
+    expect(u.emailVerifiedAt).not.toBeNull();
+    expect(await upsertFacebookUser({ id: "f2", email: "fb@test.local" })).toEqual({ id: first.id, isNew: false });
+  });
+
+  it("relie un compte existant, y compris un compte déjà relié à Google", async () => {
+    const g = await upsertGoogleUser({ sub: "g9", email: "deux@test.local", email_verified: true, name: "Deux" });
+    const f = await upsertFacebookUser({ id: "f3", email: "deux@test.local" });
+    expect(f).toEqual({ id: g.id, isNew: false });
+    const u = await prisma.user.findUniqueOrThrow({ where: { id: g.id } });
+    expect(u.googleId).toBe("g9");
+    expect(u.facebookId).toBe("f3");
+  });
+
+  it("ne relie jamais un compte démo", async () => {
+    await prisma.user.create({ data: { email: "demo3@test.local", username: "demo_z", name: "Démo", isDemo: true } });
+    await expectCode(upsertFacebookUser({ id: "f4", email: "demo3@test.local" }), "CONFLICT");
+  });
+
+  it("refuse une adresse déjà reliée à un autre compte Facebook", async () => {
+    await upsertFacebookUser({ id: "f5", email: "pris@test.local" });
+    await expectCode(upsertFacebookUser({ id: "f6", email: "pris@test.local" }), "CONFLICT");
   });
 });
 
