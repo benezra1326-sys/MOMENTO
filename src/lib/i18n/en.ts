@@ -338,7 +338,7 @@ export const en: Record<string, string> = {
   Image: "Image",
   "Couleur de la carte": "Card colour",
   "Thème {name}": "{name} theme",
-  "Choisir l'illustration {name}": "Choose the {name} illustration",
+  "Choisir la photo {name}": "Choose the {name} photo",
   "Importer ma photo": "Upload my photo",
   "JPEG, PNG ou WebP. Les photos lourdes sont réduites automatiquement. La localisation GPS de la photo est supprimée.":
     "JPEG, PNG or WebP. Large photos are resized automatically. The photo's GPS location is removed.",

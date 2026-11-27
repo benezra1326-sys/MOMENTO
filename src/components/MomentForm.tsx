@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { galleryUrl } from "@/lib/gallery";
 import { useRef, useState } from "react";
 import { ImagePlus, Loader2, Type, X } from "lucide-react";
 import { categories, productConfig, vibeSuggestions, visibilityInfo } from "@/config/product";
@@ -286,7 +287,7 @@ export function MomentForm({
         <Section n={5} title={t("Visuel")}>
           <div className="flex flex-wrap gap-2">
             <button type="button" className={`chip ${v.mediaType === "TEXT" ? "chip-active" : ""}`} onClick={() => set("mediaType", "TEXT")}><Type size={15} /> {t("Carte texte")}</button>
-            <button type="button" className={`chip ${v.mediaType === "IMAGE" ? "chip-active" : ""}`} onClick={() => setV((p) => ({ ...p, mediaType: "IMAGE", mediaUrl: p.mediaUrl ?? `/demo/moments/${galleryCovers[0]}.webp` }))}><ImagePlus size={15} /> {t("Image")}</button>
+            <button type="button" className={`chip ${v.mediaType === "IMAGE" ? "chip-active" : ""}`} onClick={() => setV((p) => ({ ...p, mediaType: "IMAGE", mediaUrl: p.mediaUrl ?? galleryUrl(galleryCovers[0]) }))}><ImagePlus size={15} /> {t("Image")}</button>
           </div>
           {v.mediaType === "TEXT" ? (
             <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={t("Couleur de la carte")}>
@@ -298,9 +299,9 @@ export function MomentForm({
             <div className="space-y-3">
               <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
                 {galleryCovers.map((c) => {
-                  const url = `/demo/moments/${c}.webp`;
+                  const url = galleryUrl(c);
                   return (
-                    <button key={c} type="button" onClick={() => setV((p) => ({ ...p, mediaType: "IMAGE", mediaUrl: url, posterUrl: null }))} className={`relative aspect-[4/5] overflow-hidden rounded-xl ring-offset-2 ${v.mediaUrl === url ? "ring-2 ring-ink" : ""}`} aria-label={t("Choisir l'illustration {name}", { name: c })}>
+                    <button key={c} type="button" onClick={() => setV((p) => ({ ...p, mediaType: "IMAGE", mediaUrl: url, posterUrl: null }))} className={`relative aspect-[4/5] overflow-hidden rounded-xl ring-offset-2 ${v.mediaUrl === url ? "ring-2 ring-ink" : ""}`} aria-label={t("Choisir la photo {name}", { name: c })}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={url} alt="" className="h-full w-full object-cover" loading="lazy" />
                     </button>
