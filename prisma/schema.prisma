@@ -80,6 +80,8 @@ model User {
   passwordHash String?
   /// Identifiant Google (claim « sub ») si le compte utilise la connexion Google.
   googleId     String?       @unique
+  /// Identifiant Facebook (propre à l'app Momento) si le compte utilise la connexion Facebook.
+  facebookId   String?       @unique
   /// Date de confirmation de l'adresse e-mail (lien reçu par e-mail, ou e-mail vérifié par Google).
   emailVerifiedAt DateTime?
   name         String
