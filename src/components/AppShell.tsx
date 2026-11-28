@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bell, Crown, Shield, Sparkles } from "lucide-react";
+import { Bell, Crown, Sparkles } from "lucide-react";
 import { tierOf } from "@/lib/premium";
 import { emailVerificationRequired, type Viewer } from "@/lib/auth";
 import { demoLabelsVisible, isDemoMode } from "@/lib/env";
@@ -54,11 +54,6 @@ export async function AppShell({ viewer, unread, children }: { viewer: Viewer | 
         <SideNav signedIn={!!viewer} unread={unread} />
         <div className="mt-auto space-y-3">
           {viewer && offerLink("h-9 w-full justify-center px-3")}
-          {viewer?.role === "ADMIN" && (
-            <Link href="/admin" className="flex items-center gap-2 rounded-2xl px-3 py-2 text-sm font-medium text-muted hover:bg-surface-2">
-              <Shield size={16} /> {t("Modération")}
-            </Link>
-          )}
           {viewer ? (
             <Link href="/moi" className="flex items-center gap-3 rounded-2xl p-2 hover:bg-surface-2">
               <Avatar person={viewer} size="md" />
