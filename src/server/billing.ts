@@ -145,7 +145,8 @@ export async function startCheckout(viewerIn: Viewer | null, origin: string, raw
   const plan = input.plan;
   const interval = input.interval;
   const back = retour ? `&retour=${encodeURIComponent(retour)}` : "";
-  if (viewer.isDemo) throw new AppError("FORBIDDEN", "Les comptes d'exemple ne peuvent pas s'abonner.");
+  // Paiement réel : jamais pour un compte d'exemple. Le paiement simulé (recette) reste ouvert à tous les comptes.
+  if (viewer.isDemo && mode !== "simulated") throw new AppError("FORBIDDEN", "Les comptes d'exemple ne peuvent pas s'abonner.");
   const tier = await currentTier(viewer);
   if (tier === plan) throw new AppError("CONFLICT", `Tu es déjà membre ${plans[plan].name}.`);
   if (mode === "simulated") {
@@ -200,7 +201,6 @@ const simulateSchema = z.object({
 export async function simulatePayment(viewerIn: Viewer | null, raw: unknown) {
   const viewer = requireActive(viewerIn);
   if (billingMode() !== "simulated") throw new AppError("FORBIDDEN", "Le paiement simulé n'est pas disponible.");
-  if (viewer.isDemo) throw new AppError("FORBIDDEN", "Les comptes d'exemple ne peuvent pas s'abonner.");
   const { outcome, plan, interval } = simulateSchema.parse(raw ?? {});
   if (outcome === "failure") throw new AppError("VALIDATION", "Paiement refusé (simulation). Ton offre ne change pas, tu peux réessayer.");
   if ((await currentTier(viewer)) === plan) return { premium: true, plan, until: viewer.premiumUntil?.toISOString() ?? null };
