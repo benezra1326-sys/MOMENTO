@@ -402,17 +402,46 @@ export function MomentForm({
             {err("capacity")}
           </div>
           <fieldset>
-            <legend className="field-label">{t("Qui peut voir et rejoindre")}</legend>
-            <div className="grid gap-2 sm:grid-cols-2">
-              {productConfig.enabledVisibilities.filter((key) => v.category !== "adult" || key !== "PUBLIC").map((key) => (
-                <label key={key} className={`cursor-pointer rounded-2xl border p-4 transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent ${v.visibility === key ? "border-ink bg-surface-2/60" : "border-border bg-surface hover:border-ink/30"}`}>
-                  <input type="radio" name="visibility" className="sr-only" checked={v.visibility === key} onChange={() => set("visibility", key)} />
-                  <span className="font-semibold">{t(visibilityInfo[key].label)}</span>
-                  <span className="mt-1 block text-sm text-muted">{t(visibilityInfo[key].help)}</span>
-                </label>
-              ))}
+            <legend className="field-label">{t("Qui peut le voir ?")}</legend>
+            <div className="grid gap-2 sm:grid-cols-3">
+              {(
+                [
+                  { id: "feed", label: "Dans le fil", help: "Tout le monde peut le voir et demander une place.", on: v.visibility === "REQUEST" || v.visibility === "PUBLIC", pick: () => set("visibility", "REQUEST") },
+                  { id: "invite", label: visibilityInfo.INVITE_ONLY.label, help: visibilityInfo.INVITE_ONLY.help, on: v.visibility === "INVITE_ONLY", pick: () => set("visibility", "INVITE_ONLY") },
+                  { id: "link", label: visibilityInfo.PRIVATE.label, help: visibilityInfo.PRIVATE.help, on: v.visibility === "PRIVATE", pick: () => set("visibility", "PRIVATE") },
+                ] as const
+              )
+                .filter((o) => (o.id === "feed" ? productConfig.enabledVisibilities.includes("REQUEST") : productConfig.enabledVisibilities.includes(o.id === "invite" ? "INVITE_ONLY" : "PRIVATE")))
+                .map((o) => (
+                  <label key={o.id} className={`cursor-pointer rounded-2xl border p-4 transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent ${o.on ? "border-ink bg-surface-2/60" : "border-border bg-surface hover:border-ink/30"}`}>
+                    <input type="radio" name="visibility" className="sr-only" checked={o.on} onChange={o.pick} />
+                    <span className="font-semibold">{t(o.label)}</span>
+                    <span className="mt-1 block text-sm text-muted">{t(o.help)}</span>
+                  </label>
+                ))}
             </div>
           </fieldset>
+          {(v.visibility === "REQUEST" || v.visibility === "PUBLIC") && (
+            <fieldset>
+              <legend className="field-label">{t("Quand quelqu'un veut rejoindre")}</legend>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {(
+                  [
+                    { key: "REQUEST", label: "Je confirme chaque demande", help: "Recommandé si tu ne connais pas les personnes. Tu vois le profil, puis tu acceptes ou refuses." },
+                    { key: "PUBLIC", label: "Inscription automatique", help: "La place est confirmée tout de suite, tant qu'il en reste." },
+                  ] as const
+                )
+                  .filter((o) => o.key === "REQUEST" || (v.category !== "adult" && productConfig.enabledVisibilities.includes("PUBLIC")))
+                  .map((o) => (
+                    <label key={o.key} className={`cursor-pointer rounded-2xl border p-4 transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent ${v.visibility === o.key ? "border-ink bg-surface-2/60" : "border-border bg-surface hover:border-ink/30"}`}>
+                      <input type="radio" name="joinMode" className="sr-only" checked={v.visibility === o.key} onChange={() => set("visibility", o.key)} />
+                      <span className="font-semibold">{t(o.label)}</span>
+                      <span className="mt-1 block text-sm text-muted">{t(o.help)}</span>
+                    </label>
+                  ))}
+              </div>
+            </fieldset>
+          )}
         </Section>
 
         <section className="card overflow-hidden">
