@@ -1,5 +1,6 @@
 "use client";
 
+import { demoLabelsVisible } from "@/lib/env";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { startTransition, useState } from "react";
@@ -60,7 +61,7 @@ export function JoinPanel({ moment, signedIn, readOnly = false, viewerIsDemo = f
   if (readOnly) return box("lock", "Lecture seule", "Le mode démo hors ligne ne permet pas de rejoindre un Moment.");
   if (moment.phase === "cancelled") return box("off", "Ce Moment a été annulé", moment.cancelReason ?? undefined);
   if (moment.phase === "ended") return box("off", "Ce Moment est terminé", "Envie de remettre ça ? Crée le prochain.");
-  if (moment.isDemo && !viewerIsDemo) {
+  if (moment.isDemo && !viewerIsDemo && demoLabelsVisible) {
     return box("lock", "Moment d'exemple", "Il montre à quoi ressemble un Moment : on ne peut pas le rejoindre.", (
       <Link href="/creer" className="btn-primary w-full">{t("Créer mon Moment")}</Link>
     ));
