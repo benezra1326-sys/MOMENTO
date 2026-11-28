@@ -349,6 +349,11 @@ function AvailabilityEditor({
         saveDraft(v);
         return setLimit({ activeId: res.error.details.activeId, message: res.error.message });
       }
+      if (res.error.code === "CERTIFICATION_REQUIRED") {
+        // La dispo est gardée en brouillon : on la retrouve après la vérification.
+        saveDraft(v);
+        return router.push(`/moi/certification?retour=${encodeURIComponent("/dispos")}`);
+      }
       setErrors(res.error.details ?? {});
       return setError(res.error.message);
     }

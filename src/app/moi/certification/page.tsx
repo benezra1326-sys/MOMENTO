@@ -5,14 +5,16 @@ import { myVerification } from "@/server/verification";
 import { SelfieCertification } from "@/components/SelfieCertification";
 import { pageTitle } from "@/lib/i18n/server";
 
-export const generateMetadata = pageTitle("Certifier ma photo");
+export const generateMetadata = pageTitle("Vérifier mon profil");
 export const dynamic = "force-dynamic";
 
-export default async function CertificationPage() {
+export default async function CertificationPage({ searchParams }: { searchParams: Promise<{ retour?: string }> }) {
+  const { retour: raw } = await searchParams;
+  const retour = raw && raw.startsWith("/") && !raw.startsWith("//") ? raw : undefined;
   const viewer = await getViewerSafe();
-  if (!viewer) redirect("/connexion?suite=/moi/certification");
+  if (!viewer) redirect(`/connexion?suite=${encodeURIComponent(`/moi/certification${retour ? `?retour=${encodeURIComponent(retour)}` : ""}`)}`);
   // Requêtes séquentielles : une seule connexion à la base en production.
   const me = await getMyProfile(viewer);
   const state = await myVerification(viewer);
-  return <SelfieCertification me={{ name: me.name, username: me.username, photoUrl: me.photoUrl }} initial={state} />;
+  return <SelfieCertification me={{ name: me.name, username: me.username, photoUrl: me.photoUrl }} initial={state} retour={retour} />;
 }

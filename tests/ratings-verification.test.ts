@@ -4,9 +4,11 @@ import { prisma } from "@/lib/db";
 import { AppError } from "@/lib/errors";
 import type { Viewer } from "@/lib/auth";
 import { momentsToRate, reputations, submitRatings } from "@/server/ratings";
-import { myVerification, onProfilePhotoChanged, pendingVerifications, reviewVerification, startVerification, submitSelfie } from "@/server/verification";
+import { myVerification, onProfilePhotoChanged, pendingVerifications, reviewVerification, startVerification, submitVideoCheck } from "@/server/verification";
 import { toPerson } from "@/server/mappers";
 import { makeMoment, makeUser, resetDb } from "./helpers";
+import { createAvailability } from "@/server/availability";
+import { requestToJoin } from "@/server/memberships";
 
 process.env.STORAGE_DRIVER = "local";
 delete process.env.ANTHROPIC_API_KEY;
@@ -75,30 +77,44 @@ describe("notation façon « après la course »", () => {
   });
 });
 
-async function selfieFile() {
+async function frames(n: number) {
   const buf = await sharp({ create: { width: 400, height: 400, channels: 3, background: "#c88" } }).jpeg().toBuffer();
-  return new File([new Uint8Array(buf)], "selfie.jpg", { type: "image/jpeg" });
+  return Array.from({ length: n }, (_, i) => new File([new Uint8Array(buf)], `f${i}.jpg`, { type: "image/jpeg" }));
 }
+async function code(p: Promise<unknown>) {
+  try {
+    await p;
+  } catch (e) {
+    return (e as AppError).code;
+  }
+  return "OK";
+}
+const adultBirth = "1995-04-12";
 
-describe("certification de la photo", () => {
-  it("selfie en direct → en attente → validé par l'équipe → badge ; changer de photo le retire et relance la vérification", async () => {
-    const u = await makeUser("Léa");
-    await expect(startVerification(u)).rejects.toBeInstanceOf(AppError); // pas de photo de profil
+describe("vérification du profil en vidéo guidée", () => {
+  it("vidéo guidée → sans IA, en attente → validée par l'équipe → badge ; changer de photo relance la vérification", async () => {
+    const u = await makeUser("Léa", { certified: false });
+    expect(await code(startVerification(u, { birthDate: adultBirth }))).toBe("VALIDATION"); // pas de photo de profil
     await prisma.user.update({ where: { id: u.id }, data: { photoUrl: "/uploads/avatar/a.webp" } });
+    expect(await code(startVerification(u))).toBe("VALIDATION"); // date de naissance demandée
 
-    const ch = await startVerification(u);
-    expect(ch.gesture.label).toBeTruthy();
-    let st = await submitSelfie(u, ch.id, await selfieFile());
+    const ch = await startVerification(u, { birthDate: adultBirth });
+    expect(ch.steps.map((s) => s.id).slice(0, 1)).toEqual(["front"]);
+    expect(ch.steps.map((s) => s.id)).toEqual(expect.arrayContaining(["front", "left", "right", "up", "down"]));
+    expect(ch.steps).toHaveLength(6);
+    // Une image manquante : refusé.
+    expect(await code(submitVideoCheck(u, ch.id, await frames(3)))).toBe("VALIDATION");
+    let st = await submitVideoCheck(u, ch.id, await frames(ch.steps.length));
     expect(st.status).toBe("pending");
     expect(st.verified).toBe(false);
-    // La même demande ne peut pas servir deux fois.
-    await expect(submitSelfie(u, ch.id, await selfieFile())).rejects.toBeInstanceOf(AppError);
+    expect(await code(submitVideoCheck(u, ch.id, await frames(ch.steps.length)))).not.toBe("OK");
 
     const member = await makeUser("Membre");
     await expect(pendingVerifications(member)).rejects.toBeInstanceOf(AppError);
     const admin = await makeUser("Admin", { role: "ADMIN" });
     const queue = await pendingVerifications(admin);
     expect(queue).toHaveLength(1);
+    expect(queue[0].age).toBeGreaterThanOrEqual(18);
     await reviewVerification(admin, queue[0].id, { approve: true });
 
     st = await myVerification(u);
@@ -116,19 +132,39 @@ describe("certification de la photo", () => {
     expect(again[0].photoUrl).toBe("/uploads/avatar/b.webp");
   });
 
-  it("une demande expire après 10 minutes, et un refus est expliqué", async () => {
-    const u = await makeUser("Max");
-    await prisma.user.update({ where: { id: u.id }, data: { photoUrl: "/uploads/avatar/m.webp" } });
-    const ch = await startVerification(u);
-    await prisma.photoVerification.update({ where: { id: ch.id }, data: { createdAt: new Date(Date.now() - 11 * 60_000) } });
-    await expect(submitSelfie(u, ch.id, await selfieFile())).rejects.toBeInstanceOf(AppError);
+  it("moins de 18 ans : refusé ; une demande expire après 10 minutes ; un refus est expliqué", async () => {
+    const kid = await makeUser("Jeune", { certified: false });
+    await prisma.user.update({ where: { id: kid.id }, data: { photoUrl: "/uploads/avatar/k.webp" } });
+    const y = new Date().getUTCFullYear() - 16;
+    expect(await code(startVerification(kid, { birthDate: `${y}-01-01` }))).toBe("UNDERAGE");
 
-    const ch2 = await startVerification(u);
-    await submitSelfie(u, ch2.id, await selfieFile());
+    const u = await makeUser("Max", { certified: false });
+    await prisma.user.update({ where: { id: u.id }, data: { photoUrl: "/uploads/avatar/m.webp" } });
+    const ch = await startVerification(u, { birthDate: adultBirth });
+    await prisma.photoVerification.update({ where: { id: ch.id }, data: { createdAt: new Date(Date.now() - 11 * 60_000) } });
+    await expect(submitVideoCheck(u, ch.id, await frames(ch.steps.length))).rejects.toBeInstanceOf(AppError);
+
+    const ch2 = await startVerification(u); // la date de naissance est déjà connue
+    await submitVideoCheck(u, ch2.id, await frames(ch2.steps.length));
     const admin = await makeUser("Admin", { role: "ADMIN" });
     await reviewVerification(admin, (await pendingVerifications(admin))[0].id, { approve: false, reason: "Visage non visible." });
     const st = await myVerification(u);
     expect(st.status).toBe("rejected");
     expect(st.reason).toBe("Visage non visible.");
+  });
+});
+
+describe("profil vérifié obligatoire", () => {
+  it("sans vérification : pas de dispo, pas de demande pour rejoindre, pas de Moment publié ; un profil démo n'est pas bloqué", async () => {
+    const host = await makeUser("Hôte");
+    const mid = await makeMoment(host);
+    const u = await makeUser("Nouveau", { certified: false });
+    expect(await code(requestToJoin(u, mid, {}))).toBe("CERTIFICATION_REQUIRED");
+    expect(await code(createAvailability(u, {}))).toBe("CERTIFICATION_REQUIRED");
+    expect(await code(makeMoment(u))).toBe("CERTIFICATION_REQUIRED");
+
+    await prisma.user.update({ where: { id: u.id }, data: { photoVerifiedAt: new Date(), photoUrl: "/uploads/avatar/n.webp" } });
+    expect(await code(requestToJoin({ ...u, photoUrl: "/uploads/avatar/n.webp", photoVerifiedAt: new Date() }, mid, {}))).toBe("OK");
+    expect(await code(requestToJoin({ ...(await makeUser("Démo", { certified: false })), isDemo: true }, mid, {}))).toBe("OK");
   });
 });

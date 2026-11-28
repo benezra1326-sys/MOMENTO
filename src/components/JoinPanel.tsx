@@ -25,7 +25,10 @@ export function JoinPanel({ moment, signedIn, readOnly = false, viewerIsDemo = f
     setError(null);
     const res = await api<{ id: string; status: "PENDING" | "ACCEPTED" | "DECLINED" | "CANCELLED" }>(url, { body });
     setBusy(null);
-    if (!res.ok) return setError(res.error.message);
+    if (!res.ok) {
+      if (res.error.code === "CERTIFICATION_REQUIRED") return router.push(`/moi/certification?retour=${encodeURIComponent(`/moments/${moment.id}`)}`);
+      return setError(res.error.message);
+    }
     const prev = ms;
     const kind = key === "join" ? "REQUEST" : prev?.kind ?? "REQUEST";
     const next: ViewerMembership = res.data.status === "CANCELLED" ? null : { id: res.data.id, kind, status: res.data.status, initiatedByViewer: kind === "REQUEST" };

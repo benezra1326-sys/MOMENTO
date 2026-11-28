@@ -2,7 +2,7 @@ import { demoLabelsVisible } from "@/lib/env";
 import { Prisma, type MomentMembership } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { AppError } from "@/lib/errors";
-import { requireActive, requireVerified, type Viewer } from "@/lib/auth";
+import { requireActive, requireCertified, requireVerified, type Viewer } from "@/lib/auth";
 import { productConfig } from "@/config/product";
 import { invitationSchema, joinRequestSchema } from "@/lib/validation";
 import { isBlockedBetween } from "./safety";
@@ -59,7 +59,7 @@ async function assertRate(initiatorId: string, kind: "REQUEST" | "INVITE") {
  * Après un refus de l'hôte, pas de nouvelle demande : un refus ne génère aucune relance.
  */
 export async function requestToJoin(viewerIn: Viewer | null, momentId: string, raw: unknown) {
-  const viewer = requireVerified(viewerIn);
+  const viewer = requireCertified(viewerIn);
   const input = joinRequestSchema.parse(raw ?? {});
   await assertRate(viewer.id, "REQUEST");
   // Moment sélectif : vérifié hors transaction (une seule connexion à la base en production).
@@ -212,6 +212,8 @@ export async function respondToMembership(viewerIn: Viewer | null, membershipId:
     if (ms.status !== "PENDING") throw new AppError("CONFLICT", "Cette demande a déjà reçu une réponse ou a été retirée.");
 
     if (decision === "accept") {
+      // Rejoindre sur invitation : la personne invitée doit avoir vérifié son profil.
+      if (ms.kind === "INVITE") requireCertified(viewer);
       assertOpen(m);
       await assertSeatAvailable(tx, m.id, m.capacity);
     }

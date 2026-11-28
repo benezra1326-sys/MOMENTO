@@ -190,3 +190,7 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+@keyframes fill {
+  to { width: 100%; }
+}

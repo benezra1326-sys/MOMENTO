@@ -22,7 +22,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   return (
     <>
       <section className="mb-10 space-y-3">
-        <h2 className="font-display text-2xl">{t("Photos à certifier")} {verifications.length > 0 && <span className="pill bg-accent/15 align-middle text-sm">{verifications.length}</span>}</h2>
+        <h2 className="font-display text-2xl">{t("Profils à vérifier")} {verifications.length > 0 && <span className="pill bg-accent/15 align-middle text-sm">{verifications.length}</span>}</h2>
         <AdminVerifications items={verifications} />
       </section>
       <PageTitle eyebrow={t("Modération")} title={t("Signalements")} />

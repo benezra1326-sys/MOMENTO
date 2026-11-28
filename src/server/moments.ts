@@ -1,7 +1,7 @@
 import type { Moment, MomentMembership, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { AppError } from "@/lib/errors";
-import { requireActive, requireVerified, type Viewer } from "@/lib/auth";
+import { requireActive, requireCertified, requireVerified, type Viewer } from "@/lib/auth";
 import { ADULT_CATEGORY, productConfig } from "@/config/product";
 import { cancelMomentSchema, feedQuerySchema, momentInputSchema, type FeedQuery } from "@/lib/validation";
 import { momentEnd, utcToZonedLocal, zonedLocalToUtc } from "@/lib/time";
@@ -345,7 +345,10 @@ export async function createMoment(viewerIn: Viewer | null, raw: unknown) {
   if (input.publish && data.startsAt < new Date()) {
     throw new AppError("VALIDATION", "Choisis une date à venir.", { startsAtLocal: "Choisis une date à venir." });
   }
-  if (input.publish) await assertCanPublish(viewer);
+  if (input.publish) {
+    requireCertified(viewer);
+    await assertCanPublish(viewer);
+  }
   const m = await prisma.moment.create({
     data: {
       ...data,
@@ -403,7 +406,10 @@ export async function updateMoment(viewerIn: Viewer | null, id: string, raw: unk
   if (input.publish) {
     // Hors transaction : une seule connexion à la base en production.
     const current = await prisma.moment.findUnique({ where: { id }, select: { status: true, hostId: true } });
-    if (current?.status === "DRAFT" && current.hostId === viewer.id) await assertCanPublish(viewer, id);
+    if (current?.status === "DRAFT" && current.hostId === viewer.id) {
+      requireCertified(viewer);
+      await assertCanPublish(viewer, id);
+    }
   }
   const replacedMedia: string[] = [];
   const result = await prisma.$transaction(async (tx) => {
@@ -460,7 +466,7 @@ export async function updateMoment(viewerIn: Viewer | null, id: string, raw: unk
 }
 
 export async function publishMoment(viewerIn: Viewer | null, id: string) {
-  const viewer = requireVerified(viewerIn);
+  const viewer = requireCertified(viewerIn);
   const m = await loadOwnMoment(viewer, id);
   if (m.status !== "DRAFT") throw new AppError("CONFLICT", "Ce Moment est déjà publié ou annulé.");
   if (m.startsAt < new Date()) throw new AppError("VALIDATION", "La date de ce brouillon est passée : modifie-la avant de publier.");

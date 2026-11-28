@@ -7,10 +7,10 @@ import { AppError } from "./errors";
 export const SESSION_COOKIE = "momento_session";
 const SESSION_DAYS = 30;
 
-export type Viewer = Pick<User, "id" | "role" | "status" | "name" | "username" | "photoUrl" | "isDemo" | "city" | "emailVerifiedAt" | "phoneVerifiedAt" | "showAdult" | "adultConfirmedAt" | "premiumUntil" | "premiumPlan">;
+export type Viewer = Pick<User, "id" | "role" | "status" | "name" | "username" | "photoUrl" | "isDemo" | "city" | "emailVerifiedAt" | "phoneVerifiedAt" | "showAdult" | "adultConfirmedAt" | "premiumUntil" | "premiumPlan"> & { photoVerifiedAt?: Date | null };
 
 const viewerSelect = {
-  id: true, role: true, status: true, name: true, username: true, photoUrl: true, isDemo: true, city: true, emailVerifiedAt: true, phoneVerifiedAt: true, showAdult: true, adultConfirmedAt: true, premiumUntil: true, premiumPlan: true,
+  id: true, role: true, status: true, name: true, username: true, photoUrl: true, isDemo: true, city: true, emailVerifiedAt: true, phoneVerifiedAt: true, showAdult: true, adultConfirmedAt: true, premiumUntil: true, premiumPlan: true, photoVerifiedAt: true,
 } as const;
 
 export function hashSecret(token: string) {
@@ -84,6 +84,19 @@ export function requireVerified(viewer: Viewer | null): Viewer {
   const v = requireActive(viewer);
   if (!v.isDemo && !v.emailVerifiedAt && !v.phoneVerifiedAt && emailVerificationRequired()) {
     throw new AppError("EMAIL_NOT_VERIFIED", "Confirme ton adresse e-mail pour continuer : le lien est dans ta boîte de réception.");
+  }
+  return v;
+}
+
+/**
+ * Profil vérifié (vidéo guidée comparée à la photo) : obligatoire pour publier une dispo,
+ * créer un Moment ou en rejoindre un. Les comptes fictifs du jeu de démonstration en sont dispensés.
+ */
+export function requireCertified(viewer: Viewer | null): Viewer {
+  const v = requireVerified(viewer);
+  if (v.isDemo || process.env.REQUIRE_PROFILE_CERTIFICATION === "false") return v;
+  if (!v.photoVerifiedAt || !v.photoUrl) {
+    throw new AppError("CERTIFICATION_REQUIRED", "Vérifie ton profil pour continuer : une courte vidéo de ton visage, ça prend 20 secondes.");
   }
   return v;
 }

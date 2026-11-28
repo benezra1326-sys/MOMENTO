@@ -68,7 +68,7 @@ export async function ProfileHeader({ p, children }: { p: Profile; children?: Re
         </div>
         {p.isSelf && !p.verified && (
           <Link href="/moi/certification" className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-3 py-1.5 text-sm font-medium text-ink hover:bg-accent/20">
-            <Camera size={15} /> {t("Certifier ma photo")} <span className="text-xs text-muted">· {t("gratuit, 20 secondes")}</span>
+            <Camera size={15} /> {t("Vérifier mon profil")} <span className="text-xs text-muted">· {t("gratuit, 20 secondes")}</span>
           </Link>
         )}
         {p.reputation?.qualities && p.reputation.qualities.length > 0 && (

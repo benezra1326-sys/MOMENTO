@@ -78,7 +78,10 @@ export function InvitationsView({ data: raw, initialTab }: { data: InvitationsDa
     setError(null);
     const res = await api(`/api/requests/${id}/${action}`, { body: {} });
     setBusy(null);
-    if (!res.ok) return setError(res.error.message);
+    if (!res.ok) {
+      if (res.error.code === "CERTIFICATION_REQUIRED") return router.push(`/moi/certification?retour=${encodeURIComponent("/invitations")}`);
+      return setError(res.error.message);
+    }
     setOverrides((o) => ({ ...o, [id]: action === "accept" ? "ACCEPTED" : action === "decline" ? "DECLINED" : "CANCELLED" }));
     startTransition(() => router.refresh());
   }

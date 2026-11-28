@@ -129,6 +129,8 @@ model User {
   stripeSubscriptionId String?       @unique
   /// Photo de profil certifiée (selfie pris en direct avec la caméra, comparé à la photo). null : non certifiée.
   photoVerifiedAt      DateTime?
+  /// Date de naissance déclarée lors de la vérification du profil (18 ans minimum).
+  birthDate            DateTime?
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @updatedAt
 

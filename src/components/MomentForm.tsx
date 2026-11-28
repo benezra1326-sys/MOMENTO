@@ -162,6 +162,16 @@ export function MomentForm({
       if (Object.keys(details).some((k) => ADVANCED_FIELDS.includes(k))) setAdvanced(true);
       setFormError(res.error.message);
       setPremiumLink(null);
+      if (res.error.code === "CERTIFICATION_REQUIRED") {
+        // On garde le travail en brouillon, puis on lance la vérification du profil.
+        const saved =
+          mode === "create"
+            ? await api<{ id: string }>("/api/moments", { body: { ...body, publish: false } })
+            : await api<{ id: string }>(`/api/moments/${momentId}`, { method: "PATCH", body: { ...body, publish: false } });
+        const draftId = saved.ok ? saved.data.id : momentId ?? null;
+        router.push(`/moi/certification${draftId ? `?retour=${encodeURIComponent(`/moments/${draftId}/modifier`)}` : ""}`);
+        return;
+      }
       if (res.error.code === "PREMIUM_REQUIRED") {
         // On garde le travail : le Moment est enregistré en brouillon, on y revient après l'achat.
         let draftId = mode === "create" ? null : momentId ?? null;

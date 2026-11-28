@@ -3,30 +3,41 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Camera, CheckCircle2, Clock, Loader2, Lock, RefreshCw, ShieldCheck, X } from "lucide-react";
+import { Camera, Clock, Loader2, Lock, RefreshCw, ScanFace, ShieldCheck, X } from "lucide-react";
 import { api } from "@/lib/client";
-import type { VerificationState } from "@/server/verification";
+import type { VerificationState, Step } from "@/server/verification";
 import { Avatar, VerifiedMark } from "./Avatar";
 import { useT } from "./I18nProvider";
 
-type Gesture = { id: string; label: string; icon: string };
-type Step = "intro" | "camera" | "preview" | "sending" | "done";
+type Phase = "intro" | "ready" | "recording" | "sending" | "done";
+const STEP_MS = 1900;
 
 /**
- * Certification de la photo de profil : selfie pris EN DIRECT avec la caméra, en faisant un geste tiré au hasard.
- * Volontairement, aucun bouton d'import depuis la galerie.
+ * Vérification du profil par vidéo guidée, comme sur les applis de rencontre :
+ * on suit des mouvements tirés au hasard (de face, gauche, droite, haut, bas, un geste),
+ * la caméra prend une image à chaque mouvement, puis l'IA compare avec la photo de profil.
+ * Aucun import depuis la galerie.
  */
-export function SelfieCertification({ me, initial }: { me: { name: string; username: string; photoUrl: string | null }; initial: VerificationState }) {
+export function SelfieCertification({
+  me,
+  initial,
+  retour,
+}: {
+  me: { name: string; username: string; photoUrl: string | null };
+  initial: VerificationState;
+  retour?: string;
+}) {
   const t = useT();
   const router = useRouter();
   const [state, setState] = useState(initial);
-  const [step, setStep] = useState<Step>(initial.status === "pending" || initial.verified ? "done" : "intro");
-  const [challenge, setChallenge] = useState<{ id: string; gesture: Gesture } | null>(null);
-  const [shot, setShot] = useState<{ blob: Blob; url: string } | null>(null);
-  const [count, setCount] = useState<number | null>(null);
+  const [phase, setPhase] = useState<Phase>(initial.status === "pending" || initial.verified ? "done" : "intro");
+  const [birthDate, setBirthDate] = useState("");
+  const [challenge, setChallenge] = useState<{ id: string; steps: Step[] } | null>(null);
+  const [current, setCurrent] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const framesRef = useRef<Blob[]>([]);
 
   const stop = () => {
     streamRef.current?.getTracks().forEach((tr) => tr.stop());
@@ -34,15 +45,15 @@ export function SelfieCertification({ me, initial }: { me: { name: string; usern
   };
   useEffect(() => stop, []);
 
-  async function open() {
+  async function begin() {
     setError(null);
-    const res = await api<{ id: string; gesture: Gesture }>("/api/me/verification", { body: {} });
+    const res = await api<{ id: string; steps: Step[] }>("/api/me/verification", { body: state.hasBirthDate ? {} : { birthDate } });
     if (!res.ok) return setError(res.error.message);
     setChallenge(res.data);
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: { ideal: 1080 }, height: { ideal: 1080 } }, audio: false });
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: { ideal: 960 }, height: { ideal: 960 } }, audio: false });
       streamRef.current = stream;
-      setStep("camera");
+      setPhase("ready");
       requestAnimationFrame(() => {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
@@ -54,64 +65,56 @@ export function SelfieCertification({ me, initial }: { me: { name: string; usern
     }
   }
 
-  function capture() {
-    setCount(3);
-    let n = 3;
-    const timer = setInterval(() => {
-      n -= 1;
-      if (n > 0) return setCount(n);
-      clearInterval(timer);
-      setCount(null);
-      const v = videoRef.current;
-      if (!v || !v.videoWidth) return setError("La caméra n'a pas encore démarré. Réessaie.");
-      const side = Math.min(v.videoWidth, v.videoHeight);
-      const canvas = document.createElement("canvas");
-      canvas.width = Math.min(side, 1080);
-      canvas.height = canvas.width;
-      const ctx = canvas.getContext("2d")!;
-      // On garde l'image telle que la caméra la voit (non inversée) : c'est la vraie photo.
-      ctx.drawImage(v, (v.videoWidth - side) / 2, (v.videoHeight - side) / 2, side, side, 0, 0, canvas.width, canvas.height);
-      canvas.toBlob((blob) => {
-        if (!blob) return setError("La photo n'a pas pu être prise. Réessaie.");
-        setShot({ blob, url: URL.createObjectURL(blob) });
-        setStep("preview");
-      }, "image/jpeg", 0.9);
-    }, 800);
+  function grab(): Promise<Blob | null> {
+    const v = videoRef.current;
+    if (!v || !v.videoWidth) return Promise.resolve(null);
+    const side = Math.min(v.videoWidth, v.videoHeight);
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.min(side, 720);
+    canvas.height = canvas.width;
+    canvas.getContext("2d")!.drawImage(v, (v.videoWidth - side) / 2, (v.videoHeight - side) / 2, side, side, 0, 0, canvas.width, canvas.height);
+    return new Promise((resolve) => canvas.toBlob((b) => resolve(b), "image/jpeg", 0.88));
   }
 
-  function retake() {
-    if (shot) URL.revokeObjectURL(shot.url);
-    setShot(null);
-    setStep("camera");
-    requestAnimationFrame(() => {
-      if (videoRef.current && streamRef.current) {
-        videoRef.current.srcObject = streamRef.current;
-        void videoRef.current.play();
+  async function record() {
+    if (!challenge) return;
+    setError(null);
+    framesRef.current = [];
+    setPhase("recording");
+    for (let i = 0; i < challenge.steps.length; i++) {
+      setCurrent(i);
+      await new Promise((r) => setTimeout(r, STEP_MS));
+      const b = await grab();
+      if (!b) {
+        setPhase("ready");
+        return setError("La caméra n'a pas encore démarré. Réessaie.");
       }
-    });
+      framesRef.current.push(b);
+    }
+    await send();
   }
 
   async function send() {
-    if (!shot || !challenge) return;
-    setStep("sending");
-    setError(null);
+    if (!challenge) return;
+    setPhase("sending");
     const form = new FormData();
-    form.append("file", new File([shot.blob], "selfie.jpg", { type: "image/jpeg" }));
+    framesRef.current.forEach((b, i) => form.append(`frame${i}`, new File([b], `frame${i}.jpg`, { type: "image/jpeg" })));
     try {
       const res = await fetch(`/api/me/verification/${challenge.id}`, { method: "POST", body: form, credentials: "same-origin" });
       const json = (await res.json().catch(() => null)) as { ok: boolean; data?: VerificationState; error?: { message: string } } | null;
+      stop();
       if (!json?.ok || !json.data) {
         setError(json?.error?.message ?? "L'envoi a échoué. Réessaie.");
-        setStep("preview");
+        setPhase("intro");
         return;
       }
-      stop();
       setState(json.data);
-      setStep("done");
+      setPhase(json.data.status === "rejected" ? "intro" : "done");
       router.refresh();
     } catch {
+      stop();
       setError("Pas de connexion. Vérifie ton réseau et réessaie.");
-      setStep("preview");
+      setPhase("intro");
     }
   }
 
@@ -121,14 +124,14 @@ export function SelfieCertification({ me, initial }: { me: { name: string; usern
       <div className="mx-auto max-w-md space-y-4 text-center">
         <Camera className="mx-auto text-muted" size={36} />
         <h1 className="font-display text-3xl">{t("Ajoute d'abord ta photo")}</h1>
-        <p className="text-ink-2">{t("La certification confirme que ta photo de profil, c'est bien toi. Ajoute une photo où l'on voit ton visage, puis reviens ici.")}</p>
-        <Link href="/moi#photo" className="btn-primary w-full">{t("Ajouter ma photo de profil")}</Link>
+        <p className="text-ink-2">{t("La vérification compare ton visage à ta photo de profil. Ajoute une photo où l'on voit bien ton visage, puis reviens ici.")}</p>
+        <Link href="/moi" className="btn-primary w-full">{t("Ajouter ma photo de profil")}</Link>
       </div>
     );
   }
 
   // ——— Résultat ———
-  if (step === "done") {
+  if (phase === "done") {
     const ok = state.verified;
     return (
       <div className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center text-center">
@@ -136,73 +139,84 @@ export function SelfieCertification({ me, initial }: { me: { name: string; usern
           <Avatar person={{ name: me.name, photoUrl: me.photoUrl, verified: ok }} size="xl" />
           {!ok && <span className="absolute -bottom-1 -right-1 inline-flex h-8 w-8 items-center justify-center rounded-full bg-surface-2 ring-2 ring-surface"><Clock size={16} className="text-muted" /></span>}
         </span>
-        <h1 className="font-display mt-5 text-3xl">{ok ? t("Ta photo est certifiée") : t("Merci, on vérifie")}</h1>
+        <h1 className="font-display mt-5 text-3xl">{ok ? t("Profil vérifié") : t("Merci, on vérifie")}</h1>
         <p className="mt-2 text-ink-2">
           {ok
-            ? t("Le logo Upclose apparaît maintenant sur ta photo, partout dans l'appli : les autres savent que c'est vraiment toi.")
-            : t("Ton selfie est comparé à ta photo de profil. Tu reçois une notification dès que c'est validé, en général dans la journée.")}
+            ? t("Le logo Upclose apparaît sur ta photo, partout dans l'appli. Tu peux publier des dispos et rejoindre des Moments.")
+            : t("Ta vidéo est examinée par l'équipe. Tu reçois une notification dès que c'est validé, en général dans la journée.")}
         </p>
         <div className="mt-6 flex w-full flex-col gap-2">
-          <Link href={`/u/${me.username}`} className="btn-primary w-full">{t("Voir mon profil")}</Link>
+          {ok && retour ? <Link href={retour} className="btn-primary w-full">{t("Continuer")}</Link> : null}
+          <Link href={`/u/${me.username}`} className={ok && retour ? "btn-secondary w-full" : "btn-primary w-full"}>{t("Voir mon profil")}</Link>
           <Link href="/" className="btn-secondary w-full">{t("Retour au fil")}</Link>
         </div>
       </div>
     );
   }
 
-  // ——— Caméra / aperçu ———
-  if (step === "camera" || step === "preview" || step === "sending") {
+  // ——— Caméra ———
+  if (phase === "ready" || phase === "recording" || phase === "sending") {
+    const steps = challenge?.steps ?? [];
+    const step = steps[current];
     return (
       <div className="mx-auto max-w-md">
-        <div className="mb-4 flex items-center justify-between">
-          <p className="text-sm text-muted">{t("Certification de ta photo")}</p>
-          <button type="button" onClick={() => { stop(); setStep("intro"); }} className="rounded-full p-2 text-muted hover:bg-surface-2" aria-label={t("Fermer")}><X size={20} /></button>
+        <div className="mb-3 flex items-center justify-between">
+          <p className="text-sm text-muted">{t("Vérification du profil")}</p>
+          <button type="button" onClick={() => { stop(); setPhase("intro"); }} className="rounded-full p-2 text-muted hover:bg-surface-2" aria-label={t("Fermer")}><X size={20} /></button>
         </div>
-        {challenge && (
-          <div className="mb-4 flex items-center gap-3 rounded-2xl bg-signature px-4 py-3 text-white shadow-lg">
-            <span className="text-4xl" aria-hidden>{challenge.gesture.icon}</span>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-white/80">{t("Sur la photo")}</p>
-              <p className="text-lg font-semibold leading-tight">{t(challenge.gesture.label)}</p>
+        <div className="relative mx-auto aspect-[3/4] w-full overflow-hidden rounded-[2rem] bg-black">
+          <video ref={videoRef} playsInline muted className="h-full w-full -scale-x-100 object-cover" />
+          {/* Ovale du visage */}
+          <svg className="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 300 400" preserveAspectRatio="none" aria-hidden>
+            <defs>
+              <mask id="oval">
+                <rect width="300" height="400" fill="white" />
+                <ellipse cx="150" cy="185" rx="105" ry="140" fill="black" />
+              </mask>
+            </defs>
+            <rect width="300" height="400" fill="rgba(10,8,20,.55)" mask="url(#oval)" />
+            <ellipse cx="150" cy="185" rx="105" ry="140" fill="none" stroke={phase === "recording" ? "#f0477e" : "rgba(255,255,255,.7)"} strokeWidth="3" strokeDasharray={phase === "recording" ? "0" : "8 6"} />
+          </svg>
+          {phase === "recording" && step && (
+            <div key={current} className="absolute inset-x-4 top-4 flex items-center gap-3 rounded-2xl bg-signature px-4 py-3 text-white shadow-lg">
+              <span className="text-3xl" aria-hidden>{step.icon}</span>
+              <p className="text-lg font-semibold leading-tight">{t(step.label)}</p>
             </div>
-          </div>
-        )}
-        <div className="relative mx-auto aspect-square w-full overflow-hidden rounded-[2rem] bg-black">
-          {step === "camera" ? (
-            <video ref={videoRef} playsInline muted className="h-full w-full -scale-x-100 object-cover" />
-          ) : (
-            // eslint-disable-next-line @next/next/no-img-element
-            shot && <img src={shot.url} alt={t("Ton selfie")} className="h-full w-full object-cover" />
           )}
-          <span className="pointer-events-none absolute inset-[12%] rounded-full border-2 border-dashed border-white/60" aria-hidden />
-          {count !== null && (
-            <span className="absolute inset-0 flex items-center justify-center bg-black/30 font-display text-8xl text-white">{count}</span>
+          {phase === "recording" && (
+            <div className="absolute inset-x-6 bottom-5 flex gap-1.5" aria-label={t("{i} sur {n}", { i: current + 1, n: steps.length })}>
+              {steps.map((s, i) => (
+                <span key={s.id} className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/25">
+                  <span
+                    className={`block h-full rounded-full bg-white ${i < current ? "w-full" : i === current ? "animate-[fill_1.9s_linear_forwards]" : "w-0"}`}
+                    style={i === current ? { width: 0 } : undefined}
+                  />
+                </span>
+              ))}
+            </div>
           )}
-          {step === "sending" && (
-            <span className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/50 text-white">
-              <Loader2 className="animate-spin" size={32} /> {t("Vérification…")}
+          {phase === "sending" && (
+            <span className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/60 text-white">
+              <ScanFace className="animate-pulse" size={44} />
+              <span className="font-semibold">{t("L'IA vérifie ton visage…")}</span>
             </span>
           )}
         </div>
-        <p className="mt-3 text-center text-sm text-muted">{t("Place ton visage dans le cercle, bien éclairé, sans lunettes de soleil.")}</p>
-        {error && <p role="alert" className="field-error mt-3">{t(error)}</p>}
-        <div className="mt-5 flex gap-2">
-          {step === "camera" ? (
-            <button type="button" className="btn-primary min-h-12 w-full" onClick={capture} disabled={count !== null}>
-              <Camera size={18} /> {t("Prendre la photo")}
+        {phase === "ready" && (
+          <>
+            <p className="mt-4 text-center text-ink-2">{t("Place ton visage dans l'ovale, bien éclairé. Tu vas suivre {n} consignes, environ 12 secondes.", { n: steps.length })}</p>
+            <button type="button" className="btn-primary mt-4 min-h-12 w-full" onClick={record}>
+              <ShieldCheck size={18} /> {t("Je suis prêt·e")}
             </button>
-          ) : (
-            <>
-              <button type="button" className="btn-secondary min-h-12 px-5" onClick={retake} disabled={step === "sending"}><RefreshCw size={16} /> {t("Reprendre")}</button>
-              <button type="button" className="btn-primary min-h-12 flex-1" onClick={send} disabled={step === "sending"}><ShieldCheck size={18} /> {t("Envoyer pour certification")}</button>
-            </>
-          )}
-        </div>
+          </>
+        )}
+        {error && <p role="alert" className="field-error mt-3">{t(error)}</p>}
       </div>
     );
   }
 
   // ——— Présentation ———
+  const canStart = state.hasBirthDate || /^\d{4}-\d{2}-\d{2}$/.test(birthDate);
   return (
     <div className="mx-auto max-w-md">
       <div className="flex flex-col items-center text-center">
@@ -211,19 +225,19 @@ export function SelfieCertification({ me, initial }: { me: { name: string; usern
           <VerifiedMark px={96} />
         </span>
         <p className="eyebrow mt-5">{t("Gratuit · 20 secondes")}</p>
-        <h1 className="font-display mt-1 text-3xl">{t("Certifie ta photo")}</h1>
-        <p className="mt-2 text-ink-2">{t("Prouve que ta photo, c'est vraiment toi. Le logo Upclose s'affiche sur ta photo, partout dans l'appli : on te fait plus facilement confiance pour tes dispos et tes Moments.")}</p>
+        <h1 className="font-display mt-1 text-3xl">{t("Vérifie ton profil")}</h1>
+        <p className="mt-2 text-ink-2">{t("Sur Upclose, tout le monde est vérifié : c'est obligatoire pour publier une dispo, créer ou rejoindre un Moment. Une courte vidéo de ton visage, et le logo Upclose s'affiche sur ta photo.")}</p>
       </div>
       {state.status === "rejected" && (
         <p className="mt-5 rounded-2xl border border-coral/40 bg-coral/10 px-4 py-3 text-sm">
-          {t("Ta dernière demande n'a pas été validée")}{state.reason ? ` : ${t(state.reason)}` : "."} {t("Tu peux réessayer.")}
+          {t("Ta dernière vérification n'a pas abouti")}{state.reason ? ` : ${t(state.reason)}` : "."} {t("Tu peux réessayer.")}
         </p>
       )}
       <ol className="mt-6 space-y-3">
         {[
-          { n: 1, title: "Ouvre la caméra", text: "Le selfie se prend en direct : pas d'import depuis la galerie." },
-          { n: 2, title: "Fais le geste demandé", text: "Un geste tiré au hasard (pouce levé, V…) prouve que la photo est prise à l'instant." },
-          { n: 3, title: "On compare avec ta photo de profil", text: "Si c'est bien toi, le badge apparaît. Ton selfie reste privé : il n'est jamais montré." },
+          { n: 1, title: "Filme-toi en direct", text: "La caméra s'ouvre : pas d'import depuis la galerie." },
+          { n: 2, title: "Suis les consignes", text: "Tourne la tête à gauche, à droite, en haut, en bas, puis fais un geste. L'ordre change à chaque fois." },
+          { n: 3, title: "L'IA compare avec ta photo", text: "Si c'est bien toi, ton profil est vérifié en quelques secondes. Ta vidéo reste privée." },
         ].map((s) => (
           <li key={s.n} className="card flex gap-3 p-4">
             <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-signature text-sm font-bold text-white">{s.n}</span>
@@ -234,12 +248,19 @@ export function SelfieCertification({ me, initial }: { me: { name: string; usern
           </li>
         ))}
       </ol>
+      {!state.hasBirthDate && (
+        <label className="mt-5 block">
+          <span className="text-sm font-semibold">{t("Ta date de naissance")}</span>
+          <input type="date" className="input mt-1" value={birthDate} max={new Date(Date.now() - 18 * 365.25 * 86400_000).toISOString().slice(0, 10)} onChange={(e) => setBirthDate(e.target.value)} />
+          <span className="mt-1 block text-xs text-muted">{t("Upclose est réservé aux 18 ans et plus. Ta date de naissance n'est pas affichée.")}</span>
+        </label>
+      )}
       {error && <p role="alert" className="field-error mt-4">{t(error)}</p>}
-      <button type="button" className="btn-primary mt-6 min-h-12 w-full" onClick={open}>
-        <Camera size={18} /> {t("Ouvrir la caméra")}
+      <button type="button" className="btn-primary mt-6 min-h-12 w-full" onClick={begin} disabled={!canStart}>
+        {phase === "intro" && state.status === "rejected" ? <RefreshCw size={18} /> : <Camera size={18} />} {t("Commencer la vérification")}
       </button>
-      <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-muted"><Lock size={12} /> {t("Si tu changes de photo de profil, on la recompare à ton selfie.")}</p>
-      {state.verified && <p className="mt-3 flex items-center justify-center gap-1.5 text-sm text-success"><CheckCircle2 size={16} /> {t("Déjà certifiée")}</p>}
+      <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-muted"><Lock size={12} /> {t("Si tu changes de photo de profil, on la recompare à ta vidéo.")}</p>
+      {phase !== "intro" && <Loader2 className="hidden" />}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import type { Availability, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { AppError } from "@/lib/errors";
-import { requireActive, type Viewer } from "@/lib/auth";
+import { requireActive, requireCertified, type Viewer } from "@/lib/auth";
 import { ADULT_CATEGORY, availabilitySlots, productConfig } from "@/config/product";
 import { availabilityInputSchema, availabilityQuerySchema, availabilityUpdateSchema } from "@/lib/validation";
 import { utcToZonedLocal, zonedLocalToUtc } from "@/lib/time";
@@ -238,7 +238,7 @@ export async function getAvailability(viewerIn: Viewer | null, id: string): Prom
 }
 
 export async function createAvailability(viewerIn: Viewer | null, raw: unknown) {
-  const viewer = requireActive(viewerIn);
+  const viewer = requireCertified(viewerIn);
   const input = availabilityInputSchema.parse(raw ?? {});
   const { startsAt, endsAt } = rangeOf(input.date, input, input.timezone);
   const pos = approxLocation(input.city, input.area);

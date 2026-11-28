@@ -12,7 +12,7 @@ export async function resetDb() {
   );
 }
 
-export async function makeUser(name = "User", extra: Partial<{ role: "USER" | "ADMIN"; status: "ACTIVE" | "SUSPENDED"; verified: boolean; adult: boolean; premium: boolean; plan: "plus" | "black" }> = {}): Promise<Viewer> {
+export async function makeUser(name = "User", extra: Partial<{ role: "USER" | "ADMIN"; status: "ACTIVE" | "SUSPENDED"; verified: boolean; adult: boolean; premium: boolean; plan: "plus" | "black"; certified: boolean }> = {}): Promise<Viewer> {
   n++;
   const u = await prisma.user.create({
     data: {
@@ -22,11 +22,13 @@ export async function makeUser(name = "User", extra: Partial<{ role: "USER" | "A
       role: extra.role ?? "USER",
       status: extra.status ?? "ACTIVE",
       emailVerifiedAt: extra.verified === false ? null : new Date(),
+      // Profil vérifié par défaut : les tests qui portent sur la vérification passent certified: false.
+      ...(extra.certified === false ? {} : { photoUrl: "/uploads/avatar/test.webp", photoVerifiedAt: new Date() }),
       ...(extra.adult ? { showAdult: true, adultConfirmedAt: new Date() } : {}),
       ...(extra.premium || extra.plan ? { premiumUntil: new Date(Date.now() + 30 * 86400_000), premiumSource: "test", premiumPlan: extra.plan ?? null } : {}),
     },
   });
-  return { id: u.id, role: u.role, status: u.status, name: u.name, username: u.username, photoUrl: null, isDemo: false, city: "", emailVerifiedAt: u.emailVerifiedAt, phoneVerifiedAt: null, showAdult: u.showAdult, adultConfirmedAt: u.adultConfirmedAt, premiumUntil: u.premiumUntil, premiumPlan: u.premiumPlan };
+  return { id: u.id, role: u.role, status: u.status, name: u.name, username: u.username, photoUrl: u.photoUrl, photoVerifiedAt: u.photoVerifiedAt, isDemo: false, city: "", emailVerifiedAt: u.emailVerifiedAt, phoneVerifiedAt: null, showAdult: u.showAdult, adultConfirmedAt: u.adultConfirmedAt, premiumUntil: u.premiumUntil, premiumPlan: u.premiumPlan };
 }
 
 export function localIn(days: number, tz = "Europe/Madrid") {
