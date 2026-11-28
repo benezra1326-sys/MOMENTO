@@ -1,12 +1,12 @@
 import { tierOf } from "@/lib/premium";
 import { redirect } from "next/navigation";
 import { getViewerSafe } from "@/lib/auth";
-import { availabilitySlots, categories, productConfig } from "@/config/product";
+import { categories, productConfig } from "@/config/product";
 import { utcToZonedLocal, zonedLocalToUtc } from "@/lib/time";
 import { MomentForm, type Invitee } from "@/components/MomentForm";
 import { PageTitle } from "@/components/States";
 import { getLocale, getT, pageTitle } from "@/lib/i18n/server";
-import { getAvailability, type AvailabilityDTO } from "@/server/availability";
+import { getAvailability, toDispoSnapshot, type AvailabilityDTO } from "@/server/availability";
 import { canSeeAdult } from "@/server/moments";
 import { availabilityWhen } from "@/lib/availability-labels";
 
@@ -47,9 +47,8 @@ export default async function NewMomentPage({ searchParams }: { searchParams: SP
   }
   const tz = dispo?.timezone ?? productConfig.defaultTimezone;
   const tomorrow = utcToZonedLocal(new Date(Date.now() + 86400_000), tz).slice(0, 10);
-  const slot = dispo ? availabilitySlots.find((s) => s.id === dispo.slot) : null;
-  const slotStart = slot?.id === "day" ? "18:00" : slot?.start;
-  const invitee: Invitee | null = dispo ? { ...dispo.person, slotLabel: availabilityWhen(dispo, locale, t) } : null;
+  const slotStart = dispo ? (dispo.slot === "day" ? "18:00" : dispo.startTime) : undefined;
+  const invitee: Invitee | null = dispo ? { ...dispo.person, slotLabel: availabilityWhen(dispo, locale, t), dispo: toDispoSnapshot(dispo) } : null;
   // Pré-remplissage depuis l'assistant de création (/creer) : tout reste modifiable avant publication.
   const str = (k: string) => (typeof sp[k] === "string" ? (sp[k] as string) : "");
   const okCat = (c: string) => categories.some((x) => x.id === c) ? c : "";

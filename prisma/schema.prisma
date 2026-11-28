@@ -206,6 +206,9 @@ model Moment {
   isAdult            Boolean          @default(false)
   /// Boost Upclose+ : le Moment passe en tête du feed de sa ville jusqu'à cette date.
   boostedUntil       DateTime?
+  /// Position approximative (lieu ou quartier), jamais envoyée telle quelle au navigateur : sert au filtre de distance.
+  lat                Float?
+  lng                Float?
   /// Moment sélectif : seuls les membres Upclose Black peuvent le rejoindre.
   blackOnly          Boolean          @default(false)
   isDemo             Boolean          @default(false)
@@ -236,6 +239,8 @@ model MomentMembership {
   kind         MembershipKind
   status       MembershipStatus @default(PENDING)
   message      String?
+  /// Dispo à l'origine de l'invitation (copie figée : texte, lieu, horaire), pour rappeler pourquoi on s'est contacté.
+  dispoContext Json?
   /// Le participant accepte d'apparaître dans la liste visible des participants.
   showOnMoment Boolean          @default(true)
   createdAt    DateTime         @default(now())
@@ -356,6 +361,9 @@ model Availability {
   city       String
   /// Zone large uniquement (quartier) : jamais d'adresse.
   area       String   @default("")
+  /// Position approximative du quartier (filtre de distance).
+  lat        Float?
+  lng        Float?
   /// Envies (identifiants de catégories de Moment).
   categories String[] @default([])
   note       String   @default("")

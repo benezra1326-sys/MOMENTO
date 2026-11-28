@@ -22,6 +22,8 @@ import { getLocale, getT } from "@/lib/i18n/server";
 import { HostMatches, MomentChat, RateMoment, Souvenirs } from "@/components/MomentCircle";
 import { listSouvenirs, type SouvenirDTO } from "@/server/souvenirs";
 import { reputations } from "@/server/ratings";
+import { dispoContextsFor } from "@/server/memberships";
+import { DispoQuote } from "@/components/DispoQuote";
 
 export const dynamic = "force-dynamic";
 
@@ -73,6 +75,8 @@ export default async function MomentPage({ params, searchParams }: Props) {
   }
   const { moment: m, viewer, source } = r;
   const vis = visibilityInfo[m.visibility];
+  // Les dispos à l'origine des invitations : on garde toujours sous les yeux pourquoi on s'est contacté.
+  const dispoContexts = source === "database" && viewer ? await dispoContextsFor(viewer, m.id, m.host.id) : [];
   const time = `${formatMomentTime(m.startsAt, m.timezone, locale)}${m.endsAt ? ` – ${formatMomentTime(m.endsAt, m.timezone, locale)}` : ""}`;
   const title = t(m.title);
   // Repères de confiance sur l'hôte : ancienneté et Moments déjà organisés.
@@ -179,6 +183,18 @@ export default async function MomentPage({ params, searchParams }: Props) {
             </p>
           )}
 
+          {dispoContexts.length > 0 && (
+            <div className="space-y-2">
+              {dispoContexts.map((c) => (
+                <DispoQuote
+                  key={c.person.id}
+                  dispo={c.dispo}
+                  title={c.person.id === viewer?.id ? t("Invitation en réponse à ta dispo") : t("Invitation en réponse à la dispo de {name}", { name: c.person.name.split(" ")[0] })}
+                />
+              ))}
+            </div>
+          )}
+
           <section className="card p-5">
             {m.isHost ? (
               <>
@@ -192,7 +208,13 @@ export default async function MomentPage({ params, searchParams }: Props) {
 
           {inCircle && m.phase === "ended" && productConfig.features.ratings && <div id="noter" className="scroll-mt-20"><RateMoment momentId={m.id} /></div>}
 
-          {inCircle && productConfig.features.messaging && m.phase !== "ended" && <MomentChat momentId={m.id} closed={m.phase === "cancelled"} />}
+          {inCircle && productConfig.features.messaging && m.phase !== "ended" && <MomentChat
+              momentId={m.id}
+              closed={m.phase === "cancelled"}
+              pinned={dispoContexts.length > 0 ? dispoContexts.map((c) => (
+                <DispoQuote key={c.person.id} dispo={c.dispo} title={c.person.id === viewer?.id ? t("Ta dispo à l'origine du Moment") : t("La dispo de {name} à l'origine du Moment", { name: c.person.name.split(" ")[0] })} />
+              )) : undefined}
+            />}
 
           {m.isHost && source === "database" && (m.phase === "upcoming" || m.phase === "ongoing") && m.spotsLeft > 0 && <HostMatches momentId={m.id} />}
 

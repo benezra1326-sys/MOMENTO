@@ -1,5 +1,5 @@
 import { demoLabelsVisible } from "@/lib/env";
-import type { MomentMembership, Prisma } from "@prisma/client";
+import { Prisma, type MomentMembership } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { AppError } from "@/lib/errors";
 import { requireActive, requireVerified, type Viewer } from "@/lib/auth";
@@ -10,6 +10,7 @@ import { notify } from "./notifications";
 import { momentPhase, personSelect, toPerson } from "./mappers";
 import { toCards } from "./moments";
 import { requireTier } from "./billing";
+import { parseDispoSnapshot, type DispoSnapshot } from "./availability";
 
 type Tx = Prisma.TransactionClient;
 
@@ -124,6 +125,23 @@ export async function inviteUser(viewerIn: Viewer | null, momentId: string, raw:
   if (!target || target.status !== "ACTIVE") throw new AppError("NOT_FOUND", "Aucun profil actif avec ce pseudo.");
   if (target.id === viewer.id) throw new AppError("VALIDATION", "Tu ne peux pas t'inviter toi-même.");
   if (target.isDemo && !viewer.isDemo && demoLabelsVisible) throw new AppError("NOT_FOUND", "Aucun profil actif avec ce pseudo.");
+  // Dispo à l'origine de l'invitation : copie figée, gardée même si la dispo expire ou est supprimée.
+  let dispoContext: DispoSnapshot | null = null;
+  if (input.availabilityId) {
+    const a = await prisma.availability.findUnique({ where: { id: input.availabilityId } });
+    if (a && a.userId === target.id && !a.hidden) {
+      dispoContext = {
+        availabilityId: a.id,
+        note: a.note,
+        city: a.city,
+        area: a.area,
+        categories: a.categories,
+        startsAt: a.startsAt.toISOString(),
+        endsAt: a.endsAt.toISOString(),
+        timezone: a.timezone,
+      };
+    }
+  }
 
   const result = await prisma.$transaction(async (tx) => {
     const m = await lockMoment(tx, momentId);
@@ -152,6 +170,7 @@ export async function inviteUser(viewerIn: Viewer | null, momentId: string, raw:
       status: "PENDING" as const,
       message: input.message || null,
       respondedAt: null,
+      dispoContext: dispoContext ?? Prisma.DbNull,
     };
     const membership = existing
       ? await tx.momentMembership.update({ where: { id: existing.id }, data })
@@ -279,6 +298,7 @@ function row(ms: MomentMembership & { user: Parameters<typeof toPerson>[0] }) {
     kind: ms.kind,
     status: ms.status,
     message: ms.message,
+    dispo: parseDispoSnapshot(ms.dispoContext),
     createdAt: ms.createdAt.toISOString(),
     respondedAt: ms.respondedAt?.toISOString() ?? null,
     user: toPerson(ms.user),
@@ -332,4 +352,19 @@ export async function myInvitations(viewerIn: Viewer | null) {
     hostActivity: asHost.filter((x) => !(x.kind === "REQUEST" && x.status === "PENDING" && isOpenPhase(x.moment.phase))),
     upcoming: asGuest.filter((x) => x.status === "ACCEPTED" && (x.moment.phase === "upcoming" || x.moment.phase === "ongoing")),
   };
+}
+
+/** Dispos à l'origine des invitations d'un Moment, pour l'hôte et les personnes concernées (rappel « pourquoi on s'est contacté »). */
+export async function dispoContextsFor(viewer: Viewer | null, momentId: string, hostId: string) {
+  if (!viewer) return [];
+  const rows = await prisma.momentMembership.findMany({
+    where: { momentId, kind: "INVITE", status: { in: ["PENDING", "ACCEPTED"] }, dispoContext: { not: Prisma.DbNull } },
+    include: { user: { select: personSelect } },
+    orderBy: { createdAt: "asc" },
+  });
+  const isHost = viewer.id === hostId;
+  return rows
+    .filter((r) => isHost || r.userId === viewer.id || r.status === "ACCEPTED")
+    .map((r) => ({ person: toPerson(r.user), dispo: parseDispoSnapshot(r.dispoContext)! }))
+    .filter((x) => x.dispo);
 }

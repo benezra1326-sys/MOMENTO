@@ -12,7 +12,9 @@ import {
   updateAvailability,
 } from "@/server/availability";
 import { authorizeVideoUpload, newVideoPath } from "@/server/video-uploads";
-import { makeUser, resetDb } from "./helpers";
+import { dispoContextsFor, inviteUser, myInvitations } from "@/server/memberships";
+import { getFeed } from "@/server/moments";
+import { makeMoment, makeUser, resetDb } from "./helpers";
 
 const TZ = "Europe/Madrid";
 const day = (n: number) => utcToZonedLocal(new Date(Date.now() + n * 86400_000), TZ).slice(0, 10);
@@ -120,5 +122,68 @@ describe("envoi de vidéos", () => {
     const u = await makeUser("Vidéaste");
     for (let i = 0; i < 6; i++) await authorizeVideoUpload(u, newVideoPath("video/mp4"));
     await expectCode(authorizeVideoUpload(u, newVideoPath("video/mp4")), "RATE_LIMITED");
+  });
+});
+
+describe("plage horaire, distance et rappel de la dispo", () => {
+  it("accepte une plage libre « de 18:00 à 21:00 » et filtre par créneau", async () => {
+    const lea = await makeUser("Léa");
+    const tom = await makeUser("Tom");
+    const { slot: _s, ...rest } = base(1);
+    void _s;
+    const a = await createAvailability(lea, { ...rest, startTime: "18:00", endTime: "21:00" });
+    expect(a.startTime).toBe("18:00");
+    expect(a.endTime).toBe("21:00");
+    expect(a.slot).toBe("custom");
+    // Une fin avant le début passe au lendemain.
+    const late = await createAvailability(lea, { ...rest, date: day(2), startTime: "22:00", endTime: "02:00" });
+    expect(new Date(late.endsAt).getTime() - new Date(late.startsAt).getTime()).toBe(4 * 3600_000);
+    await expectCode(createAvailability(lea, { ...rest, date: day(3), startTime: "18:00", endTime: "18:10" }), "VALIDATION");
+    expect((await listAvailabilities(tom, { slot: "evening" })).map((x) => x.id).sort()).toEqual([a.id, late.id].sort());
+    expect(await listAvailabilities(tom, { slot: "morning" })).toHaveLength(0);
+    const moved = await updateAvailability(lea, a.id, { startTime: "17:30", endTime: "20:00" });
+    expect(moved.startTime).toBe("17:30");
+  });
+
+  it("filtre « Autour de moi » par rayon et donne la distance", async () => {
+    const lea = await makeUser("Léa");
+    const tom = await makeUser("Tom");
+    const centre = await createAvailability(lea, { ...base(1), area: "Casco Antiguo" });
+    const banus = await createAvailability(lea, { ...base(2), area: "Puerto Banús" });
+    const near = "36.510,-4.885"; // centre de Marbella
+    const one = await listAvailabilities(tom, { near, km: 2 });
+    expect(one.map((x) => x.id)).toEqual([centre.id]);
+    expect(one[0].distanceKm).toBeLessThan(1);
+    const ten = await listAvailabilities(tom, { near, km: 10 });
+    expect(ten.map((x) => x.id).sort()).toEqual([centre.id, banus.id].sort());
+  });
+
+  it("garde la dispo d'origine sur l'invitation, des deux côtés", async () => {
+    const lea = await makeUser("Léa");
+    const host = await makeUser("Hôte", { premium: true });
+    const a = await createAvailability(lea, { ...base(1), note: "Dispo pour faire du cheval" });
+    const momentId = await makeMoment(host, { visibility: "INVITE_ONLY" });
+    await inviteUser(host, momentId, { username: lea.username, availabilityId: a.id });
+    await deleteAvailability(lea, a.id);
+    const received = (await myInvitations(lea)).invitationsReceived[0];
+    expect(received.dispo?.note).toBe("Dispo pour faire du cheval");
+    const ctx = await dispoContextsFor(host, momentId, host.id);
+    expect(ctx[0].dispo.note).toBe("Dispo pour faire du cheval");
+    expect(ctx[0].person.id).toBe(lea.id);
+  });
+
+  it("filtre le feed des Moments par distance", async () => {
+    const host = await makeUser("Hôte", { premium: true });
+    const tom = await makeUser("Tom");
+    const centre = await makeMoment(host, { area: "Casco Antiguo" });
+    const cabopino = await makeMoment(host, { area: "Cabopino", title: "Balade à Cabopino" });
+    const near = "36.510,-4.885";
+    for (const sort of ["best", "date"]) {
+      const two = await getFeed(tom, { near, km: 2, sort });
+      expect(two.items.map((x) => x.id)).toEqual([centre]);
+      expect(two.items[0].distanceKm).toBeLessThan(1);
+      const all = await getFeed(tom, { sort });
+      expect(all.items.map((x) => x.id).sort()).toEqual([centre, cabopino].sort());
+    }
   });
 });

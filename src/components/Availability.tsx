@@ -8,12 +8,15 @@ import { CalendarHeart, Eye, EyeOff, Loader2, Pencil, Plus, Sparkles, Trash2 } f
 import { availabilitySlots, categories, categoryLabel, productConfig } from "@/config/product";
 import { api } from "@/lib/client";
 import { availabilityWhen } from "@/lib/availability-labels";
+import { formatKm } from "@/lib/geo";
 import type { AvailabilityDTO } from "@/server/availability";
 import { Avatar } from "./Avatar";
 import { DemoBadge } from "./DemoBadge";
 import { useLocale, useT } from "./I18nProvider";
 
-type Values = { date: string; slot: string; city: string; area: string; categories: string[]; note: string };
+type Values = { date: string; slot: string; startTime: string; endTime: string; city: string; area: string; categories: string[]; note: string };
+
+const slotTimes = (id: string) => availabilitySlots.find((s) => s.id === id) ?? availabilitySlots[3];
 
 /** Carte d'une disponibilité : la personne, le créneau, ses envies, et l'action « Proposer un Moment ». */
 export function AvailabilityCard({ a, compact = false }: { a: AvailabilityDTO; compact?: boolean }) {
@@ -54,8 +57,9 @@ export function AvailabilityCard({ a, compact = false }: { a: AvailabilityDTO; c
             <span className="truncate">{a.person.name}</span>
             {a.isDemo && demoLabelsVisible && <span className="shrink-0 text-xs font-normal text-muted">· {t("Exemple")}</span>}
           </span>
-          <span className="block truncate text-sm font-medium text-accent">
+          <span className="block text-sm font-medium text-accent">
             {availabilityWhen(a, locale, t)}{where && ` · ${where}`}
+            {typeof a.distanceKm === "number" && ` · ${t("à {d}", { d: formatKm(a.distanceKm) })}`}
           </span>
           {envies && <span className="block truncate text-sm text-muted">{t("Envie de : {x}", { x: envies })}</span>}
         </span>
@@ -146,6 +150,8 @@ export function MyAvailabilities({
             initial={{
               date: prefill?.date && dates.some((d) => d.value === prefill.date) ? prefill.date : dates[0]?.value ?? "",
               slot: prefill?.slot ?? "evening",
+              startTime: slotTimes(prefill?.slot ?? "evening").start,
+              endTime: slotTimes(prefill?.slot ?? "evening").end,
               city: prefill?.city || defaultCity,
               area: prefill?.area ?? "",
               categories: prefill?.categories ?? [],
@@ -171,7 +177,7 @@ export function MyAvailabilities({
                 <AvailabilityEditor
                   id={a.id}
                   dates={dates.some((d) => d.value === a.date) ? dates : [{ value: a.date, label: a.date }, ...dates]}
-                  initial={{ date: a.date, slot: a.slot, city: a.city, area: a.area, categories: a.categories, note: a.note }}
+                  initial={{ date: a.date, slot: a.slot, startTime: a.startTime, endTime: a.endTime, city: a.city, area: a.area, categories: a.categories, note: a.note }}
                   timezone={a.timezone}
                   showAdult={showAdult}
                   onCancel={() => setEditing(null)}
@@ -249,7 +255,9 @@ function AvailabilityEditor({
   async function save() {
     setBusy(true);
     setError(null);
-    const body = { ...v, timezone };
+    const { slot: _slot, ...rest } = v;
+    void _slot;
+    const body = { ...rest, timezone };
     const res = id
       ? await api<AvailabilityDTO>(`/api/availabilities/${id}`, { method: "PATCH", body })
       : await api<AvailabilityDTO>("/api/availabilities", { body });
@@ -286,12 +294,29 @@ function AvailabilityEditor({
         <span className="field-label" id={`${uid}-slot`}>{t("Quand ?")}</span>
         <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-labelledby={`${uid}-slot`}>
           {availabilitySlots.map((s) => (
-            <button key={s.id} type="button" role="radio" aria-checked={v.slot === s.id} onClick={() => set("slot", s.id)} className={`chip ${v.slot === s.id ? "chip-active" : ""}`}>
+            <button
+              key={s.id}
+              type="button"
+              role="radio"
+              aria-checked={v.startTime === s.start && v.endTime === s.end}
+              onClick={() => {
+                setV((p) => ({ ...p, slot: s.id, startTime: s.start, endTime: s.end }));
+                setErrors((e) => ({ ...e, slot: "", startTime: "", endTime: "" }));
+              }}
+              className={`chip ${v.startTime === s.start && v.endTime === s.end ? "chip-active" : ""}`}
+            >
               {t(s.label)}
             </button>
           ))}
         </div>
-        {errors.slot && <p className="field-error">{errors.slot}</p>}
+        <div className="mt-3 grid grid-cols-[auto_1fr_auto_1fr] items-center gap-2 text-sm">
+          <label htmlFor={`${uid}-from`}>{t("De")}</label>
+          <input id={`${uid}-from`} type="time" step={900} className="input min-w-0 !px-2" value={v.startTime} onChange={(e) => set("startTime", e.target.value)} aria-invalid={!!errors.startTime} />
+          <label htmlFor={`${uid}-to`}>{t("à")}</label>
+          <input id={`${uid}-to`} type="time" step={900} className="input min-w-0 !px-2" value={v.endTime} onChange={(e) => set("endTime", e.target.value)} aria-invalid={!!errors.endTime} />
+        </div>
+        <p className="field-help">{t("Choisis un créneau ou précise tes heures, par exemple de 18:00 à 21:00.")}</p>
+        {(errors.slot || errors.startTime || errors.endTime) && <p className="field-error">{errors.slot || errors.startTime || errors.endTime}</p>}
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <div>

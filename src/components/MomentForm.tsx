@@ -10,6 +10,8 @@ import { api } from "@/lib/client";
 import { shrinkForUpload } from "@/lib/image-client";
 import { uploadMomentVideo } from "@/lib/video-client";
 import type { MomentCardDTO, PersonSummary } from "@/server/types";
+import type { DispoSnapshot } from "@/server/availability";
+import { DispoQuote } from "./DispoQuote";
 import { Avatar } from "./Avatar";
 import { MomentCard } from "./MomentCard";
 import { useT } from "./I18nProvider";
@@ -38,7 +40,7 @@ export type MomentFormValues = {
 };
 
 /** Personne à inviter quand le Moment est proposé à partir de sa disponibilité. */
-export type Invitee = PersonSummary & { slotLabel: string };
+export type Invitee = PersonSummary & { slotLabel: string; dispo: DispoSnapshot };
 
 const themes = ["dusk", "ocean", "citrus", "plum", "forest", "ink"] as const;
 
@@ -176,7 +178,7 @@ export function MomentForm({
     }
     let suffix = "";
     if (invitee && inviteOn && publish && mode === "create") {
-      const inv = await api(`/api/moments/${res.data.id}/invitations`, { body: { username: invitee.username, message: inviteMsg || null } });
+      const inv = await api(`/api/moments/${res.data.id}/invitations`, { body: { username: invitee.username, message: inviteMsg || null, availabilityId: invitee.dispo.availabilityId } });
       suffix = inv.ok ? "?invitation=envoyee" : "?invitation=echec";
     }
     setBusy(null);
@@ -242,9 +244,9 @@ export function MomentForm({
               <Avatar person={invitee} size="md" />
               <div className="min-w-0">
                 <p className="font-semibold">{t("Tu proposes un Moment à {name}", { name: invitee.name })}</p>
-                <p className="text-sm text-muted">{t("Dispo : {slot}", { slot: invitee.slotLabel })}</p>
               </div>
             </div>
+            <DispoQuote dispo={invitee.dispo} title={t("Sa dispo")} className="mt-3" />
             <label className="mt-4 flex items-start gap-3 text-sm">
               <input type="checkbox" className="mt-0.5 h-5 w-5 accent-[var(--color-accent)]" checked={inviteOn} onChange={(e) => setInviteOn(e.target.checked)} />
               <span>
@@ -321,6 +323,22 @@ export function MomentForm({
         </Section>
 
         <Section n={3} title={t("Visuel")}>
+          <button
+            type="button"
+            onClick={() => photoRef.current?.click()}
+            disabled={busy === "upload"}
+            className="flex w-full items-center gap-3 rounded-2xl border-2 border-dashed border-accent/50 bg-surface-2/40 p-4 text-left hover:border-accent"
+          >
+            <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-lilac/15 text-accent">
+              {busy === "upload" ? <Loader2 size={22} className="animate-spin" /> : <ImagePlus size={22} />}
+            </span>
+            <span className="min-w-0">
+              <span className="block font-semibold">{v.mediaType === "IMAGE" && v.mediaUrl && !galleryCovers.some((c) => galleryUrl(c) === v.mediaUrl) ? t("Changer ma photo") : t("Ajouter ma photo")}</span>
+              <span className="block text-sm text-muted">{t("Prends-la avec ton téléphone ou choisis-la dans ta galerie. Elle devient la couverture du Moment.")}</span>
+              <span className="block text-xs text-muted">{t("JPEG, PNG ou WebP. La localisation GPS de la photo est supprimée.")}</span>
+            </span>
+          </button>
+          <p className="text-xs text-muted">{t("Ou choisis un autre visuel :")}</p>
           <div className="flex flex-wrap gap-2" role="tablist" aria-label={t("Type de visuel")}>
             <button type="button" role="tab" aria-selected={v.mediaType === "IMAGE"} className={`chip ${v.mediaType === "IMAGE" ? "chip-active" : ""}`} onClick={() => setV((p) => ({ ...p, mediaType: "IMAGE", mediaUrl: p.mediaType === "IMAGE" && p.mediaUrl ? p.mediaUrl : galleryUrl(galleryCovers[0]), posterUrl: null }))}><ImagePlus size={15} /> {t("Photo")}</button>
             {memberVideos && (
@@ -341,12 +359,6 @@ export function MomentForm({
 
           {v.mediaType === "IMAGE" && (
             <div className="space-y-3">
-              <div className="flex flex-wrap items-center gap-3">
-                <button type="button" className="btn-secondary" onClick={() => photoRef.current?.click()} disabled={busy === "upload"}>
-                  {busy === "upload" ? <Loader2 size={16} className="animate-spin" /> : <ImagePlus size={16} />} {t("Importer ma photo")}
-                </button>
-                <p className="text-xs text-muted">{t("JPEG, PNG ou WebP. La localisation GPS de la photo est supprimée.")}</p>
-              </div>
               <p className="text-sm text-muted">{t("Ou choisis une illustration :")}</p>
               <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
                 {galleryCovers.map((c) => {

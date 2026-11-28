@@ -16,7 +16,7 @@ import { getLocale, getT, pageTitle } from "@/lib/i18n/server";
 export const generateMetadata = pageTitle("Dispos");
 export const dynamic = "force-dynamic";
 
-type SP = Promise<{ city?: string; when?: string; nouveau?: string; date?: string; slot?: string; cat?: string; area?: string; note?: string; ville?: string }>;
+type SP = Promise<{ city?: string; when?: string; near?: string; km?: string; creneau?: string; nouveau?: string; date?: string; slot?: string; cat?: string; area?: string; note?: string; ville?: string }>;
 
 const whenOptions = [
   { id: "today", label: "Aujourd'hui" },
@@ -37,7 +37,10 @@ export default async function DisposPage({ searchParams }: { searchParams: SP })
   const tz = productConfig.defaultTimezone;
 
   const mine = await myAvailabilities(viewer);
-  const others = (await listAvailabilities(viewer, { city, when })).filter((a) => !a.isMine);
+  const slotFilter = ["morning", "lunch", "afternoon", "evening"].includes(sp.creneau ?? "") ? sp.creneau : undefined;
+  const near = sp.near && /^-?\d+(\.\d+)?,-?\d+(\.\d+)?$/.test(sp.near) ? sp.near : undefined;
+  const km = near ? Math.min(50, Math.max(0.5, Number(sp.km) || 5)) : undefined;
+  const others = (await listAvailabilities(viewer, { city, when, slot: slotFilter, near, km })).filter((a) => !a.isMine);
 
   // Jours proposés pour publier une dispo : aujourd'hui (s'il reste un créneau) et les 13 suivants.
   const now = new Date();
@@ -70,7 +73,7 @@ export default async function DisposPage({ searchParams }: { searchParams: SP })
       <section aria-labelledby="others-title" className="space-y-4">
         <h2 id="others-title" className="sr-only">{t("Les dispos des autres")}</h2>
         <Suspense>
-          <FeedFilters showCategories={false} />
+          <FeedFilters showCategories={false} showSlots />
         </Suspense>
 
         {others.length === 0 ? (
@@ -78,18 +81,18 @@ export default async function DisposPage({ searchParams }: { searchParams: SP })
             <span className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full bg-lilac/10 text-accent">
               <CalendarHeart size={26} />
             </span>
-            <h3 className="font-display text-xl">{t("Personne n'a encore publié de dispo ici")}</h3>
+            <h3 className="font-display text-xl">{near ? t("Personne n'est dispo dans ce rayon pour l'instant") : t("Personne n'a encore publié de dispo ici")}</h3>
             <p className="mt-2 max-w-sm text-sm text-muted">{t("Sois le premier à dire quand tu es libre, ou crée directement un Moment : il suffit d'une idée et de quelques places.")}</p>
             <div className="mt-6 flex flex-wrap justify-center gap-2">
-              {(city || when) && <Link href="/dispos" className="btn-secondary">{t("Voir toutes les dispos")}</Link>}
+              {(city || when || near || slotFilter) && <Link href="/dispos" className="btn-secondary">{t("Voir toutes les dispos")}</Link>}
               <Link href="/moments/nouveau" className="btn-primary">{t("Créer un Moment")}</Link>
             </div>
           </div>
         ) : (
           <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {others.map((a) => (
-              <li key={a.id} className="flex">
-                <div className="flex-1 [&>article]:h-full">
+              <li key={a.id} className="flex min-w-0">
+                <div className="min-w-0 flex-1 [&>article]:h-full">
                   <AvailabilityCard a={a} />
                 </div>
               </li>

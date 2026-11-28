@@ -7,7 +7,9 @@ import { Loader2 } from "lucide-react";
 import type { MomentCardDTO, PersonSummary } from "@/server/types";
 import { api } from "@/lib/client";
 import { formatMomentDate, formatMomentTime, formatRelative } from "@/lib/time";
+import type { DispoSnapshot } from "@/server/availability";
 import { Avatar } from "./Avatar";
+import { DispoQuote } from "./DispoQuote";
 import { MomentMedia } from "./MomentMedia";
 import { useLocale, useT } from "./I18nProvider";
 
@@ -16,6 +18,7 @@ type Row = {
   kind: "REQUEST" | "INVITE";
   status: "PENDING" | "ACCEPTED" | "DECLINED" | "CANCELLED";
   message: string | null;
+  dispo?: DispoSnapshot | null;
   createdAt: string;
   respondedAt: string | null;
   user: PersonSummary;
@@ -86,7 +89,7 @@ export function InvitationsView({ data: raw, initialTab }: { data: InvitationsDa
     </button>
   );
 
-  const card = (r: Row, opts: { person?: boolean; actions?: React.ReactNode }) => {
+  const card = (r: Row, opts: { person?: boolean; actions?: React.ReactNode; mineDispo?: boolean }) => {
     const m = r.moment;
     return (
       <li key={r.id} className="card flex gap-4 p-3 sm:p-4">
@@ -108,7 +111,20 @@ export function InvitationsView({ data: raw, initialTab }: { data: InvitationsDa
               <span className="text-muted">· {formatRelative(r.createdAt, locale)}</span>
             </div>
           )}
+          {opts.mineDispo && (
+            <p className="mt-1.5 flex items-center gap-2 text-sm">
+              <Avatar person={m.host} size="xs" />
+              <span>{t("{name} t'invite", { name: m.host.name })}</span>
+            </p>
+          )}
           {r.message && <p className="mt-1.5 line-clamp-2 text-sm text-ink-2">« {t(r.message)} »</p>}
+          {r.dispo && (
+            <DispoQuote
+              dispo={r.dispo}
+              title={opts.mineDispo ? t("En réponse à ta dispo") : t("Sa dispo : {name}", { name: r.user.name.split(" ")[0] })}
+              className="mt-2"
+            />
+          )}
           {opts.actions && <div className="mt-3 flex flex-wrap gap-2">{opts.actions}</div>}
         </div>
       </li>
@@ -148,6 +164,7 @@ export function InvitationsView({ data: raw, initialTab }: { data: InvitationsDa
               {data.invitationsReceived.map((r) =>
                 card(r, {
                   person: false,
+                  mineDispo: true,
                   actions:
                     r.status === "PENDING" && r.moment.phase !== "cancelled" && r.moment.phase !== "ended" ? (
                       <>

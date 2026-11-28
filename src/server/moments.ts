@@ -14,6 +14,7 @@ import type { FeedPage, MemberRow, MomentCardDTO, MomentDetailDTO } from "./type
 import { refreshPremium, requireTier } from "./billing";
 import { recordView } from "./black";
 import { premiumPlan } from "@/lib/premium";
+import { approxLocation, boundingBox, haversineKm, parseNear } from "@/lib/geo";
 
 const cardInclude = {
   host: { select: personSelect },
@@ -122,6 +123,13 @@ export async function getFeed(viewer: Viewer | null, rawQuery: unknown): Promise
     ...(q.city ? { city: { equals: q.city, mode: "insensitive" } } : {}),
     ...(q.category ? { category: q.category } : {}),
   };
+  // « Autour de moi » : rectangle en base, puis distance exacte.
+  const near = parseNear(q.near);
+  const km = q.km ?? 5;
+  if (near) Object.assign(where, boundingBox(near, km));
+  const distOf = (m: { lat: number | null; lng: number | null }) =>
+    near && m.lat !== null && m.lng !== null ? Math.round(haversineKm(near, { lat: m.lat, lng: m.lng }) * 10) / 10 : null;
+  const inRadius = (m: { lat: number | null; lng: number | null }) => !near || (distOf(m) ?? Infinity) <= km;
 
   if (sort === "best") {
     // « Pour toi » : on classe une fenêtre de Moments à venir, puis on pagine par position.
@@ -130,7 +138,7 @@ export async function getFeed(viewer: Viewer | null, rawQuery: unknown): Promise
     const counts = await acceptedCounts(pool.map((m) => m.id));
     const ctx = await rankContext(viewer, pool.map((m) => m.hostId));
     const ranked = pool
-      .filter((m) => momentPhase(m, now) !== "ended")
+      .filter((m) => momentPhase(m, now) !== "ended" && inRadius(m))
       .map((m) => {
         const s = scoreMoment(m, counts.get(m.id) ?? 0, ctx, now);
         // Boost Upclose+ : en tête du feed de la ville tant qu'il dure.
@@ -143,7 +151,7 @@ export async function getFeed(viewer: Viewer | null, rawQuery: unknown): Promise
     const items = slice.map(({ m, s }) => {
       const rep = ctx.reps.get(m.hostId);
       const card = toCard(m, counts.get(m.id) ?? 0, viewer?.id ?? null, mine.get(m.id) ?? null);
-      return { ...card, reasons: viewer ? s.reasons : [], hostRating: rep && (rep.hostAvg ?? rep.avg) !== null ? { avg: (rep.hostAvg ?? rep.avg)!, count: rep.hostAvg !== null ? rep.hostCount : rep.count } : null };
+      return { ...card, distanceKm: distOf(m), reasons: viewer ? s.reasons : [], hostRating: rep && (rep.hostAvg ?? rep.avg) !== null ? { avg: (rep.hostAvg ?? rep.avg)!, count: rep.hostAvg !== null ? rep.hostCount : rep.count } : null };
     });
     return { items, nextCursor: offset + limit < ranked.length ? `o${offset + limit}` : null, source: "database" };
   }
@@ -171,7 +179,10 @@ export async function getFeed(viewer: Viewer | null, rawQuery: unknown): Promise
   });
   // Les Moments terminés (heure de fin passée) sortent du feed.
   const page = rows.slice(0, limit);
-  const items = (await toCards(page, viewer?.id ?? null)).filter((c) => c.phase !== "ended");
+  const byId = new Map(page.map((m) => [m.id, m]));
+  const items = (await toCards(page, viewer?.id ?? null))
+    .filter((c) => c.phase !== "ended" && inRadius(byId.get(c.id)!))
+    .map((c) => ({ ...c, distanceKm: distOf(byId.get(c.id)!) }));
   const last = page[page.length - 1];
   const lastDate = last ? (sort === "recent" ? last.publishedAt ?? last.createdAt : last.startsAt) : null;
   return {
@@ -296,6 +307,10 @@ function toMomentData(input: ReturnType<typeof momentInputSchema.parse>, viewer:
     area: input.area,
     placeName: input.placeName,
     address: input.address || null,
+    ...(() => {
+      const pos = approxLocation(input.city, input.area, input.placeName);
+      return { lat: pos?.lat ?? null, lng: pos?.lng ?? null };
+    })(),
     addressMembersOnly: input.addressMembersOnly,
     blackOnly: input.blackOnly,
     startsAt,

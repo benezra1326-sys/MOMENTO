@@ -17,7 +17,7 @@ import { useLocale, useT } from "./I18nProvider";
 
 // ——— Discussion du Moment ———
 
-export function MomentChat({ momentId, closed }: { momentId: string; closed: boolean }) {
+export function MomentChat({ momentId, closed, pinned }: { momentId: string; closed: boolean; pinned?: React.ReactNode }) {
   const t = useT();
   const locale = useLocale();
   const [items, setItems] = useState<MessageDTO[] | null>(null);
@@ -78,6 +78,7 @@ export function MomentChat({ momentId, closed }: { momentId: string; closed: boo
         <h2 id="chat-title" className="font-display text-xl">{t("La discussion")}</h2>
         <span className="ml-auto text-xs text-muted">{t("Hôte et participants confirmés")}</span>
       </header>
+      {pinned && <div className="space-y-2 border-b border-border px-5 py-3">{pinned}</div>}
       <div ref={listRef} className="max-h-[22rem] min-h-[7rem] space-y-3 overflow-y-auto px-5 py-4" aria-live="polite">
         {items === null ? (
           <p className="flex items-center gap-2 text-sm text-muted"><Loader2 size={15} className="animate-spin" aria-hidden /> {t("Chargement…")}</p>

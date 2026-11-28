@@ -1,6 +1,6 @@
 import { availabilitySlots } from "@/config/product";
 import type { Locale } from "./i18n/core";
-import { formatMomentDate, utcToZonedLocal } from "./time";
+import { formatMomentDate, formatMomentTime, utcToZonedLocal } from "./time";
 
 type T = (s: string, v?: Record<string, string | number>) => string;
 
@@ -19,7 +19,12 @@ export function slotLabel(slot: string, t: T): string {
   return t(availabilitySlots.find((s) => s.id === slot)?.label ?? "Toute la journée");
 }
 
-/** « Demain, soir » : jour et créneau d'une disponibilité. */
-export function availabilityWhen(a: { startsAt: string; timezone: string; slot: string }, locale: Locale, t: T): string {
-  return `${dayLabel(a.startsAt, a.timezone, locale, t)}, ${slotLabel(a.slot, t).toLowerCase()}`;
+/** « 18:00 – 21:00 » : plage horaire locale d'une disponibilité. */
+export function hourRange(a: { startsAt: string; endsAt: string; timezone: string }, locale: Locale): string {
+  return `${formatMomentTime(a.startsAt, a.timezone, locale)} – ${formatMomentTime(a.endsAt, a.timezone, locale)}`;
+}
+
+/** « Demain · 18:00 – 21:00 » : jour et plage horaire d'une disponibilité. */
+export function availabilityWhen(a: { startsAt: string; endsAt: string; timezone: string }, locale: Locale, t: T): string {
+  return `${dayLabel(a.startsAt, a.timezone, locale, t)} · ${hourRange(a, locale)}`;
 }

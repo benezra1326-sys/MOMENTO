@@ -109,6 +109,8 @@ export const joinRequestSchema = z.object({
 export const invitationSchema = z.object({
   username: z.string().trim().toLowerCase().min(1, "Indique un pseudo."),
   message: z.string().trim().max(280).optional().nullable(),
+  /** Dispo de la personne invitée à l'origine de l'invitation. */
+  availabilityId: z.string().max(40).optional().nullable(),
 });
 
 export const cancelMomentSchema = z.object({
@@ -132,6 +134,9 @@ export const feedQuerySchema = z.object({
   sort: z.enum(["best", "date", "recent"]).optional(),
   cursor: z.string().max(200).optional(),
   limit: z.coerce.number().int().min(1).max(30).optional(),
+  /** « lat,lng » de la personne (arrondi) et rayon en km : filtre « Autour de moi ». */
+  near: z.string().max(40).optional(),
+  km: z.coerce.number().min(0.5).max(50).optional(),
 });
 
 export type FeedQuery = z.infer<typeof feedQuerySchema>;
@@ -141,7 +146,10 @@ const slotIds = availabilitySlots.map((s) => s.id) as [string, ...string[]];
 export const availabilityInputSchema = z.object({
   /** Jour local « AAAA-MM-JJ » dans `timezone`. */
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Choisis un jour."),
-  slot: z.enum(slotIds, { errorMap: () => ({ message: "Choisis un créneau." }) }),
+  slot: z.enum(slotIds, { errorMap: () => ({ message: "Choisis un créneau." }) }).optional(),
+  /** Plage libre « HH:MM » (prioritaire sur le créneau). Une fin plus tôt que le début passe au lendemain. */
+  startTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Heure invalide.").optional(),
+  endTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Heure invalide.").optional(),
   timezone: z.string().refine(isValidTimeZone, "Fuseau horaire inconnu.").default("Europe/Madrid"),
   city: z.string().trim().min(2, "Indique une ville.").max(60),
   area: z.string().trim().max(80).default(""),
@@ -154,4 +162,8 @@ export const availabilityUpdateSchema = availabilityInputSchema.partial().extend
 export const availabilityQuerySchema = z.object({
   city: z.string().trim().max(60).optional(),
   when: z.enum(["today", "tomorrow", "weekend", "later", "week"]).optional(),
+  /** Créneau de la journée : garde les dispos qui le chevauchent. */
+  slot: z.enum(["morning", "lunch", "afternoon", "evening"]).optional(),
+  near: z.string().max(40).optional(),
+  km: z.coerce.number().min(0.5).max(50).optional(),
 });

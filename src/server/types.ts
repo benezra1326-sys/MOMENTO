@@ -19,6 +19,8 @@ export type ViewerMembership = {
 } | null;
 
 export type MomentCardDTO = {
+  /** Distance depuis la position de la personne (filtre « Autour de moi »). */
+  distanceKm?: number | null;
   id: string;
   title: string;
   description: string;

@@ -1,5 +1,7 @@
 "use client";
 
+import { formatKm } from "@/lib/geo";
+
 import { demoLabelsVisible } from "@/lib/env";
 import Link from "next/link";
 import { useLocale, useT } from "./I18nProvider";
@@ -68,6 +70,7 @@ export function MomentCard({ moment, autoplay = true, priority = false }: { mome
             <span className="truncate">
               <span className="capitalize">{formatMomentDate(moment.startsAt, moment.timezone, locale)}</span> · {formatMomentTime(moment.startsAt, moment.timezone, locale)}
               {where && <> · {where}</>}
+              {typeof moment.distanceKm === "number" && <> · {t("à {d}", { d: formatKm(moment.distanceKm) })}</>}
             </span>
           </p>
           {showSpots && <span className={`pill mt-2 ${toneClass[tone]}`}>{spotsLabel(moment, t)}</span>}
