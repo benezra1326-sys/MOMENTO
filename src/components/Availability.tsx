@@ -51,7 +51,7 @@ export function AvailabilityCard({ a, compact = false }: { a: AvailabilityDTO; c
         <span className="min-w-0">
           <span className="flex items-center gap-1.5 font-semibold">
             <span className="truncate">{a.person.name}</span>
-            {a.isDemo && <span className="shrink-0 text-xs font-normal text-muted">· {t("Démo")}</span>}
+            {a.isDemo && <span className="shrink-0 text-xs font-normal text-muted">· {t("Exemple")}</span>}
           </span>
           <span className="block truncate text-sm font-medium text-accent">
             {availabilityWhen(a, locale, t)}{where && ` · ${where}`}
@@ -63,6 +63,8 @@ export function AvailabilityCard({ a, compact = false }: { a: AvailabilityDTO; c
       <div className="mt-auto pt-1">
         {a.isMine ? (
           <p className="text-xs text-muted">{t("C'est ta dispo")}</p>
+        ) : a.isDemo ? (
+          <p className="text-xs text-muted">{t("Dispo d'exemple, pour montrer l'app.")}</p>
         ) : (
           <Link href={`/moments/nouveau?dispo=${a.id}`} className="btn-secondary w-full">
             <Sparkles size={16} /> {t("Lui proposer un Moment")}

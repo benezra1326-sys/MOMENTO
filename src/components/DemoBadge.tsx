@@ -10,9 +10,9 @@ export function DemoBadge({ className = "" }: { className?: string }) {
   return (
     <span
       className={`pill bg-surface-2 text-accent ${className}`}
-      title={t("Profil ou Moment fictif, créé pour la démonstration")}
+      title={t("Exemple fictif pour montrer l'app : on ne peut pas le rejoindre")}
     >
-      {t("Démo")}
+      {t("Exemple")}
     </span>
   );
 }

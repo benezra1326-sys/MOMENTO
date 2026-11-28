@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { reputations } from "./ratings";
+import { ratedMoments, reputations } from "./ratings";
 import { FEATURED_DEMO } from "./demo-data";
 import { prisma } from "@/lib/db";
 import { AppError, isUniqueViolation } from "@/lib/errors";
@@ -242,4 +242,14 @@ export async function deleteMyAccount(viewerIn: Viewer | null, confirmUsername: 
   await deleteStoredFile(oldPhoto);
   await destroySession();
   return { deleted: true };
+}
+
+/** Page « Avis » d'un profil : la note, ses critères et les Moments qui l'ont construite. */
+export async function getProfileReviews(viewer: Viewer | null, username: string) {
+  const u = await prisma.user.findUnique({ where: { username: username.toLowerCase() } });
+  if (!u || u.status !== "ACTIVE") throw new AppError("NOT_FOUND", "Ce profil n'existe pas.");
+  if (viewer && (await isBlockedBetween(viewer.id, u.id))) throw new AppError("NOT_FOUND", "Ce profil n'existe pas.");
+  const reputation = (await reputations([u.id])).get(u.id) ?? null;
+  const { moments, hidden } = await ratedMoments(viewer, u);
+  return { name: u.name, username: u.username, isDemo: u.isDemo, reputation, moments, hidden };
 }

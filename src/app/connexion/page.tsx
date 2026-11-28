@@ -31,7 +31,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   const demo = await listDemoAccounts().catch(() => []);
   const t = await getT();
   return (
-    <div className="mx-auto grid max-w-4xl gap-6 lg:grid-cols-2 lg:items-start">
+    <div className={`mx-auto grid gap-6 lg:items-start ${demo.length ? "max-w-4xl lg:grid-cols-2" : "max-w-md"}`}>
       <section className="card p-6 sm:p-8">
         <h1 className="font-display text-3xl">{t("Bon retour")}</h1>
         <p className="mt-1 text-muted">{t("Connecte-toi pour rejoindre ou créer des Moments.")}</p>
@@ -47,7 +47,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           <Link href="/confidentialite" className="underline-offset-2 hover:underline">{t("Confidentialité")}</Link>
         </p>
       </section>
-      <DemoPicker accounts={demo} next={suite} />
+      {demo.length > 0 && <DemoPicker accounts={demo} next={suite} />}
     </div>
   );
 }

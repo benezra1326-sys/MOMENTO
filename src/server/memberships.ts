@@ -63,6 +63,7 @@ export async function requestToJoin(viewerIn: Viewer | null, momentId: string, r
   const result = await prisma.$transaction(async (tx) => {
     const m = await lockMoment(tx, momentId);
     if (m.hostId === viewer.id) throw new AppError("CONFLICT", "Tu es l'hôte de ce Moment.");
+    if (m.isDemo && !viewer.isDemo) throw new AppError("FORBIDDEN", "C'est un Moment d'exemple : on ne peut pas le rejoindre.");
     assertOpen(m);
     if (await isBlockedBetween(viewer.id, m.hostId, tx)) throw new AppError("NOT_FOUND", "Moment introuvable.");
 
@@ -117,6 +118,7 @@ export async function inviteUser(viewerIn: Viewer | null, momentId: string, raw:
   const target = await prisma.user.findUnique({ where: { username: input.username.replace(/^@/, "") } });
   if (!target || target.status !== "ACTIVE") throw new AppError("NOT_FOUND", "Aucun profil actif avec ce pseudo.");
   if (target.id === viewer.id) throw new AppError("VALIDATION", "Tu ne peux pas t'inviter toi-même.");
+  if (target.isDemo && !viewer.isDemo) throw new AppError("NOT_FOUND", "Aucun profil actif avec ce pseudo.");
 
   const result = await prisma.$transaction(async (tx) => {
     const m = await lockMoment(tx, momentId);

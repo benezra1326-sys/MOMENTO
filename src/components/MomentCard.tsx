@@ -77,7 +77,7 @@ export function MomentCard({ moment, autoplay = true, priority = false }: { mome
               <Star size={11} className="fill-amber-400 text-amber-400" aria-hidden /> {moment.hostRating.avg.toFixed(1).replace(".", ",")}
             </span>
           )}
-          {moment.isDemo && <span className="shrink-0 text-xs text-muted">· {t("Démo")}</span>}
+          {moment.isDemo && <span className="shrink-0 text-xs text-muted">· {t("Exemple")}</span>}
         </Link>
         {moment.attendeesPreview.length > 0 && <AvatarStack people={moment.attendeesPreview} max={3} size="xs" />}
       </div>

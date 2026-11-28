@@ -185,7 +185,7 @@ export default async function MomentPage({ params, searchParams }: Props) {
                 <HostPanel moment={m} />
               </>
             ) : (
-              <JoinPanel moment={m} signedIn={!!viewer} readOnly={source === "demo-fallback"} />
+              <JoinPanel moment={m} signedIn={!!viewer} readOnly={source === "demo-fallback"} viewerIsDemo={!!viewer?.isDemo} />
             )}
           </section>
 

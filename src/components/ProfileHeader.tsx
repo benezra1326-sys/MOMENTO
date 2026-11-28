@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { AtSign, MapPin, Star } from "lucide-react";
 import type { MomentCardDTO } from "@/server/types";
 import { Avatar } from "./Avatar";
@@ -45,10 +46,10 @@ export async function ProfileHeader({ p, children }: { p: Profile; children?: Re
           {p.city && <span className="flex items-center gap-1"><MapPin size={14} /> {p.city}</span>}
           <span>{t("Membre depuis {date}", { date: since })}</span>
           {p.reputation && (p.reputation.hostAvg ?? p.reputation.avg) !== null && (
-            <span className="flex items-center gap-1 text-ink-2">
+            <Link href={`/u/${p.username}/avis`} className="flex items-center gap-1 text-ink-2 underline-offset-2 hover:underline">
               <Star size={14} className="fill-current text-amber-400" /> {(p.reputation.hostAvg ?? p.reputation.avg)!.toFixed(1).replace(".", ",")}/5
               <span className="text-muted">· {t("{n} avis", { n: p.reputation.hostAvg !== null ? p.reputation.hostCount : p.reputation.count })}</span>
-            </span>
+            </Link>
           )}
         </div>
         {p.instagram && (

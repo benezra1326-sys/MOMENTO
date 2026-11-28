@@ -199,3 +199,63 @@ export async function momentsToRate(viewerIn: Viewer | null) {
   }
   return out;
 }
+
+export type RatedMoment = {
+  id: string;
+  title: string;
+  startsAt: string;
+  timezone: string;
+  city: string;
+  mediaType: string;
+  mediaUrl: string | null;
+  textTheme: string | null;
+  asHost: boolean;
+  /** Nombre d'avis reçus sur ce Moment. */
+  count: number;
+  /** Moyenne sur ce Moment, seulement à partir de 2 avis : un avis seul resterait identifiable. */
+  avg: number | null;
+};
+
+/**
+ * Les Moments qui ont construit la note d'une personne (page « Avis » du profil).
+ * On ne montre jamais qui a noté ni une note isolée ; les Moments 18+ restent cachés à qui n'y a pas accès,
+ * et les Moments vécus comme invité suivent le réglage « afficher mes Moments passés ».
+ */
+export async function ratedMoments(
+  viewer: Pick<Viewer, "id" | "showAdult" | "adultConfirmedAt"> | null,
+  user: { id: string; showPastMoments: boolean },
+): Promise<{ moments: RatedMoment[]; hidden: number }> {
+  if (!productConfig.features.ratings) return { moments: [], hidden: 0 };
+  const isSelf = viewer?.id === user.id;
+  const adultOk = !!viewer && productConfig.features.adultSpace && !!viewer.showAdult && !!viewer.adultConfirmedAt;
+  const rows = await prisma.rating.findMany({
+    where: { rateeId: user.id, noShow: false },
+    select: {
+      momentId: true, rateeIsHost: true, punctuality: true, ambiance: true, respect: true, organisation: true, accuracy: true,
+      moment: { select: { id: true, title: true, startsAt: true, timezone: true, city: true, mediaType: true, mediaUrl: true, textTheme: true, isAdult: true } },
+    },
+  });
+  const by = new Map<string, typeof rows>();
+  for (const r of rows) by.set(r.momentId, [...(by.get(r.momentId) ?? []), r]);
+  const moments: RatedMoment[] = [];
+  let hidden = 0;
+  for (const list of by.values()) {
+    const m = list[0].moment;
+    const asHost = list[0].rateeIsHost;
+    if ((m.isAdult && !adultOk && !isSelf) || (!asHost && !user.showPastMoments && !isSelf)) {
+      hidden++;
+      continue;
+    }
+    const per = list.map((r) => {
+      const vals = [r.punctuality, r.ambiance, r.respect, r.organisation, r.accuracy].filter((v): v is number => typeof v === "number" && v > 0);
+      return vals.reduce((a, b) => a + b, 0) / vals.length;
+    });
+    moments.push({
+      id: m.id, title: m.title, startsAt: m.startsAt.toISOString(), timezone: m.timezone, city: m.city,
+      mediaType: m.mediaType, mediaUrl: m.mediaUrl, textTheme: m.textTheme, asHost, count: list.length,
+      avg: list.length >= 2 ? Math.round((per.reduce((a, b) => a + b, 0) / per.length) * 10) / 10 : null,
+    });
+  }
+  moments.sort((a, b) => b.startsAt.localeCompare(a.startsAt));
+  return { moments, hidden };
+}

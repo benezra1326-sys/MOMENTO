@@ -8,7 +8,7 @@ import type { MomentDetailDTO, ViewerMembership } from "@/server/types";
 import { api } from "@/lib/client";
 import { useT } from "./I18nProvider";
 
-export function JoinPanel({ moment, signedIn, readOnly = false }: { moment: MomentDetailDTO; signedIn: boolean; readOnly?: boolean }) {
+export function JoinPanel({ moment, signedIn, readOnly = false, viewerIsDemo = false }: { moment: MomentDetailDTO; signedIn: boolean; readOnly?: boolean; viewerIsDemo?: boolean }) {
   const router = useRouter();
   const t = useT();
   const [message, setMessage] = useState("");
@@ -60,6 +60,11 @@ export function JoinPanel({ moment, signedIn, readOnly = false }: { moment: Mome
   if (readOnly) return box("lock", "Lecture seule", "Le mode démo hors ligne ne permet pas de rejoindre un Moment.");
   if (moment.phase === "cancelled") return box("off", "Ce Moment a été annulé", moment.cancelReason ?? undefined);
   if (moment.phase === "ended") return box("off", "Ce Moment est terminé", "Envie de remettre ça ? Crée le prochain.");
+  if (moment.isDemo && !viewerIsDemo) {
+    return box("lock", "Moment d'exemple", "Il montre à quoi ressemble un Moment : on ne peut pas le rejoindre.", (
+      <Link href="/creer" className="btn-primary w-full">{t("Créer mon Moment")}</Link>
+    ));
+  }
   if (moment.phase === "draft") return box("lock", "Brouillon", "Ce Moment n'est pas encore publié.");
 
   if (!signedIn) {
