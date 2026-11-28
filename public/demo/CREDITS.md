@@ -136,3 +136,32 @@ Photos réelles sous licence libre (CC0, domaine public ou CC BY), trouvées via
 | boat-2 | Auteur inconnu | CC0 | https://openverse.org/image/50c63dc1-6d18-4e59-801a-ba66e2b4275f |
 | other-1 | xiquinhosilva | CC BY 2.0 | https://openverse.org/image/046383e6-243d-4176-b141-1abc07fce22a |
 | other-2 | xiquinhosilva | CC BY 2.0 | https://openverse.org/image/19c4b110-2d8f-422b-911d-c076d6cf7f00 |
+
+## Moments d'exemple ajoutés (demo_x_01 à demo_x_22, novembre 2026)
+
+Même source (Openverse, licences libres), une photo distincte par Moment, appliquée directement en base.
+
+| Moment | Auteur | Licence | Source |
+|---|---|---|---|
+| demo_x_01 | Auteur inconnu | CC0 | https://openverse.org/image/7ce44160-0760-4e6b-b910-553e1c7037eb |
+| demo_x_02 | Snapwire | CC0 | https://openverse.org/image/3f95d307-0ece-4b1b-9947-19a7f7329f94 |
+| demo_x_03 | Auteur inconnu | CC0 | https://openverse.org/image/a2fb2209-7b93-4acf-9659-bbf483016e24 |
+| demo_x_04 | transitpeople | CC BY 2.0 | https://openverse.org/image/263ae32a-cbc6-4019-b3bf-f67c2e3762b5 |
+| demo_x_05 | Axel Freeman | CC BY 2.0 | https://openverse.org/image/f261ed4c-4d36-4b36-b6c3-ed314c4297f0 |
+| demo_x_06 | Jorge Franganillo | CC BY 2.0 | https://openverse.org/image/7504d8f5-abd6-4ef3-b4a9-02ffe6a53c1e |
+| demo_x_07 | Steve Carr2 | CC BY 2.0 | https://openverse.org/image/6e16b6ce-7ff3-4743-aa84-bcac538ca5c7 |
+| demo_x_08 | Auteur inconnu | CC0 | https://openverse.org/image/e08f3dce-6b12-431a-9910-5a3bae696223 |
+| demo_x_09 | greger.ravik | CC BY 2.0 | https://openverse.org/image/f1d6c820-8e53-4401-8003-515892eb1e9a |
+| demo_x_10 | andreboeni | CC BY 2.0 | https://openverse.org/image/4b726b4d-4912-4716-8f61-6dd19acdff51 |
+| demo_x_11 | Burst | CC0 | https://openverse.org/image/16055c18-f12c-4381-a32b-3eb5e2e9d7ee |
+| demo_x_12 | Auteur inconnu | CC0 | https://openverse.org/image/74952e8f-4c05-44ae-8708-d668c3541724 |
+| demo_x_13 | Auteur inconnu | CC0 | https://openverse.org/image/0e586abf-1050-4a35-a7cd-736d4147f96f |
+| demo_x_14 | Bex.Walton | CC BY 2.0 | https://openverse.org/image/7a2012bb-5d81-4747-b680-97c22a72f08b |
+| demo_x_15 | Auteur inconnu | CC0 | https://openverse.org/image/22d9477c-4e1d-40ad-b1b0-d04183617b6e |
+| demo_x_16 | goodhotgumbo | CC0 | https://openverse.org/image/06d0fb2d-f907-48f9-94d8-e5c95ac1de10 |
+| demo_x_17 | Auteur inconnu | CC0 | https://openverse.org/image/efeb70d0-25ac-4f40-a977-4490626290ad |
+| demo_x_18 | Jacob Morch | CC0 | https://openverse.org/image/ff54052f-2118-4fc1-80c8-5b48ce166d63 |
+| demo_x_19 | Pawel Kadysz | CC0 | https://openverse.org/image/0ed07d93-af91-41ae-8c82-bae51c21ec24 |
+| demo_x_20 | M. Martin Vicente | CC BY 2.0 | https://openverse.org/image/91e0a153-3328-4097-84ad-fe450c48cc33 |
+| demo_x_21 | Oneterry AKA Terry Kearney | CC0 | https://openverse.org/image/66d165fb-47c4-4411-ba21-751c319a8f4f |
+| demo_x_22 | Tracy Hunter | CC BY 2.0 | https://openverse.org/image/9ea42935-c786-4573-9bb9-0253724b8da8 |
