@@ -155,6 +155,8 @@ export const availabilityInputSchema = z.object({
   area: z.string().trim().max(80).default(""),
   categories: z.array(z.enum(categoryIds)).max(4, "4 envies maximum.").default([]),
   note: z.string().trim().max(200, "200 caractères maximum.").default(""),
+  /** Remplacer cette dispo active (supprimée) par la nouvelle, quand la limite de l'offre est atteinte. */
+  replaceId: z.string().max(40).optional(),
 });
 
 export const availabilityUpdateSchema = availabilityInputSchema.partial().extend({ hidden: z.boolean().optional() });

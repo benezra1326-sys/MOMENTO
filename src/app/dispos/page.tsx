@@ -1,3 +1,4 @@
+import { tierLimits, tierOf } from "@/lib/premium";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
@@ -63,6 +64,8 @@ export default async function DisposPage({ searchParams }: { searchParams: SP })
         timezone={tz}
         dates={dates}
         showAdult={canSeeAdult(viewer)}
+        tier={tierOf(viewer)}
+        maxActive={tierLimits[tierOf(viewer)].activeAvailabilities}
         prefill={
           sp.nouveau
             ? { date: sp.date, slot: sp.slot, city: sp.ville, area: sp.area, categories: sp.cat ? sp.cat.split(",").filter(Boolean) : [], note: sp.note }

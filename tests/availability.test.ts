@@ -43,7 +43,7 @@ describe("disponibilités", () => {
   });
 
   it("filtre par ville et ignore les créneaux passés ou trop lointains", async () => {
-    const lea = await makeUser("Léa");
+    const lea = await makeUser("Léa", { premium: true });
     const tom = await makeUser("Tom");
     await createAvailability(lea, base(2));
     await createAvailability(lea, { ...base(3), city: "Madrid" });
@@ -52,13 +52,36 @@ describe("disponibilités", () => {
     await expectCode(createAvailability(lea, { ...base(0), date: day(-1) }), "VALIDATION");
   });
 
-  it("limite les dispos actives et refuse les doublons", async () => {
+  it("gratuit : une dispo active à la fois, remplaçable, et une dispo expirée ne bloque pas", async () => {
     const lea = await makeUser("Léa");
-    await createAvailability(lea, base(1));
+    const first = await createAvailability(lea, base(1));
     await expectCode(createAvailability(lea, base(1)), "CONFLICT");
-    await createAvailability(lea, base(2));
-    await createAvailability(lea, base(3));
-    await expectCode(createAvailability(lea, base(4)), "RATE_LIMITED");
+    const err = await createAvailability(lea, base(2)).catch((e) => e as AppError);
+    expect(err).toBeInstanceOf(AppError);
+    expect((err as AppError).code).toBe("AVAILABILITY_LIMIT");
+    expect((err as AppError).details?.activeId).toBe(first.id);
+    // Remplacer l'actuelle par la nouvelle.
+    const second = await createAvailability(lea, { ...base(2), replaceId: first.id });
+    expect((await myAvailabilities(lea)).map((a) => a.id)).toEqual([second.id]);
+    // Supprimée : on peut publier tout de suite.
+    await deleteAvailability(lea, second.id);
+    const third = await createAvailability(lea, base(3));
+    // Expirée : ne compte plus.
+    await prisma.availability.update({ where: { id: third.id }, data: { startsAt: new Date(Date.now() - 7200_000), endsAt: new Date(Date.now() - 3600_000) } });
+    await createAvailability(lea, base(4));
+  });
+
+  it("gratuit : deux publications simultanées n'en créent qu'une", async () => {
+    const lea = await makeUser("Léa");
+    const results = await Promise.allSettled([createAvailability(lea, base(1)), createAvailability(lea, base(2))]);
+    expect(results.filter((r) => r.status === "fulfilled")).toHaveLength(1);
+    expect(await prisma.availability.count({ where: { userId: lea.id } })).toBe(1);
+  });
+
+  it("Upclose+ : jusqu'à 5 dispos actives", async () => {
+    const lea = await makeUser("Léa", { plan: "plus" });
+    for (let i = 1; i <= 5; i++) await createAvailability(lea, base(i));
+    await expectCode(createAvailability(lea, base(6)), "AVAILABILITY_LIMIT");
   });
 
   it("l'auteur peut modifier, masquer et supprimer ; personne d'autre", async () => {
@@ -127,7 +150,7 @@ describe("envoi de vidéos", () => {
 
 describe("plage horaire, distance et rappel de la dispo", () => {
   it("accepte une plage libre « de 18:00 à 21:00 » et filtre par créneau", async () => {
-    const lea = await makeUser("Léa");
+    const lea = await makeUser("Léa", { premium: true });
     const tom = await makeUser("Tom");
     const { slot: _s, ...rest } = base(1);
     void _s;
@@ -146,7 +169,7 @@ describe("plage horaire, distance et rappel de la dispo", () => {
   });
 
   it("filtre « Autour de moi » par rayon et donne la distance", async () => {
-    const lea = await makeUser("Léa");
+    const lea = await makeUser("Léa", { premium: true });
     const tom = await makeUser("Tom");
     const centre = await createAvailability(lea, { ...base(1), area: "Casco Antiguo" });
     const banus = await createAvailability(lea, { ...base(2), area: "Puerto Banús" });
@@ -185,5 +208,37 @@ describe("plage horaire, distance et rappel de la dispo", () => {
       const all = await getFeed(tom, { sort });
       expect(all.items.map((x) => x.id).sort()).toEqual([centre, cabopino].sort());
     }
+  });
+});
+
+describe("changements d'heure et fuseaux", () => {
+  it("calcule la vraie durée lors des changements d'heure et respecte le fuseau", async () => {
+    const { timeRange } = await import("@/server/availability");
+    // Passage à l'heure d'été (Madrid, 28 mars 2027) : de 01:00 à 04:00 locale = 2 h réelles.
+    const spring = timeRange("2027-03-28", "01:00", "04:00", TZ, new Date("2027-03-25T12:00:00Z"));
+    expect((spring.endsAt.getTime() - spring.startsAt.getTime()) / 3600_000).toBe(2);
+    expect(utcToZonedLocal(spring.endsAt, TZ).slice(11, 16)).toBe("04:00");
+    // Retour à l'heure d'hiver (31 octobre 2027) : de 22:00 la veille à 04:00 = 7 h réelles, fin le lendemain.
+    const autumn = timeRange("2027-10-30", "22:00", "04:00", TZ, new Date("2027-10-28T12:00:00Z"));
+    expect((autumn.endsAt.getTime() - autumn.startsAt.getTime()) / 3600_000).toBe(7);
+    expect(utcToZonedLocal(autumn.endsAt, TZ).slice(0, 16)).toBe("2027-10-31T04:00");
+    // Même heure locale, autre fuseau : l'instant change, l'heure affichée reste celle choisie.
+    const paris = timeRange("2027-06-10", "18:00", "21:00", "Europe/Paris", new Date("2027-06-05T12:00:00Z"));
+    const london = timeRange("2027-06-10", "18:00", "21:00", "Europe/London", new Date("2027-06-05T12:00:00Z"));
+    expect(london.startsAt.getTime() - paris.startsAt.getTime()).toBe(3600_000);
+    expect(utcToZonedLocal(london.startsAt, "Europe/London").slice(11, 16)).toBe("18:00");
+  });
+
+  it("modifications simultanées d'une même dispo : la dernière gagne sans erreur ni doublon", async () => {
+    const lea = await makeUser("Léa");
+    const a = await createAvailability(lea, base(1));
+    const res = await Promise.allSettled([
+      updateAvailability(lea, a.id, { note: "Version A" }),
+      updateAvailability(lea, a.id, { note: "Version B" }),
+    ]);
+    expect(res.every((r) => r.status === "fulfilled")).toBe(true);
+    const rows = await prisma.availability.findMany({ where: { userId: lea.id } });
+    expect(rows).toHaveLength(1);
+    expect(["Version A", "Version B"]).toContain(rows[0].note);
   });
 });

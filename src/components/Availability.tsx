@@ -3,11 +3,12 @@
 import { demoLabelsVisible } from "@/lib/env";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CalendarHeart, Eye, EyeOff, Loader2, Pencil, Plus, Sparkles, Trash2 } from "lucide-react";
 import { availabilitySlots, categories, categoryLabel, productConfig } from "@/config/product";
 import { api } from "@/lib/client";
-import { availabilityWhen } from "@/lib/availability-labels";
+import { availabilityWhen, dayLabel } from "@/lib/availability-labels";
+import { formatMomentTime } from "@/lib/time";
 import { formatKm } from "@/lib/geo";
 import type { AvailabilityDTO } from "@/server/availability";
 import { Avatar } from "./Avatar";
@@ -90,8 +91,12 @@ export function MyAvailabilities({
   dates,
   prefill,
   showAdult = false,
+  maxActive,
+  tier,
 }: {
   showAdult?: boolean;
+  maxActive: number;
+  tier: "free" | "plus" | "black";
   initial: AvailabilityDTO[];
   defaultCity: string;
   timezone: string;
@@ -105,15 +110,33 @@ export function MyAvailabilities({
   const [editing, setEditing] = useState<string | "new" | null>(prefill ? "new" : null);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const max = productConfig.limits.availabilitiesActiveMax;
+  const [swap, setSwap] = useState<{ id: string; activeId: string } | null>(null);
+  const [draft, setDraft] = useState<Values | null>(null);
+  const max = maxActive;
+  const activeCount = items.filter((x) => !x.hidden).length;
+
+  // Brouillon gardé pendant le choix (modifier l'actuelle, ou passer à Upclose+) et au retour du paiement.
+  useEffect(() => {
+    const d = readDraft();
+    if (d) {
+      setDraft(d);
+      if (!prefill) setEditing((e) => e ?? "new");
+    }
+  }, [prefill]);
 
   async function patch(id: string, body: Record<string, unknown>) {
     setBusy(id);
     setError(null);
+    setSwap(null);
     const res = await api<AvailabilityDTO>(`/api/availabilities/${id}`, { method: "PATCH", body });
     setBusy(null);
-    if (!res.ok) return setError(res.error.message);
-    setItems((p) => p.map((x) => (x.id === id ? res.data : x)));
+    if (!res.ok) {
+      if (res.error.code === "AVAILABILITY_LIMIT" && res.error.details?.activeId) setSwap({ id, activeId: res.error.details.activeId });
+      return setError(res.error.message);
+    }
+    setItems((p) =>
+      p.map((x) => (x.id === id ? res.data : body.replaceId && x.id === body.replaceId ? { ...x, hidden: true } : x)),
+    );
     router.refresh();
   }
 
@@ -134,7 +157,7 @@ export function MyAvailabilities({
           <h2 id="mine-title" className="font-display text-xl">{t("Tes dispos")}</h2>
           {items.length === 0 && editing !== "new" && <p className="mt-1 max-w-md text-sm text-muted">{t("Dis quand tu es libre : on pourra t'inviter.")}</p>}
         </div>
-        {editing !== "new" && items.length < max && (
+        {editing !== "new" && (
           <button type="button" className="btn-primary" onClick={() => setEditing("new")}>
             <Plus size={16} /> {t("Je suis dispo")}
           </button>
@@ -142,12 +165,27 @@ export function MyAvailabilities({
       </div>
 
       {error && <p role="alert" className="mt-3 text-sm text-danger">{error}</p>}
+      {swap && (
+        <button type="button" className="btn-secondary mt-2" onClick={() => patch(swap.id, { hidden: false, replaceId: swap.activeId })}>
+          {t("Activer celle-ci à la place de l'actuelle")}
+        </button>
+      )}
+      {items.some((x) => x.hidden) && activeCount >= max && tier === "free" && (
+        <p className="mt-3 rounded-2xl bg-surface-2/70 px-4 py-3 text-sm text-ink-2">
+          {t("Avec l'offre gratuite, une seule dispo est active à la fois. Tes autres dispos sont gardées en brouillon : touche « Activer » sur celle que tu préfères garder.")}
+        </p>
+      )}
 
       {editing === "new" && (
         <div className="mt-5">
           <AvailabilityEditor
             dates={dates}
-            initial={{
+            tier={tier}
+            onEditActive={(activeId) => {
+              setDraft(readDraft());
+              setEditing(activeId);
+            }}
+            initial={draft && dates.some((d) => d.value === draft.date) ? draft : {
               date: prefill?.date && dates.some((d) => d.value === prefill.date) ? prefill.date : dates[0]?.value ?? "",
               slot: prefill?.slot ?? "evening",
               startTime: slotTimes(prefill?.slot ?? "evening").start,
@@ -157,11 +195,18 @@ export function MyAvailabilities({
               categories: prefill?.categories ?? [],
               note: prefill?.note ?? "",
             }}
+            hasDraft={!!draft}
             timezone={timezone}
             showAdult={showAdult}
-            onCancel={() => setEditing(null)}
-            onSaved={(a) => {
-              setItems((p) => [...p, a].sort((x, y) => x.startsAt.localeCompare(y.startsAt)));
+            onCancel={() => {
+              clearDraft();
+              setDraft(null);
+              setEditing(null);
+            }}
+            onSaved={(a, replacedId) => {
+              clearDraft();
+              setDraft(null);
+              setItems((p) => [...p.filter((x) => x.id !== replacedId), a].sort((x, y) => x.startsAt.localeCompare(y.startsAt)));
               setEditing(null);
               router.refresh();
             }}
@@ -177,13 +222,14 @@ export function MyAvailabilities({
                 <AvailabilityEditor
                   id={a.id}
                   dates={dates.some((d) => d.value === a.date) ? dates : [{ value: a.date, label: a.date }, ...dates]}
+                  tier={tier}
                   initial={{ date: a.date, slot: a.slot, startTime: a.startTime, endTime: a.endTime, city: a.city, area: a.area, categories: a.categories, note: a.note }}
                   timezone={a.timezone}
                   showAdult={showAdult}
                   onCancel={() => setEditing(null)}
                   onSaved={(n) => {
                     setItems((p) => p.map((x) => (x.id === n.id ? n : x)));
-                    setEditing(null);
+                    setEditing(draft ? "new" : null);
                     router.refresh();
                   }}
                 />
@@ -197,11 +243,15 @@ export function MyAvailabilities({
                     {[a.area, a.city].filter(Boolean).join(", ")}
                     {a.categories.length > 0 && ` · ${a.categories.map((c) => t(categoryLabel(c))).join(", ")}`}
                   </p>
-                  {a.hidden && <p className="text-xs font-medium text-warn">{t("Masquée : personne ne la voit")}</p>}
+                  {a.hidden ? (
+                    <p className="text-xs font-medium text-warn">{t("Brouillon : personne ne la voit")}</p>
+                  ) : (
+                    <p className="text-xs text-muted">{t("Active jusqu'à {when}", { when: `${dayLabel(a.endsAt, a.timezone, locale, t).toLowerCase()} ${formatMomentTime(a.endsAt, a.timezone, locale)}` })}</p>
+                  )}
                 </div>
                 <div className="flex gap-1">
                   <IconBtn label={t("Modifier")} onClick={() => setEditing(a.id)} disabled={busy === a.id}><Pencil size={16} /></IconBtn>
-                  <IconBtn label={a.hidden ? t("Réafficher") : t("Masquer")} onClick={() => patch(a.id, { hidden: !a.hidden })} disabled={busy === a.id}>
+                  <IconBtn label={a.hidden ? t("Activer") : t("Masquer")} onClick={() => patch(a.id, { hidden: !a.hidden })} disabled={busy === a.id}>
                     {busy === a.id ? <Loader2 size={16} className="animate-spin" /> : a.hidden ? <Eye size={16} /> : <EyeOff size={16} />}
                   </IconBtn>
                   <IconBtn label={t("Supprimer")} onClick={() => remove(a.id)} disabled={busy === a.id}><Trash2 size={16} /></IconBtn>
@@ -211,7 +261,9 @@ export function MyAvailabilities({
           )}
         </ul>
       )}
-      {items.length >= max && <p className="mt-3 text-xs text-muted">{t("{n} dispos à la fois maximum.", { n: max })}</p>}
+      <p className="mt-3 text-xs text-muted">
+        {max === 1 ? t("Offre gratuite : une dispo active à la fois. Dès qu'elle expire ou que tu la supprimes, tu peux en publier une autre.") : t("{n} dispos actives à la fois maximum.", { n: max })}
+      </p>
     </section>
   );
 }
@@ -224,6 +276,26 @@ function IconBtn({ label, onClick, disabled, children }: { label: string; onClic
   );
 }
 
+const DRAFT_KEY = "upclose_dispo_draft";
+function readDraft(): Values | null {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    return raw ? (JSON.parse(raw) as Values) : null;
+  } catch {
+    return null;
+  }
+}
+function saveDraft(v: Values) {
+  try {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(v));
+  } catch {}
+}
+function clearDraft() {
+  try {
+    localStorage.removeItem(DRAFT_KEY);
+  } catch {}
+}
+
 function AvailabilityEditor({
   id,
   initial,
@@ -231,6 +303,9 @@ function AvailabilityEditor({
   timezone,
   onCancel,
   onSaved,
+  onEditActive,
+  hasDraft = false,
+  tier,
   showAdult = false,
 }: {
   showAdult?: boolean;
@@ -238,9 +313,14 @@ function AvailabilityEditor({
   initial: Values;
   dates: { value: string; label: string }[];
   timezone: string;
+  tier: "free" | "plus" | "black";
+  hasDraft?: boolean;
   onCancel: () => void;
-  onSaved: (a: AvailabilityDTO) => void;
+  onSaved: (a: AvailabilityDTO, replacedId?: string) => void;
+  onEditActive?: (activeId: string) => void;
 }) {
+  const router = useRouter();
+  const [limit, setLimit] = useState<{ activeId: string; message: string } | null>(null);
   const t = useT();
   const [v, setV] = useState<Values>(initial);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -252,21 +332,27 @@ function AvailabilityEditor({
   };
   const uid = id ?? "new";
 
-  async function save() {
+  async function save(replaceId?: string) {
     setBusy(true);
     setError(null);
+    setLimit(null);
     const { slot: _slot, ...rest } = v;
     void _slot;
-    const body = { ...rest, timezone };
+    const body = { ...rest, timezone, ...(replaceId ? { replaceId } : {}) };
     const res = id
       ? await api<AvailabilityDTO>(`/api/availabilities/${id}`, { method: "PATCH", body })
       : await api<AvailabilityDTO>("/api/availabilities", { body });
     setBusy(false);
     if (!res.ok) {
+      if (!id && res.error.code === "AVAILABILITY_LIMIT" && res.error.details?.activeId) {
+        // La nouvelle dispo est gardée en brouillon pendant que la personne choisit.
+        saveDraft(v);
+        return setLimit({ activeId: res.error.details.activeId, message: res.error.message });
+      }
       setErrors(res.error.details ?? {});
       return setError(res.error.message);
     }
-    onSaved(res.data);
+    onSaved(res.data, replaceId);
   }
 
   return (
@@ -278,7 +364,23 @@ function AvailabilityEditor({
       }}
       noValidate
     >
+      {hasDraft && !id && <p className="rounded-xl bg-surface-2 px-3 py-2 text-sm text-ink-2">{t("Ton brouillon de dispo t'attendait : vérifie-le puis publie-le.")}</p>}
       {error && <p role="alert" className="rounded-xl bg-danger-soft px-3 py-2 text-sm text-danger">{error}</p>}
+      {limit && (
+        <div role="alert" className="space-y-3 rounded-2xl border border-accent/50 bg-surface p-4">
+          <p className="text-sm text-ink-2">{limit.message}</p>
+          <p className="text-xs text-muted">{t("Ta nouvelle dispo est gardée en brouillon.")}</p>
+          <div className="grid gap-2">
+            <button type="button" className="btn-secondary" onClick={() => onEditActive?.(limit.activeId)}>{t("Modifier ma dispo actuelle")}</button>
+            {tier === "free" && (
+              <button type="button" className="btn-secondary" onClick={() => save(limit.activeId)} disabled={busy}>{t("La remplacer par la nouvelle")}</button>
+            )}
+            {tier === "free" && (
+              <button type="button" className="btn-primary" onClick={() => router.push("/premium?retour=/dispos")}>{t("Découvrir Upclose+ (jusqu'à 5 dispos)")}</button>
+            )}
+          </div>
+        </div>
+      )}
       <div>
         <span className="field-label" id={`${uid}-day`}>{t("Quel jour ?")}</span>
         <div className="scroll-row -mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1" role="radiogroup" aria-labelledby={`${uid}-day`}>

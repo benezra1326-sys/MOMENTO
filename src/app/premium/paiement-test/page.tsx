@@ -29,10 +29,14 @@ function Simulator() {
 
   return (
     <section className="card mx-auto max-w-md space-y-4 p-6">
-      <p className="rounded-2xl bg-warn-soft px-4 py-3 text-sm text-warn">Paiement simulé : aucune carte, aucun débit.</p>
+      <p className="rounded-2xl bg-warn-soft px-4 py-3 text-sm text-warn">PAIEMENT SIMULÉ (recette) : aucune carte, aucun débit.</p>
       <div>
         <h1 className="font-display text-2xl">{plans[plan].name}</h1>
         <p className="text-ink-2">{priceLabel(plans[plan][interval])} par {interval === "year" ? "an" : "mois"}, sans engagement</p>
+        <p className="mt-2 text-sm text-muted">
+          Renouvelé automatiquement chaque {interval === "year" ? "année" : "mois"} au même prix, jusqu&apos;à ce que tu résilies. Tu peux résilier à tout moment depuis la page Offres ;
+          tes Moments, tes participations et leurs discussions restent accessibles.
+        </p>
       </div>
       {error && <p role="alert" className="rounded-2xl bg-danger-soft px-4 py-3 text-sm text-danger">{error}</p>}
       <div className="grid gap-2 sm:grid-cols-2">

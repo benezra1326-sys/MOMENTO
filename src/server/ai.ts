@@ -6,8 +6,8 @@ import { requireActive, type Viewer } from "@/lib/auth";
 import { ADULT_CATEGORY, availabilitySlots, categories, productConfig, vibeSuggestions } from "@/config/product";
 import { utcToZonedLocal } from "@/lib/time";
 import { canSeeAdult } from "./moments";
-import { refreshPremium } from "./billing";
-import { premiumPlan } from "@/lib/premium";
+import { currentTier } from "./billing";
+import { premiumPlan, tierLimits } from "@/lib/premium";
 
 /**
  * Assistant de création : une phrase (« dîner chic samedi soir à Marbella, on est 4 ») devient
@@ -288,8 +288,17 @@ export async function draftFromSentence(viewerIn: Viewer | null, raw: unknown): 
   const recent = await prisma.auditEvent.count({ where: { actorId: viewer.id, action: "ai.draft", createdAt: { gt: new Date(Date.now() - 3600_000) } } });
   if (recent >= productConfig.limits.aiPerHour) throw new AppError("RATE_LIMITED", "L'assistant a beaucoup servi cette heure-ci. Réessaie un peu plus tard.");
   const month = await prisma.auditEvent.count({ where: { actorId: viewer.id, action: "ai.draft", createdAt: { gt: new Date(Date.now() - 30 * 86400_000) } } });
-  if (month >= premiumPlan.freeAiPerMonth && !(await refreshPremium(viewer))) {
-    throw new AppError("PREMIUM_REQUIRED", `L'assistant est offert ${premiumPlan.freeAiPerMonth} fois par mois. Passe à Upclose+ pour l'utiliser sans limite, ou remplis le formulaire toi-même.`);
+  if (month >= premiumPlan.freeAiPerMonth) {
+    const tier = await currentTier(viewer);
+    const cap = tierLimits[tier].aiPer30Days;
+    if (month >= cap) {
+      throw new AppError(
+        tier === "free" ? "PREMIUM_REQUIRED" : "RATE_LIMITED",
+        tier === "free"
+          ? `L'assistant est offert ${cap} fois sur 30 jours. Upclose+ t'en donne ${tierLimits.plus.aiPer30Days}. Tu peux aussi remplir le formulaire toi-même.`
+          : `Tu as utilisé tes ${cap} brouillons de l'assistant sur 30 jours. Remplis le formulaire toi-même en attendant.`,
+      );
+    }
   }
   await prisma.auditEvent.create({ data: { actorId: viewer.id, action: "ai.draft", targetType: "user", targetId: viewer.id } });
 

@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Check, Crown, Loader2, Minus, Sparkles, User } from "lucide-react";
 import { api } from "@/lib/client";
-import { planFeatures, planPerks, plans, priceLabel, type Interval, type PlanId, type Tier } from "@/lib/premium";
+import { comingSoon, planFeatures, planPerks, plans, priceLabel, type Interval, type PlanId, type Tier } from "@/lib/premium";
 
 const tierName: Record<Tier, string> = { free: "Gratuit", plus: "Upclose+", black: "Black" };
 const gold = "text-[#e2c486]";
@@ -176,7 +176,18 @@ export function PremiumPlans({
             </li>
           ))}
         </ul>
+        {selected !== "free" && (
+          <div className={`rounded-2xl border border-dashed px-4 py-3 text-sm ${isBlack ? "border-[#d4af6a]/40 text-white/70" : "border-border text-muted"}`}>
+            <p className="font-semibold">Bientôt{isBlack ? " pour les organisateurs réguliers" : ""}</p>
+            <p>{comingSoon[selected].join(", ")}. En préparation, pas encore inclus.</p>
+          </div>
+        )}
         {cta && <div className="pt-1">{cta}</div>}
+        {selected !== "free" && selected !== tier && canBuy && price !== null && (
+          <p className={`text-xs ${isBlack ? "text-white/60" : "text-muted"}`}>
+            {priceLabel(price)} par {interval === "month" ? "mois" : "an"}, renouvelé automatiquement jusqu&apos;à résiliation. Sans engagement : tu résilies quand tu veux, tes Moments et discussions restent accessibles.
+          </p>
+        )}
         {error && <p role="alert" className="text-sm text-danger">{error}</p>}
       </div>
 

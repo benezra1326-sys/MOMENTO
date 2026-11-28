@@ -9,6 +9,8 @@ import { blockedUserIds, isBlockedBetween } from "./safety";
 import { personSelect, toPerson } from "./mappers";
 import { canSeeAdult, whenRange } from "./moments";
 import { approxLocation, boundingBox, haversineKm, parseNear } from "@/lib/geo";
+import { tierLimits, tierOf, type Tier } from "@/lib/premium";
+import { currentTier } from "./billing";
 import type { PersonSummary } from "./types";
 
 /**
@@ -76,7 +78,7 @@ export function parseDispoSnapshot(v: unknown): DispoSnapshot | null {
 
 type Row = Availability & { user: PersonSummary & { city: string } };
 
-const userSelect = { ...personSelect, city: true } as const;
+const userSelect = { ...personSelect, city: true, premiumUntil: true, premiumPlan: true } as const;
 
 /** Créneau d'une disponibilité : retrouve l'identifiant à partir des heures locales. */
 function slotOf(a: Pick<Availability, "startsAt" | "endsAt" | "timezone">): string {
@@ -190,7 +192,15 @@ export async function listAvailabilities(viewerIn: Viewer | null, rawQuery: unkn
     orderBy: [{ startsAt: "asc" }, { id: "asc" }],
     take: 200,
   });
+  // Un membre revenu à une offre inférieure qui n'a pas encore choisi : on ne montre que ce que son offre permet.
+  const shown = new Map<string, number>();
+  const withinPlan = (r: (typeof rows)[number]) => {
+    const n = (shown.get(r.userId) ?? 0) + 1;
+    shown.set(r.userId, n);
+    return n <= tierLimits[tierOf(r.user)].activeAvailabilities;
+  };
   return rows
+    .filter(withinPlan)
     .filter((r) => !q.slot || overlapsSlot(r, q.slot))
     .map((r) => {
       const d = near && r.lat !== null && r.lng !== null ? haversineKm(near, { lat: r.lat, lng: r.lng }) : null;
@@ -204,6 +214,7 @@ export async function listAvailabilities(viewerIn: Viewer | null, rawQuery: unkn
 /** Mes disponibilités encore utiles (masquées comprises). */
 export async function myAvailabilities(viewerIn: Viewer | null): Promise<AvailabilityDTO[]> {
   const viewer = requireActive(viewerIn);
+  await enforceAvailabilityLimit(viewer.id, await currentTier(viewer));
   const rows = await prisma.availability.findMany({
     where: { userId: viewer.id, endsAt: { gt: new Date() } },
     include: { user: { select: userSelect } },
@@ -236,37 +247,68 @@ export async function createAvailability(viewerIn: Viewer | null, raw: unknown) 
     throw new AppError("ADULT_ONLY", "Active « Afficher les Moments 18+ » dans ton profil pour publier ce type d'envie.");
   }
   const now = new Date();
-  const active = await prisma.availability.count({ where: { userId: viewer.id, endsAt: { gt: now } } });
-  if (active >= productConfig.limits.availabilitiesActiveMax) {
-    throw new AppError(
-      "RATE_LIMITED",
-      `${productConfig.limits.availabilitiesActiveMax} disponibilités à la fois maximum. Supprime-en une pour en ajouter.`,
-    );
-  }
   const today = await prisma.availability.count({ where: { userId: viewer.id, createdAt: { gt: new Date(now.getTime() - 86400_000) } } });
   if (today >= productConfig.limits.availabilitiesPerDay) {
     throw new AppError("RATE_LIMITED", "Trop de disponibilités publiées aujourd'hui. Réessaie demain.");
   }
-  const dup = await prisma.availability.findFirst({ where: { userId: viewer.id, startsAt, endsAt } });
-  if (dup) throw new AppError("CONFLICT", "Tu as déjà publié ce créneau.");
-  const a = await prisma.availability.create({
-    data: {
-      userId: viewer.id,
-      startsAt,
-      endsAt,
-      timezone: input.timezone,
-      city: input.city,
-      area: input.area,
-      lat: pos?.lat ?? null,
-      lng: pos?.lng ?? null,
-      categories: [...new Set(input.categories)],
-      note: input.note,
-      isAdult,
-      isDemo: viewer.isDemo,
-    },
-    include: { user: { select: userSelect } },
+  const tier = await currentTier(viewer);
+  const cap = tierLimits[tier].activeAvailabilities;
+  // Verrou sur le membre : deux publications simultanées ne peuvent pas dépasser la limite de l'offre.
+  const a = await prisma.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${viewer.id} FOR UPDATE`;
+    if (input.replaceId) {
+      const old = await tx.availability.findUnique({ where: { id: input.replaceId } });
+      if (!old || old.userId !== viewer.id) throw new AppError("NOT_FOUND", "La dispo à remplacer n'existe plus.");
+      await tx.availability.delete({ where: { id: old.id } });
+    }
+    const dup = await tx.availability.findFirst({ where: { userId: viewer.id, startsAt, endsAt } });
+    if (dup) throw new AppError("CONFLICT", "Tu as déjà publié ce créneau.");
+    const active = await tx.availability.findMany({ where: activeWhere(viewer.id, new Date()), orderBy: { startsAt: "asc" }, select: { id: true } });
+    if (active.length >= cap) throw limitError(tier, cap, active[0].id);
+    return tx.availability.create({
+      data: {
+        userId: viewer.id,
+        startsAt,
+        endsAt,
+        timezone: input.timezone,
+        city: input.city,
+        area: input.area,
+        lat: pos?.lat ?? null,
+        lng: pos?.lng ?? null,
+        categories: [...new Set(input.categories)],
+        note: input.note,
+        isAdult,
+        isDemo: viewer.isDemo,
+      },
+      include: { user: { select: userSelect } },
+    });
   });
   return toAvailabilityDTO(a, viewer.id);
+}
+
+/** Dispos actives : visibles et pas encore terminées. Une dispo expirée ou masquée ne compte jamais. */
+function activeWhere(userId: string, now: Date): Prisma.AvailabilityWhereInput {
+  return { userId, hidden: false, endsAt: { gt: now } };
+}
+
+function limitError(tier: Tier, cap: number, activeId: string) {
+  const msg =
+    tier === "free"
+      ? "Avec l'offre gratuite, tu peux avoir une dispo active à la fois. Modifie celle que tu as, remplace-la par la nouvelle, ou découvre Upclose+ pour en avoir jusqu'à 5."
+      : `Tu as déjà ${cap} dispos actives, le maximum. Modifie ou supprime-en une pour en ajouter.`;
+  return new AppError("AVAILABILITY_LIMIT", msg, { activeId, tier });
+}
+
+/**
+ * Après un retour à une offre inférieure : seules les dispos permises restent actives (les plus proches),
+ * les autres passent en brouillon (masquées, jamais supprimées). Le membre peut ensuite choisir laquelle garder.
+ */
+export async function enforceAvailabilityLimit(userId: string, tier: Tier) {
+  const cap = tierLimits[tier].activeAvailabilities;
+  const active = await prisma.availability.findMany({ where: activeWhere(userId, new Date()), orderBy: { startsAt: "asc" }, select: { id: true } });
+  const extra = active.slice(cap).map((a) => a.id);
+  if (extra.length) await prisma.availability.updateMany({ where: { id: { in: extra } }, data: { hidden: true } });
+  return extra.length;
 }
 
 async function ownAvailability(viewer: Viewer, id: string) {
@@ -307,7 +349,23 @@ export async function updateAvailability(viewerIn: Viewer | null, id: string, ra
   }
   if (input.note !== undefined) data.note = input.note;
   if (input.hidden !== undefined) data.hidden = input.hidden;
-  const updated = await prisma.availability.update({ where: { id }, data, include: { user: { select: userSelect } } });
+  // Réactiver une dispo masquée (brouillon) : dans la limite de l'offre, ou à la place d'une autre (qui passe en brouillon).
+  const reactivating = input.hidden === false && a.hidden;
+  const tier = reactivating ? await currentTier(viewer) : null;
+  const updated = await prisma.$transaction(async (tx) => {
+    if (reactivating && tier) {
+      await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${viewer.id} FOR UPDATE`;
+      if (input.replaceId) {
+        const other = await tx.availability.findUnique({ where: { id: input.replaceId } });
+        if (!other || other.userId !== viewer.id) throw new AppError("NOT_FOUND", "Cette disponibilité n'existe plus.");
+        await tx.availability.update({ where: { id: other.id }, data: { hidden: true } });
+      }
+      const cap = tierLimits[tier].activeAvailabilities;
+      const active = await tx.availability.findMany({ where: { ...activeWhere(viewer.id, new Date()), id: { not: id } }, orderBy: { startsAt: "asc" }, select: { id: true } });
+      if (active.length >= cap) throw limitError(tier, cap, active[0].id);
+    }
+    return tx.availability.update({ where: { id }, data, include: { user: { select: userSelect } } });
+  });
   return toAvailabilityDTO(updated, viewer.id);
 }
 

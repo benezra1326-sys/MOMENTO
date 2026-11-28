@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { AppError } from "@/lib/errors";
 import { requireActive, type Viewer } from "@/lib/auth";
+import { enforceAvailabilityLimit } from "./availability";
 import { isPlanId, isPremium, plans, premiumPlan, tierOf, type Interval, type PlanId, type Tier } from "@/lib/premium";
 import { z } from "zod";
 
@@ -230,7 +231,9 @@ export async function cancelPremium(viewerIn: Viewer | null) {
     return { cancelAt: periodEnd(sub).toISOString(), immediate: false };
   }
   await prisma.user.update({ where: { id: viewer.id }, data: { premiumUntil: null, premiumCancelAt: null, premiumSource: null, premiumPlan: null } });
-  return { cancelAt: new Date().toISOString(), immediate: true };
+  // Dispos en trop : gardées en brouillon (jamais supprimées), le membre choisit ensuite laquelle reste active.
+  const drafted = await enforceAvailabilityLimit(viewer.id, "free");
+  return { cancelAt: new Date().toISOString(), immediate: true, drafted };
 }
 
 export async function requirePremium(viewer: Viewer, message: string) {

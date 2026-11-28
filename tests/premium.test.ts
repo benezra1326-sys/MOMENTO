@@ -117,3 +117,63 @@ describe("modes de paiement", () => {
     }
   });
 });
+
+describe("parcours complet gratuit → Upclose+ → Black → gratuit", () => {
+  it("applique les bonnes limites à chaque étape et ne perd rien au retour au gratuit", async () => {
+    const TZ = "Europe/Madrid";
+    const { utcToZonedLocal } = await import("@/lib/time");
+    const { createAvailability, myAvailabilities, updateAvailability } = await import("@/server/availability");
+    const { listMessages, postMessage } = await import("@/server/messages");
+    const day = (n: number) => utcToZonedLocal(new Date(Date.now() + n * 86400_000), TZ).slice(0, 10);
+    const dispo = (n: number) => ({ date: day(n), slot: "evening", timezone: TZ, city: "Marbella", area: "Centre", categories: [], note: "" });
+
+    // Gratuit
+    let u = await makeUser("Parcours");
+    await createAvailability(u, dispo(1));
+    await expectCode(createAvailability(u, dispo(2)), "AVAILABILITY_LIMIT");
+    const moments: string[] = [];
+    for (let i = 0; i < 3; i++) moments.push(await makeMoment(u, { title: `Moment du parcours ${i}` }));
+    await expectCode(makeMoment(u, { title: "Moment du parcours 4" }), "PREMIUM_REQUIRED");
+    await expectCode(boostMoment(u, moments[0]), "PREMIUM_REQUIRED");
+    expect((await myViews(u)).unlocked).toBe(false);
+
+    // Upclose+
+    await simulatePayment(u, { outcome: "success", plan: "plus" });
+    u = await fresh(u);
+    expect((await getBilling(u)).tier).toBe("plus");
+    await createAvailability(u, dispo(2));
+    await createAvailability(u, dispo(3));
+    moments.push(await makeMoment(u, { title: "Moment du parcours 4" }));
+    await boostMoment(u, moments[0]);
+    expect((await myViews(u)).unlocked).toBe(false);
+    await expectCode(makeMoment(u, { title: "Moment réservé", blackOnly: true }), "PREMIUM_REQUIRED");
+
+    // Black
+    await simulatePayment(u, { outcome: "success", plan: "black" });
+    u = await fresh(u);
+    expect((await getBilling(u)).tier).toBe("black");
+    expect((await myViews(u)).unlocked).toBe(true);
+    expect((await suggestPeople(u)).unlocked).toBe(true);
+    const reserved = await makeMoment(u, { title: "Moment réservé Black", blackOnly: true });
+    await postMessage(u, reserved, { body: "Bienvenue à toutes et à tous" });
+
+    // Retour au gratuit
+    const r = await cancelPremium(u);
+    expect(r.drafted).toBe(2);
+    u = await fresh(u);
+    expect((await getBilling(u)).tier).toBe("free");
+    const mine = await myAvailabilities(u);
+    expect(mine).toHaveLength(3);
+    expect(mine.filter((a) => !a.hidden)).toHaveLength(1);
+    // Les Moments déjà organisés et leur discussion restent accessibles.
+    for (const id of [...moments, reserved]) expect((await getMomentDetail(u, id)).status).toBe("PUBLISHED");
+    expect((await listMessages(u, reserved)).map((m) => m.body)).toEqual(["Bienvenue à toutes et à tous"]);
+    // Choisir la dispo qui reste active.
+    const draft = mine.find((a) => a.hidden)!;
+    const active = mine.find((a) => !a.hidden)!;
+    await expectCode(updateAvailability(u, draft.id, { hidden: false }), "AVAILABILITY_LIMIT");
+    await updateAvailability(u, draft.id, { hidden: false, replaceId: active.id });
+    const after = await myAvailabilities(u);
+    expect(after.filter((a) => !a.hidden).map((a) => a.id)).toEqual([draft.id]);
+  });
+});
