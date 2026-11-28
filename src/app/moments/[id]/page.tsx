@@ -59,7 +59,7 @@ export default async function MomentPage({ params, searchParams }: Props) {
   if (r.denied && "adult" in r) {
     return (
       <div className="mx-auto mt-6 max-w-lg">
-        <EmptyState icon="lock" title={t("Espace adulte (18+)")} text={t("Ce Moment fait partie de l'espace adulte. Il n'est visible que par les membres majeurs qui ont choisi de l'activer dans leur profil.")} action={{ href: "/moi#espace-adulte", label: t("Voir l'espace adulte") }} />
+        <EmptyState icon="lock" title={t("Moments 18+")} text={t("Ce Moment est réservé aux membres majeurs qui ont choisi d'afficher les Moments 18+ dans leur profil.")} action={{ href: "/moi#espace-adulte", label: t("Afficher les Moments 18+") }} />
       </div>
     );
   }

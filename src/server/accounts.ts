@@ -106,14 +106,14 @@ export async function getMyProfile(viewerIn: Viewer | null) {
 }
 
 /**
- * Espace adulte (18+) : opt-in explicite. Pour l'activer, la personne confirme avoir 18 ans ou plus
+ * Moments 18+ : opt-in explicite. Pour l'activer, la personne confirme avoir 18 ans ou plus
  * et accepte les règles (consentement, respect, discrétion). Elle peut le désactiver à tout moment.
  */
 export async function setAdultSpace(viewerIn: Viewer | null, raw: unknown) {
   const viewer = requireActive(viewerIn);
   const input = z.object({ enable: z.boolean(), confirm18: z.boolean().default(false), acceptRules: z.boolean().default(false) }).parse(raw ?? {});
   if (input.enable && (!input.confirm18 || !input.acceptRules)) {
-    throw new AppError("VALIDATION", "Confirme avoir 18 ans ou plus et accepter les règles de l'espace adulte.");
+    throw new AppError("VALIDATION", "Confirme avoir 18 ans ou plus et accepter les règles des Moments 18+.");
   }
   const u = await prisma.user.findUniqueOrThrow({ where: { id: viewer.id }, select: { adultConfirmedAt: true } });
   await prisma.user.update({

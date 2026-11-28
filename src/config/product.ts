@@ -97,7 +97,7 @@ export const categories = [
   { id: "travel", label: "Voyage & escapade" },
   { id: "networking", label: "Networking" },
   { id: "date", label: "Tête-à-tête" },
-  { id: "adult", label: "Adulte 18+" },
+  { id: "adult", label: "18+" },
   { id: "other", label: "Autre" },
 ] as const;
 

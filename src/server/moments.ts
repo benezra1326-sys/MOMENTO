@@ -202,7 +202,7 @@ export async function getMomentDetail(viewer: Viewer | null, id: string): Promis
       throw new AppError("FORBIDDEN", "Ce Moment est sur invitation uniquement.");
     }
     if (m.isAdult && !canSeeAdult(viewer) && !membership) {
-      throw new AppError("ADULT_ONLY", "Ce Moment fait partie de l'espace adulte (18+). Active-le dans ton profil pour le voir.");
+      throw new AppError("ADULT_ONLY", "Ce Moment est réservé aux 18+. Active « Afficher les Moments 18+ » dans ton profil pour le voir.");
     }
   }
 
@@ -257,8 +257,8 @@ export async function getMomentDetail(viewer: Viewer | null, id: string): Promis
 function toMomentData(input: ReturnType<typeof momentInputSchema.parse>, viewer: Viewer) {
   const isAdult = input.category === ADULT_CATEGORY;
   if (isAdult && !canSeeAdult(viewer)) {
-    throw new AppError("ADULT_ONLY", "Active l'espace adulte (18+) dans ton profil pour créer ce type de Moment.", {
-      category: "Active d'abord l'espace adulte dans ton profil.",
+    throw new AppError("ADULT_ONLY", "Active « Afficher les Moments 18+ » dans ton profil pour créer ce type de Moment.", {
+      category: "Active d'abord « Afficher les Moments 18+ » dans ton profil.",
     });
   }
   if (isAdult && input.visibility === "PUBLIC") {

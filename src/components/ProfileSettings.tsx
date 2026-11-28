@@ -95,7 +95,7 @@ export function ProfileSettings({ me, blocks, welcome }: { me: Me; blocks: { use
     setBusy(null);
     if (!res.ok) return setAdultMsg({ ok: false, text: res.error.message });
     setAdult((a) => ({ ...a, on: enable }));
-    setAdultMsg({ ok: true, text: enable ? t("Espace adulte activé.") : t("Espace adulte désactivé.") });
+    setAdultMsg({ ok: true, text: enable ? t("Moments 18+ affichés.") : t("Moments 18+ masqués.") });
     router.refresh();
   }
 
@@ -234,17 +234,17 @@ export function ProfileSettings({ me, blocks, welcome }: { me: Me; blocks: { use
       </form>
 
       <section id="espace-adulte" className="card scroll-mt-20 space-y-3 p-5 sm:p-6">
-        <h2 className="flex items-center gap-2 font-display text-xl"><ShieldCheck size={20} /> {t("Espace adulte (18+)")}</h2>
+        <h2 className="flex items-center gap-2 font-display text-xl"><ShieldCheck size={20} /> {t("Moments 18+")}</h2>
         <p className="text-sm text-muted">
-          {t("Moments entre adultes, libertins compris. Visible seulement si tu l'actives.")}
+          {t("Soirées libertines et Moments entre adultes, mélangés au feed. Visibles seulement si tu les affiches.")}
         </p>
         {adult.on ? (
           <button type="button" className="btn-secondary" onClick={() => saveAdult(false)} disabled={!!busy}>
-            {busy === "adult" && <Loader2 size={16} className="animate-spin" />} {t("Désactiver l'espace adulte")}
+            {busy === "adult" && <Loader2 size={16} className="animate-spin" />} {t("Masquer les Moments 18+")}
           </button>
         ) : !adultOpen ? (
           <button type="button" className="btn-secondary" onClick={() => setAdultOpen(true)}>
-            {t("Activer l'espace adulte")}
+            {t("Afficher les Moments 18+")}
           </button>
         ) : (
           <>
@@ -263,7 +263,7 @@ export function ProfileSettings({ me, blocks, welcome }: { me: Me; blocks: { use
               <span>{t("J'accepte ces règles.")}</span>
             </label>
             <button type="button" className="btn-secondary" onClick={() => saveAdult(true)} disabled={!!busy || !adult.confirm18 || !adult.rules}>
-              {busy === "adult" && <Loader2 size={16} className="animate-spin" />} {t("Activer l'espace adulte")}
+              {busy === "adult" && <Loader2 size={16} className="animate-spin" />} {t("Afficher les Moments 18+")}
             </button>
           </>
         )}

@@ -141,7 +141,7 @@ export async function createAvailability(viewerIn: Viewer | null, raw: unknown) 
   const { startsAt, endsAt } = slotRange(input.date, input.slot, input.timezone);
   const isAdult = input.categories.includes(ADULT_CATEGORY);
   if (isAdult && !canSeeAdult(viewer)) {
-    throw new AppError("ADULT_ONLY", "Active l'espace adulte (18+) dans ton profil pour publier ce type d'envie.");
+    throw new AppError("ADULT_ONLY", "Active « Afficher les Moments 18+ » dans ton profil pour publier ce type d'envie.");
   }
   const now = new Date();
   const active = await prisma.availability.count({ where: { userId: viewer.id, endsAt: { gt: now } } });
@@ -197,7 +197,7 @@ export async function updateAvailability(viewerIn: Viewer | null, id: string, ra
   if (input.area !== undefined) data.area = input.area;
   if (input.categories !== undefined) {
     const isAdult = input.categories.includes(ADULT_CATEGORY);
-    if (isAdult && !canSeeAdult(viewer)) throw new AppError("ADULT_ONLY", "Active l'espace adulte (18+) dans ton profil.");
+    if (isAdult && !canSeeAdult(viewer)) throw new AppError("ADULT_ONLY", "Active « Afficher les Moments 18+ » dans ton profil.");
     data.categories = [...new Set(input.categories)];
     data.isAdult = isAdult;
   }
