@@ -7,10 +7,10 @@ import { AppError } from "./errors";
 export const SESSION_COOKIE = "momento_session";
 const SESSION_DAYS = 30;
 
-export type Viewer = Pick<User, "id" | "role" | "status" | "name" | "username" | "photoUrl" | "isDemo" | "city" | "emailVerifiedAt" | "phoneVerifiedAt" | "showAdult" | "adultConfirmedAt" | "premiumUntil">;
+export type Viewer = Pick<User, "id" | "role" | "status" | "name" | "username" | "photoUrl" | "isDemo" | "city" | "emailVerifiedAt" | "phoneVerifiedAt" | "showAdult" | "adultConfirmedAt" | "premiumUntil" | "premiumPlan">;
 
 const viewerSelect = {
-  id: true, role: true, status: true, name: true, username: true, photoUrl: true, isDemo: true, city: true, emailVerifiedAt: true, phoneVerifiedAt: true, showAdult: true, adultConfirmedAt: true, premiumUntil: true,
+  id: true, role: true, status: true, name: true, username: true, photoUrl: true, isDemo: true, city: true, emailVerifiedAt: true, phoneVerifiedAt: true, showAdult: true, adultConfirmedAt: true, premiumUntil: true, premiumPlan: true,
 } as const;
 
 export function hashSecret(token: string) {

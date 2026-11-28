@@ -43,6 +43,8 @@ export const momentInputSchema = z
       .max(productConfig.limits.maxCapacity, `${productConfig.limits.maxCapacity} places maximum.`),
     visibility: z.enum(["PUBLIC", "REQUEST", "INVITE_ONLY", "PRIVATE"]).default("REQUEST"),
     showAttendees: z.boolean().default(true),
+    /** Moment sélectif : seuls les membres Upclose Black peuvent demander à le rejoindre. */
+    blackOnly: z.boolean().default(false),
     publish: z.boolean().default(false),
   })
   .superRefine((v, ctx) => {

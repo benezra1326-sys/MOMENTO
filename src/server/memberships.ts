@@ -9,6 +9,7 @@ import { isBlockedBetween } from "./safety";
 import { notify } from "./notifications";
 import { momentPhase, personSelect, toPerson } from "./mappers";
 import { toCards } from "./moments";
+import { requireTier } from "./billing";
 
 type Tx = Prisma.TransactionClient;
 
@@ -60,6 +61,9 @@ export async function requestToJoin(viewerIn: Viewer | null, momentId: string, r
   const viewer = requireVerified(viewerIn);
   const input = joinRequestSchema.parse(raw ?? {});
   await assertRate(viewer.id, "REQUEST");
+  // Moment sélectif : vérifié hors transaction (une seule connexion à la base en production).
+  const pre = await prisma.moment.findUnique({ where: { id: momentId }, select: { blackOnly: true, hostId: true } });
+  if (pre?.blackOnly && pre.hostId !== viewer.id) await requireTier(viewer, "black", "Ce Moment est réservé aux membres Upclose Black.");
 
   const result = await prisma.$transaction(async (tx) => {
     const m = await lockMoment(tx, momentId);

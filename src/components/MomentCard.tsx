@@ -44,6 +44,8 @@ export function MomentCard({ moment, autoplay = true, priority = false }: { mome
     </span>
   ) : moment.isAdult ? (
     <span className="pill bg-night/80 text-white">18+</span>
+  ) : moment.blackOnly ? (
+    <span className="pill border border-white/25 bg-night/85 text-white">Black</span>
   ) : moment.boosted ? (
     <span className="pill bg-white/90 text-night">{t("Mis en avant")}</span>
   ) : moment.isNew ? (

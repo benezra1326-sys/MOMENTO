@@ -1,5 +1,6 @@
-import { isPremium } from "@/lib/premium";
+import { tierOf } from "@/lib/premium";
 import { endBillingForDeletedAccount } from "./billing";
+import { recordView } from "./black";
 import { z } from "zod";
 import { ratedMoments, reputations } from "./ratings";
 import { FEATURED_DEMO } from "./demo-data";
@@ -153,6 +154,7 @@ export async function getPublicProfile(viewer: Viewer | null, username: string) 
   if (!u || u.status === "DELETED") throw new AppError("NOT_FOUND", "Ce profil n'existe pas.");
   if (viewer && (await isBlockedBetween(viewer.id, u.id))) throw new AppError("NOT_FOUND", "Ce profil n'existe pas.");
   const isSelf = viewer?.id === u.id;
+  await recordView(viewer, u.id, "profile");
   const viewerBlocked = viewer
     ? !!(await prisma.block.findUnique({ where: { blockerId_blockedId: { blockerId: viewer.id, blockedId: u.id } } }))
     : false;
@@ -170,7 +172,7 @@ export async function getPublicProfile(viewer: Viewer | null, username: string) 
     interests: u.interests,
     photoUrl: u.photoUrl,
     isDemo: u.isDemo,
-    premium: !suspended && isPremium(u),
+    tier: suspended ? ("free" as const) : tierOf(u),
     suspended,
     isSelf,
     viewerBlocked,

@@ -9,7 +9,7 @@ import type { MomentDetailDTO, ViewerMembership } from "@/server/types";
 import { api } from "@/lib/client";
 import { useT } from "./I18nProvider";
 
-export function JoinPanel({ moment, signedIn, readOnly = false, viewerIsDemo = false }: { moment: MomentDetailDTO; signedIn: boolean; readOnly?: boolean; viewerIsDemo?: boolean }) {
+export function JoinPanel({ moment, signedIn, readOnly = false, viewerIsDemo = false, viewerIsBlack = false }: { moment: MomentDetailDTO; signedIn: boolean; readOnly?: boolean; viewerIsDemo?: boolean; viewerIsBlack?: boolean }) {
   const router = useRouter();
   const t = useT();
   const [message, setMessage] = useState("");
@@ -121,6 +121,11 @@ export function JoinPanel({ moment, signedIn, readOnly = false, viewerIsDemo = f
   }
   if (moment.visibility === "INVITE_ONLY") return box("lock", "Sur invitation uniquement", "Seul l'hôte peut inviter des participants.");
   if (moment.spotsLeft === 0) return box("off", "Ce Moment est complet", "Une place peut se libérer : repasse plus tard.");
+  if (moment.blackOnly && !viewerIsBlack) {
+    return box("lock", "Réservé aux membres Black", "L'hôte a ouvert ce Moment aux membres Upclose Black.", (
+      <Link href={`/premium?retour=${encodeURIComponent(`/moments/${moment.id}`)}`} className="btn-primary w-full">{t("Découvrir Upclose Black")}</Link>
+    ));
+  }
 
   const instant = moment.visibility === "PUBLIC";
   return (

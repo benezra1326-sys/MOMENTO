@@ -46,6 +46,8 @@ export type MomentCardDTO = {
   isNew?: boolean;
   /** Boost Upclose+ en cours : affiché « Mis en avant », par transparence. */
   boosted?: boolean;
+  /** Réservé aux membres Upclose Black. */
+  blackOnly?: boolean;
   /** Note moyenne de l'hôte (null tant qu'il n'a pas assez d'avis). */
   hostRating?: { avg: number; count: number } | null;
   /** Pourquoi ce Moment est suggéré (radar personnalisé). */
@@ -64,8 +66,6 @@ export type MemberRow = {
   message: string | null;
   createdAt: string;
   user: PersonSummary;
-  /** Membre Upclose+ (sa demande passe en premier). */
-  premium?: boolean;
 };
 
 export type MomentDetailDTO = MomentCardDTO & {

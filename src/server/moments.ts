@@ -11,8 +11,9 @@ import { notifyMany } from "./notifications";
 import { momentPhase, personSelect, toCard, toPerson } from "./mappers";
 import { rankContext, scoreMoment } from "./recommend";
 import type { FeedPage, MemberRow, MomentCardDTO, MomentDetailDTO } from "./types";
-import { refreshPremium } from "./billing";
-import { isPremium, premiumPlan } from "@/lib/premium";
+import { refreshPremium, requireTier } from "./billing";
+import { recordView } from "./black";
+import { premiumPlan } from "@/lib/premium";
 
 const cardInclude = {
   host: { select: personSelect },
@@ -213,23 +214,21 @@ export async function getMomentDetail(viewer: Viewer | null, id: string): Promis
     }
   }
 
+  if (!isHost) await recordView(viewer, m.hostId, id);
   const counts = await acceptedCounts([id]);
   const pendingCount = isHost ? await prisma.momentMembership.count({ where: { momentId: id, status: "PENDING", kind: "REQUEST" } }) : 0;
   const card = toCard(m, counts.get(id) ?? 0, viewerId, membership);
-  const canSeeAddress = !m.addressMembersOnly || isHost || membership?.status === "ACCEPTED";
+  // Visiteur non connecté (lien partagé) : jamais d'adresse exacte ni de participants.
+  const canSeeAddress = !!viewerId && (!m.addressMembersOnly || isHost || membership?.status === "ACCEPTED");
 
   let members: MemberRow[] | null = null;
   if (isHost) {
     const rows = await prisma.momentMembership.findMany({
       where: { momentId: id },
       orderBy: [{ status: "asc" }, { createdAt: "asc" }],
-      include: { user: { select: { ...personSelect, premiumUntil: true } } },
+      include: { user: { select: personSelect } },
     });
-    // Upclose+ : les demandes en attente des membres Upclose+ passent en premier.
-    const rank = (r: (typeof rows)[number]) => (r.status === "PENDING" && isPremium(r.user) ? 0 : 1);
-    rows.sort((a, b) => (a.status === b.status ? rank(a) - rank(b) : 0));
     members = rows.map((r) => ({
-      premium: isPremium(r.user),
       id: r.id,
       kind: r.kind,
       status: r.status,
@@ -240,7 +239,7 @@ export async function getMomentDetail(viewer: Viewer | null, id: string): Promis
   }
 
   const attendees =
-    m.showAttendees || isHost
+    viewerId && (m.showAttendees || isHost)
       ? (
           await prisma.momentMembership.findMany({
             where: { momentId: id, status: "ACCEPTED", ...(isHost ? {} : { showOnMoment: true }) },
@@ -298,6 +297,7 @@ function toMomentData(input: ReturnType<typeof momentInputSchema.parse>, viewer:
     placeName: input.placeName,
     address: input.address || null,
     addressMembersOnly: input.addressMembersOnly,
+    blackOnly: input.blackOnly,
     startsAt,
     endsAt,
     timezone: input.timezone,
@@ -325,6 +325,7 @@ async function assertCanPublish(viewer: Viewer, exceptId?: string) {
 export async function createMoment(viewerIn: Viewer | null, raw: unknown) {
   const viewer = requireVerified(viewerIn);
   const input = momentInputSchema.parse(raw);
+  if (input.blackOnly) await requireTier(viewer, "black", "Les Moments réservés Black se créent avec Upclose Black.");
   const data = toMomentData(input, viewer);
   if (input.publish && data.startsAt < new Date()) {
     throw new AppError("VALIDATION", "Choisis une date à venir.", { startsAtLocal: "Choisis une date à venir." });
@@ -374,12 +375,14 @@ export async function getMomentForEdit(viewerIn: Viewer | null, id: string) {
     capacity: m.capacity,
     visibility: m.visibility,
     showAttendees: m.showAttendees,
+    blackOnly: m.blackOnly,
   };
 }
 
 export async function updateMoment(viewerIn: Viewer | null, id: string, raw: unknown) {
   const viewer = requireActive(viewerIn);
   const input = momentInputSchema.parse(raw);
+  if (input.blackOnly) await requireTier(viewer, "black", "Les Moments réservés Black se créent avec Upclose Black.");
   const data = toMomentData(input, viewer);
 
   if (input.publish) {

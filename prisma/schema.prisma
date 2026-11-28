@@ -120,6 +120,10 @@ model User {
   /// « stripe » ou « test » (paiement simulé, aucun débit).
   premiumSource        String?
   premiumCancelAt      DateTime?
+  /// Offre payante : « plus » ou « black » (null = plus pour les anciens abonnements).
+  premiumPlan          String?
+  /// « month » ou « year ».
+  premiumInterval      String?
   stripeCustomerId     String?       @unique
   stripeSubscriptionId String?       @unique
   createdAt            DateTime      @default(now())
@@ -140,6 +144,24 @@ model User {
   souvenirs      Souvenir[]
   ratingsGiven   Rating[]           @relation("RatingRater")
   ratingsGot     Rating[]           @relation("RatingRatee")
+  viewsMade      ProfileView[]      @relation("ViewViewer")
+  viewsGot       ProfileView[]      @relation("ViewOwner")
+}
+
+/// Visite d'un profil ou d'un Moment (une par personne, cible et jour). Visible par le propriétaire avec Upclose Black.
+model ProfileView {
+  id        String   @id @default(cuid())
+  viewerId  String
+  ownerId   String
+  /// « profile » ou l'id du Moment consulté.
+  target    String
+  day       String
+  createdAt DateTime @default(now())
+  viewer    User     @relation("ViewViewer", fields: [viewerId], references: [id], onDelete: Cascade)
+  owner     User     @relation("ViewOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@unique([viewerId, ownerId, target, day])
+  @@index([ownerId, createdAt])
 }
 
 model Session {
@@ -184,6 +206,8 @@ model Moment {
   isAdult            Boolean          @default(false)
   /// Boost Upclose+ : le Moment passe en tête du feed de sa ville jusqu'à cette date.
   boostedUntil       DateTime?
+  /// Moment sélectif : seuls les membres Upclose Black peuvent le rejoindre.
+  blackOnly          Boolean          @default(false)
   isDemo             Boolean          @default(false)
   cancelReason       String?
   createdAt          DateTime         @default(now())

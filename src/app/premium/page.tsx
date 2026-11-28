@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Check, Minus, Sparkles } from "lucide-react";
+import { Check, Minus } from "lucide-react";
 import { getViewerSafe } from "@/lib/auth";
 import { getBilling, safeReturn } from "@/server/billing";
-import { planFeatures, premiumPlan } from "@/lib/premium";
-import { PremiumActions } from "@/components/PremiumActions";
+import { planFeatures, plans } from "@/lib/premium";
+import { PremiumPlans } from "@/components/PremiumActions";
 import { pageTitle } from "@/lib/i18n/server";
 
-export const generateMetadata = pageTitle("Upclose+");
+export const generateMetadata = pageTitle("Offres");
 export const dynamic = "force-dynamic";
 
 function Cell({ v }: { v: string | boolean }) {
@@ -21,50 +21,47 @@ export default async function PremiumPage({ searchParams }: { searchParams: Prom
   const viewer = await getViewerSafe();
   if (!viewer) redirect(`/connexion?suite=${encodeURIComponent(`/premium${retour ? `?retour=${retour}` : ""}`)}`);
   const b = await getBilling(viewer);
-  const until = b.until ? new Date(b.until).toLocaleDateString("fr-FR", { day: "numeric", month: "long" }) : null;
+  const until = b.until ? new Date(b.until).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) : null;
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <section className="card space-y-4 p-5 sm:p-7">
-        <p className="pill w-fit bg-accent/15 text-ink"><Sparkles size={14} /> {premiumPlan.name}</p>
-        <h1 className="font-display text-3xl">{b.premium ? "Tu es membre Upclose+" : "Plus de Moments, plus de visibilité"}</h1>
+    <div className="mx-auto max-w-3xl space-y-6">
+      <section className="card space-y-5 p-5 sm:p-7">
+        <h1 className="font-display text-3xl">{b.tier === "free" ? "Plus de Moments, plus de rencontres" : `Tu es membre ${plans[b.tier].name}`}</h1>
         <p className="text-ink-2">
-          {b.premium
+          {b.tier !== "free"
             ? `Actif jusqu'au ${until}${b.cancelAt ? "" : ", renouvelé automatiquement"}.`
-            : `${premiumPlan.priceLabel} par mois, sans engagement. Rejoindre des Moments reste gratuit, pour tout le monde.`}
+            : "Sans engagement. Rejoindre des Moments, discuter et rester en sécurité reste gratuit pour tout le monde."}
         </p>
-        {b.provider === "off" && !b.premium ? (
-          <p className="rounded-2xl bg-surface-2/70 px-4 py-3 text-sm text-muted">L&apos;abonnement ouvre bientôt. Tout ce qui est gratuit reste ouvert.</p>
+        {b.provider === "off" && b.tier === "free" ? (
+          <p className="rounded-2xl bg-surface-2/70 px-4 py-3 text-sm text-muted">Les abonnements ouvrent bientôt. Tout ce qui est gratuit reste ouvert.</p>
         ) : (
-          <PremiumActions premium={b.premium} cancelAt={b.cancelAt} source={b.source} returnTo={retour} />
+          <PremiumPlans tier={b.tier} cancelAt={b.cancelAt} source={b.source} returnTo={retour} />
         )}
-        {!b.premium && b.provider === "simulated" && (
-          <p className="rounded-2xl bg-surface-2/70 px-4 py-3 text-sm text-muted">Mode recette : paiement simulé, aucun débit.</p>
+        {b.tier === "free" && b.provider === "simulated" && <p className="text-sm text-muted">Mode recette : paiement simulé, aucun débit.</p>}
+        {b.tier === "free" && b.provider === "stripe-test" && (
+          <p className="text-sm text-muted">Mode test Stripe : carte <span className="font-mono text-ink-2">4242 4242 4242 4242</span>, aucun débit.</p>
         )}
-        {!b.premium && b.provider === "stripe-test" && (
-          <p className="rounded-2xl bg-surface-2/70 px-4 py-3 text-sm text-muted">
-            Mode test Stripe : aucun vrai débit. Carte <span className="font-mono text-ink-2">4242 4242 4242 4242</span>, date future, n&apos;importe quel code.
-          </p>
-        )}
-        {!b.premium && b.provider !== "off" && (
+        {b.tier === "free" && b.provider !== "off" && (
           <Link href={retour ?? "/"} className="block text-sm text-muted underline-offset-2 hover:underline">Continuer gratuitement</Link>
         )}
       </section>
 
-      <section className="card overflow-hidden">
-        <table className="w-full text-sm">
+      <section className="card overflow-x-auto">
+        <table className="w-full text-xs sm:text-sm">
           <thead>
             <tr className="border-b border-border/70 text-left">
-              <th className="p-4 font-medium text-muted">Ce que tu peux faire</th>
-              <th className="w-24 p-4 text-center font-medium">Gratuit</th>
-              <th className="w-24 p-4 text-center font-medium text-accent">Upclose+</th>
+              <th className="py-3 pl-4 pr-2 font-medium text-muted sm:p-4">Ce que tu peux faire</th>
+              <th className="w-[4.5rem] px-1 py-3 text-center sm:w-24 sm:p-4 font-medium">Gratuit</th>
+              <th className="w-[4.5rem] px-1 py-3 text-center sm:w-24 sm:p-4 font-medium text-accent">Upclose+</th>
+              <th className="w-[4.5rem] px-1 py-3 text-center sm:w-24 sm:p-4 font-medium">Black</th>
             </tr>
           </thead>
           <tbody>
             {planFeatures.map((f) => (
               <tr key={f.label} className="border-b border-border/40 last:border-0">
-                <td className="p-4 text-ink-2">{f.label}</td>
-                <td className="p-4 text-center text-muted"><Cell v={f.free} /></td>
-                <td className="p-4 text-center font-medium"><Cell v={f.plus} /></td>
+                <td className="py-3 pl-4 pr-2 text-ink-2 sm:p-4">{f.label}</td>
+                <td className="px-1 py-3 text-center sm:p-4 text-muted"><Cell v={f.free} /></td>
+                <td className="px-1 py-3 text-center sm:p-4"><Cell v={f.plus} /></td>
+                <td className="px-1 py-3 text-center sm:p-4 font-medium"><Cell v={f.black} /></td>
               </tr>
             ))}
           </tbody>

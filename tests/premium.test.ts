@@ -2,6 +2,7 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
 import { AppError } from "@/lib/errors";
 import { boostMoment, cancelPremium, getBilling, simulatePayment, startCheckout } from "@/server/billing";
+import { myViews, suggestPeople } from "@/server/black";
 import { getFeed, getMomentDetail } from "@/server/moments";
 import { requestToJoin } from "@/server/memberships";
 import type { Viewer } from "@/lib/auth";
@@ -12,7 +13,7 @@ async function expectCode(p: Promise<unknown>, code: string) {
 }
 async function fresh(v: Viewer): Promise<Viewer> {
   const u = await prisma.user.findUniqueOrThrow({ where: { id: v.id } });
-  return { ...v, premiumUntil: u.premiumUntil };
+  return { ...v, premiumUntil: u.premiumUntil, premiumPlan: u.premiumPlan };
 }
 
 beforeEach(resetDb);
@@ -22,7 +23,7 @@ describe("Upclose+", () => {
   it("sans Stripe, le paiement passe par la page de test, et une carte refusée échoue", async () => {
     delete process.env.STRIPE_SECRET_KEY;
     const u = await makeUser("Payeur");
-    expect(await startCheckout(u, "https://upclose.world")).toEqual({ url: "/premium/paiement-test" });
+    expect(await startCheckout(u, "https://upclose.world")).toEqual({ url: "/premium/paiement-test?offre=plus&periode=month" });
     await expectCode(simulatePayment(u, { outcome: "failure" }), "VALIDATION");
     const r = await simulatePayment(u, { outcome: "success" });
     expect(r.premium).toBe(true);
@@ -53,18 +54,45 @@ describe("Upclose+", () => {
     expect(feed.items[0].id).toBe(b);
   });
 
-  it("les demandes des membres Upclose+ passent en premier chez l'hôte", async () => {
+  it("Black : Moment réservé, quotas de boost, vues et suggestions", async () => {
     const host = await makeUser("Hôte");
-    const m = await makeMoment(host, { visibility: "REQUEST" });
-    const free = await makeUser("Gratuit");
+    await expectCode(makeMoment(host, { blackOnly: true }), "PREMIUM_REQUIRED");
+    await simulatePayment(host, { outcome: "success", plan: "black" });
+    const h = await fresh(host);
+    const m = await makeMoment(h, { blackOnly: true, title: "Dîner sélectif" });
     const plus = await makeUser("Plus");
-    await requestToJoin(free, m, {});
-    await simulatePayment(plus, { outcome: "success" });
-    await requestToJoin(await fresh(plus), m, {});
-    const d = await getMomentDetail(host, m);
-    const pending = d.members!.filter((r) => r.status === "PENDING");
-    expect(pending[0].user.id).toBe(plus.id);
-    expect(pending[0].premium).toBe(true);
+    await simulatePayment(plus, { outcome: "success", plan: "plus" });
+    await expectCode(requestToJoin(await fresh(plus), m, {}), "PREMIUM_REQUIRED");
+    const black = await makeUser("Black");
+    await simulatePayment(black, { outcome: "success", plan: "black" });
+    await requestToJoin(await fresh(black), m, {});
+
+    // Vues : comptées une fois par jour, visibles par un membre Black.
+    await getMomentDetail(await fresh(plus), m);
+    await getMomentDetail(await fresh(plus), m);
+    const v = await myViews(h);
+    expect(v.unlocked).toBe(true);
+    expect(v.rows.find((r) => r.person.id === plus.id)?.moments.map((x) => x.title)).toEqual(["Dîner sélectif"]);
+    const locked = await myViews(await fresh(plus));
+    expect(locked.unlocked).toBe(false);
+
+    // Upclose+ : 1 boost par mois.
+    const pm = await makeMoment(await fresh(plus), { title: "Moment de Plus" });
+    await boostMoment(await fresh(plus), pm);
+    await prisma.moment.update({ where: { id: pm }, data: { boostedUntil: null } });
+    await expectCode(boostMoment(await fresh(plus), pm), "PREMIUM_REQUIRED");
+
+    expect((await suggestPeople(await fresh(plus))).unlocked).toBe(false);
+    expect((await suggestPeople(h)).unlocked).toBe(true);
+  });
+
+  it("la fiche d'un Moment partagé se lit sans compte, sans adresse ni participants", async () => {
+    const host = await makeUser("Hôte");
+    const m = await makeMoment(host, { addressMembersOnly: false });
+    const d = await getMomentDetail(null, m);
+    expect(d.title).toBeTruthy();
+    expect(d.address).toBeNull();
+    expect(d.attendees).toEqual([]);
   });
 });
 
@@ -80,8 +108,8 @@ describe("modes de paiement", () => {
       await expectCode(startCheckout(u, "https://upclose.world"), "FORBIDDEN");
       await expectCode(simulatePayment(u, { outcome: "success" }), "FORBIDDEN");
       env.BILLING_MODE = "simulated";
-      expect((await startCheckout(u, "https://upclose.world", { returnTo: "/moments/abc" })).url).toBe("/premium/paiement-test?retour=%2Fmoments%2Fabc");
-      expect((await startCheckout(u, "https://upclose.world", { returnTo: "//evil.com" })).url).toBe("/premium/paiement-test");
+      expect((await startCheckout(u, "https://upclose.world", { returnTo: "/moments/abc" })).url).toBe("/premium/paiement-test?offre=plus&periode=month&retour=%2Fmoments%2Fabc");
+      expect((await startCheckout(u, "https://upclose.world", { returnTo: "//evil.com", plan: "black", interval: "year" })).url).toBe("/premium/paiement-test?offre=black&periode=year");
     } finally {
       env.NODE_ENV = prev.node;
       if (prev.mode === undefined) delete env.BILLING_MODE;

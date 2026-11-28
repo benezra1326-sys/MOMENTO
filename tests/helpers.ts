@@ -26,7 +26,7 @@ export async function makeUser(name = "User", extra: Partial<{ role: "USER" | "A
       ...(extra.premium ? { premiumUntil: new Date(Date.now() + 30 * 86400_000), premiumSource: "test" } : {}),
     },
   });
-  return { id: u.id, role: u.role, status: u.status, name: u.name, username: u.username, photoUrl: null, isDemo: false, city: "", emailVerifiedAt: u.emailVerifiedAt, phoneVerifiedAt: null, showAdult: u.showAdult, adultConfirmedAt: u.adultConfirmedAt, premiumUntil: u.premiumUntil };
+  return { id: u.id, role: u.role, status: u.status, name: u.name, username: u.username, photoUrl: null, isDemo: false, city: "", emailVerifiedAt: u.emailVerifiedAt, phoneVerifiedAt: null, showAdult: u.showAdult, adultConfirmedAt: u.adultConfirmedAt, premiumUntil: u.premiumUntil, premiumPlan: u.premiumPlan };
 }
 
 export function localIn(days: number, tz = "Europe/Madrid") {

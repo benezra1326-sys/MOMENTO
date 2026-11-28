@@ -34,6 +34,7 @@ export type MomentFormValues = {
   capacity: number;
   visibility: "PUBLIC" | "REQUEST" | "INVITE_ONLY" | "PRIVATE";
   showAttendees: boolean;
+  blackOnly?: boolean;
 };
 
 /** Personne à inviter quand le Moment est proposé à partir de sa disponibilité. */
@@ -58,6 +59,7 @@ export function MomentForm({
   quickDates = [],
   memberVideos = true,
   showAdult = false,
+  canBlackOnly = false,
 }: {
   mode: "create" | "edit";
   momentId?: string;
@@ -70,6 +72,8 @@ export function MomentForm({
   memberVideos?: boolean;
   /** Catégorie Adulte 18+ proposée seulement aux personnes qui ont activé l'espace adulte. */
   showAdult?: boolean;
+  /** Option « Réservé aux membres Black », proposée aux hôtes Upclose Black. */
+  canBlackOnly?: boolean;
 }) {
   const router = useRouter();
   const t = useT();
@@ -427,6 +431,12 @@ export function MomentForm({
               )}
               {err("address")}
             </div>
+            {(canBlackOnly || v.blackOnly) && (
+              <label className="flex items-start gap-3 text-sm">
+                <input type="checkbox" className="mt-0.5 h-5 w-5 accent-[var(--color-accent)]" checked={!!v.blackOnly} onChange={(e) => set("blackOnly", e.target.checked)} />
+                <span>{t("Réservé aux membres Black")} <span className="block text-muted">{t("Seuls les membres Upclose Black peuvent demander une place.")}</span></span>
+              </label>
+            )}
             <label className="flex items-start gap-3 text-sm">
               <input type="checkbox" className="mt-0.5 h-5 w-5 accent-[var(--color-accent)]" checked={v.showAttendees} onChange={(e) => set("showAttendees", e.target.checked)} />
               <span>{t("Afficher les participants confirmés")} <span className="block text-muted">{t("Chacun peut aussi choisir de ne pas apparaître.")}</span></span>

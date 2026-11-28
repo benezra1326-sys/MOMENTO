@@ -1,3 +1,4 @@
+import { tierOf } from "@/lib/premium";
 import { notFound, redirect } from "next/navigation";
 import { getViewerSafe } from "@/lib/auth";
 import { AppError } from "@/lib/errors";
@@ -39,6 +40,7 @@ export default async function EditMomentPage({ params }: { params: Promise<{ id:
         status={status}
         host={{ id: viewer.id, name: viewer.name, username: viewer.username, photoUrl: viewer.photoUrl, isDemo: viewer.isDemo }}
         showAdult={canSeeAdult(viewer)}
+        canBlackOnly={tierOf(viewer) === "black"}
         memberVideos={productConfig.features.memberVideos}
         initial={{ ...values, address: values.address ?? "", endsAtLocal: values.endsAtLocal ?? "" }}
       />

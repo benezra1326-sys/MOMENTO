@@ -1,3 +1,4 @@
+import { tierOf } from "@/lib/premium";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -185,7 +186,7 @@ export default async function MomentPage({ params, searchParams }: Props) {
                 <HostPanel moment={m} />
               </>
             ) : (
-              <JoinPanel moment={m} signedIn={!!viewer} readOnly={source === "demo-fallback"} viewerIsDemo={!!viewer?.isDemo} />
+              <JoinPanel moment={m} signedIn={!!viewer} readOnly={source === "demo-fallback"} viewerIsDemo={!!viewer?.isDemo} viewerIsBlack={tierOf(viewer) === "black"} />
             )}
           </section>
 

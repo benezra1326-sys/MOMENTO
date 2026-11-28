@@ -72,10 +72,7 @@ export function HostPanel({ moment }: { moment: MomentDetailDTO }) {
     <li key={m.id} className="flex items-center gap-3 py-3">
       <Link href={`/u/${m.user.username}`}><Avatar person={m.user} size="md" /></Link>
       <div className="min-w-0 flex-1">
-        <Link href={`/u/${m.user.username}`} className="flex items-center gap-1.5 truncate font-semibold hover:underline">
-          {m.user.name}
-          {m.premium && <span className="pill bg-accent/15 !py-0 text-[11px] text-ink">Upclose+</span>}
-        </Link>
+        <Link href={`/u/${m.user.username}`} className="block truncate font-semibold hover:underline">{m.user.name}</Link>
         {m.message ? <p className="line-clamp-2 text-sm text-ink-2">« {t(m.message)} »</p> : <p className="text-xs text-muted">{m.kind === "INVITE" ? t("Invité·e") : t("Demande")} {formatRelative(m.createdAt, locale)}</p>}
       </div>
       {actions ?? <span className="pill bg-lilac/10 text-ink-2">{t(statusText[m.status])}</span>}

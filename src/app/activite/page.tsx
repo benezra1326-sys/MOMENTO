@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ChevronRight, Star } from "lucide-react";
+import { ChevronRight, Eye, Star, Users } from "lucide-react";
 import { getViewerSafe } from "@/lib/auth";
 import { myInvitations } from "@/server/memberships";
 import { momentsToRate } from "@/server/ratings";
@@ -35,6 +35,14 @@ export default async function ActivityPage({ searchParams }: { searchParams: Pro
           </Link>
         ))}
       </div>}
+      <div className="mb-6 grid gap-2 sm:grid-cols-2">
+        <Link href="/vues" className="card flex items-center gap-3 px-4 py-3 text-sm">
+          <Eye size={18} className="text-accent" /> <span className="flex-1">{t("Qui a vu tes Moments et ton profil")}</span> <ChevronRight size={16} className="text-muted" />
+        </Link>
+        <Link href="/personnes" className="card flex items-center gap-3 px-4 py-3 text-sm">
+          <Users size={18} className="text-accent" /> <span className="flex-1">{t("Personnes pour toi")}</span> <ChevronRight size={16} className="text-muted" />
+        </Link>
+      </div>
       <InvitationsView data={data} initialTab={onglet} />
     </>
   );

@@ -1,3 +1,4 @@
+import { tierOf } from "@/lib/premium";
 import { redirect } from "next/navigation";
 import { getViewerSafe } from "@/lib/auth";
 import { availabilitySlots, categories, productConfig } from "@/config/product";
@@ -76,6 +77,7 @@ export default async function NewMomentPage({ searchParams }: { searchParams: SP
         quickDates={dispo ? [] : quickDates(tz, t)}
         memberVideos={productConfig.features.memberVideos}
         showAdult={canSeeAdult(viewer)}
+        canBlackOnly={tierOf(viewer) === "black"}
         initial={{
           title: pre.title,
           description: pre.description,

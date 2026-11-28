@@ -34,8 +34,8 @@ function Confirm() {
       {state === "ok" && (
         <>
           <CheckCircle2 size={40} className="mx-auto text-success" />
-          <h1 className="font-display text-2xl">Bienvenue dans Upclose+</h1>
-          <p className="text-ink-2">Moments illimités, assistant sans limite, boost et badge sont activés.</p>
+          <h1 className="font-display text-2xl">C&apos;est activé</h1>
+          <p className="text-ink-2">Tes avantages sont actifs tout de suite.</p>
           {retour ? (
             <Link href={retour} className="btn-primary">{retour.startsWith("/moments/") ? "Retrouver mon brouillon" : "Reprendre où j'en étais"}</Link>
           ) : (
