@@ -76,7 +76,7 @@ export function MomentForm({
   const [v, setV] = useState<MomentFormValues>(initial);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
-  const [premiumNeeded, setPremiumNeeded] = useState(false);
+  const [premiumLink, setPremiumLink] = useState<string | null>(null);
   const [busy, setBusy] = useState<"draft" | "publish" | "upload" | null>(null);
   const [progress, setProgress] = useState<number | null>(null);
   const [tagInput, setTagInput] = useState("");
@@ -155,7 +155,18 @@ export function MomentForm({
       setErrors(details);
       if (Object.keys(details).some((k) => ADVANCED_FIELDS.includes(k))) setAdvanced(true);
       setFormError(res.error.message);
-      setPremiumNeeded(res.error.code === "PREMIUM_REQUIRED");
+      setPremiumLink(null);
+      if (res.error.code === "PREMIUM_REQUIRED") {
+        // On garde le travail : le Moment est enregistré en brouillon, on y revient après l'achat.
+        let draftId = mode === "create" ? null : momentId ?? null;
+        const saved =
+          mode === "create"
+            ? await api<{ id: string }>("/api/moments", { body: { ...body, publish: false } })
+            : await api<{ id: string }>(`/api/moments/${momentId}`, { method: "PATCH", body: { ...body, publish: false } });
+        draftId = saved.ok ? saved.data.id : mode === "create" ? null : draftId;
+        if (draftId) setFormError(`${res.error.message} ${t("Ton Moment est gardé en brouillon.")}`);
+        setPremiumLink(`/premium${draftId ? `?retour=${encodeURIComponent(`/moments/${draftId}`)}` : ""}`);
+      }
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
@@ -217,7 +228,7 @@ export function MomentForm({
         {formError && (
           <div role="alert" className="rounded-2xl bg-danger-soft px-4 py-3 text-sm text-danger">
             {formError}
-            {premiumNeeded && <> <Link href="/premium" className="font-semibold underline">{t("Voir Upclose+")}</Link></>}
+            {premiumLink && <> <Link href={premiumLink} className="font-semibold underline">{t("Voir Upclose+")}</Link></>}
           </div>
         )}
 

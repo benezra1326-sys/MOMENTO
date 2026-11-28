@@ -18,7 +18,7 @@ export const planFeatures: { label: string; free: string | boolean; plus: string
   { label: "Discussion du Moment et notes", free: true, plus: true },
   { label: "Moments à venir en même temps", free: `${premiumPlan.freeActiveMoments}`, plus: "Illimité" },
   { label: "Assistant IA pour créer", free: `${premiumPlan.freeAiPerMonth} par mois`, plus: "Illimité" },
-  { label: "Boost : ton Moment en tête du feed", free: false, plus: true },
+  { label: "Boost : ton Moment « Mis en avant » dans le feed de ta ville 24 h", free: false, plus: true },
   { label: "Tes demandes en premier chez l'hôte", free: false, plus: true },
   { label: "Badge Upclose+ sur ton profil", free: false, plus: true },
 ];

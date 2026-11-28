@@ -96,7 +96,7 @@ export function InvitationsView({ data: raw, initialTab }: { data: InvitationsDa
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="flex items-start justify-between gap-2">
             <Link href={`/moments/${m.id}`} className="font-semibold leading-snug hover:underline">{t(m.title)}</Link>
-            <span className={`pill shrink-0 ${statusPill[r.status].cls}`}>{m.phase === "cancelled" ? t("Annulé") : t(statusPill[r.status].text)}</span>
+            <span className={`pill shrink-0 ${statusPill[r.status].cls}`}>{m.phase === "cancelled" ? t("Annulé") : r.status === "PENDING" && m.phase === "ended" ? t("Expirée") : t(statusPill[r.status].text)}</span>
           </div>
           <p className="mt-0.5 text-sm text-muted">
             <span className="capitalize">{formatMomentDate(m.startsAt, m.timezone, locale)}</span> · {formatMomentTime(m.startsAt, m.timezone, locale)} · {t(m.area) || m.city}
@@ -167,7 +167,7 @@ export function InvitationsView({ data: raw, initialTab }: { data: InvitationsDa
             <ul className="space-y-3">
               {data.requestsSent.map((r) =>
                 card(r, {
-                  actions: r.status === "PENDING" ? btn(r.id, "cancel", "Retirer ma demande", "btn-secondary") : undefined,
+                  actions: r.status === "PENDING" && r.moment.phase !== "ended" && r.moment.phase !== "cancelled" ? btn(r.id, "cancel", "Retirer ma demande", "btn-secondary") : undefined,
                 }),
               )}
             </ul>
@@ -202,7 +202,7 @@ export function InvitationsView({ data: raw, initialTab }: { data: InvitationsDa
                 <h2 className="mb-3 font-semibold">{t("Activité récente")}</h2>
                 <ul className="space-y-3">
                   {data.hostActivity.slice(0, 20).map((r) =>
-                    card(r, { person: true, actions: r.kind === "INVITE" && r.status === "PENDING" ? btn(r.id, "cancel", "Retirer l'invitation", "btn-ghost text-muted") : undefined }),
+                    card(r, { person: true, actions: r.kind === "INVITE" && r.status === "PENDING" && r.moment.phase !== "ended" && r.moment.phase !== "cancelled" ? btn(r.id, "cancel", "Retirer l'invitation", "btn-ghost text-muted") : undefined }),
                   )}
                 </ul>
               </section>

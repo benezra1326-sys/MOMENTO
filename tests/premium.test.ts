@@ -23,8 +23,8 @@ describe("Upclose+", () => {
     delete process.env.STRIPE_SECRET_KEY;
     const u = await makeUser("Payeur");
     expect(await startCheckout(u, "https://upclose.world")).toEqual({ url: "/premium/paiement-test" });
-    await expectCode(simulatePayment(u, { card: "4000 0000 0000 0002" }), "VALIDATION");
-    const r = await simulatePayment(u, { card: "4242 4242 4242 4242" });
+    await expectCode(simulatePayment(u, { outcome: "failure" }), "VALIDATION");
+    const r = await simulatePayment(u, { outcome: "success" });
     expect(r.premium).toBe(true);
     expect((await getBilling(await fresh(u))).premium).toBe(true);
     await cancelPremium(u);
@@ -35,7 +35,7 @@ describe("Upclose+", () => {
     const host = await makeUser("Hôte");
     for (let i = 0; i < 3; i++) await makeMoment(host, { title: `Moment numéro ${i}` });
     await expectCode(makeMoment(host, { title: "Moment numéro 4" }), "PREMIUM_REQUIRED");
-    await simulatePayment(host, { card: "4242424242424242" });
+    await simulatePayment(host, { outcome: "success" });
     await makeMoment(await fresh(host), { title: "Moment numéro 4" });
   });
 
@@ -44,7 +44,7 @@ describe("Upclose+", () => {
     const a = await makeMoment(host, { title: "Moment A" });
     const b = await makeMoment(host, { title: "Moment B" });
     await expectCode(boostMoment(host, b), "PREMIUM_REQUIRED");
-    await simulatePayment(host, { card: "4242424242424242" });
+    await simulatePayment(host, { outcome: "success" });
     const h = await fresh(host);
     await boostMoment(h, b);
     await expectCode(boostMoment(h, a), "CONFLICT");
@@ -59,11 +59,33 @@ describe("Upclose+", () => {
     const free = await makeUser("Gratuit");
     const plus = await makeUser("Plus");
     await requestToJoin(free, m, {});
-    await simulatePayment(plus, { card: "4242424242424242" });
+    await simulatePayment(plus, { outcome: "success" });
     await requestToJoin(await fresh(plus), m, {});
     const d = await getMomentDetail(host, m);
     const pending = d.members!.filter((r) => r.status === "PENDING");
     expect(pending[0].user.id).toBe(plus.id);
     expect(pending[0].premium).toBe(true);
+  });
+});
+
+describe("modes de paiement", () => {
+  it("en production sans configuration, les ventes sont fermées (pas de simulateur)", async () => {
+    const env = process.env as Record<string, string | undefined>;
+    const prev = { node: env.NODE_ENV, mode: env.BILLING_MODE };
+    env.NODE_ENV = "production";
+    delete env.BILLING_MODE;
+    delete env.STRIPE_SECRET_KEY;
+    try {
+      const u = await makeUser("Payeur");
+      await expectCode(startCheckout(u, "https://upclose.world"), "FORBIDDEN");
+      await expectCode(simulatePayment(u, { outcome: "success" }), "FORBIDDEN");
+      env.BILLING_MODE = "simulated";
+      expect((await startCheckout(u, "https://upclose.world", { returnTo: "/moments/abc" })).url).toBe("/premium/paiement-test?retour=%2Fmoments%2Fabc");
+      expect((await startCheckout(u, "https://upclose.world", { returnTo: "//evil.com" })).url).toBe("/premium/paiement-test");
+    } finally {
+      env.NODE_ENV = prev.node;
+      if (prev.mode === undefined) delete env.BILLING_MODE;
+      else env.BILLING_MODE = prev.mode;
+    }
   });
 });

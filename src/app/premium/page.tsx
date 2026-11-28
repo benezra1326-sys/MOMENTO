@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Check, Minus, Sparkles } from "lucide-react";
 import { getViewerSafe } from "@/lib/auth";
-import { getBilling } from "@/server/billing";
+import { getBilling, safeReturn } from "@/server/billing";
 import { planFeatures, premiumPlan } from "@/lib/premium";
 import { PremiumActions } from "@/components/PremiumActions";
 import { pageTitle } from "@/lib/i18n/server";
@@ -16,9 +16,10 @@ function Cell({ v }: { v: string | boolean }) {
   return <span>{v}</span>;
 }
 
-export default async function PremiumPage() {
+export default async function PremiumPage({ searchParams }: { searchParams: Promise<{ retour?: string }> }) {
+  const retour = safeReturn((await searchParams).retour);
   const viewer = await getViewerSafe();
-  if (!viewer) redirect("/connexion?suite=/premium");
+  if (!viewer) redirect(`/connexion?suite=${encodeURIComponent(`/premium${retour ? `?retour=${retour}` : ""}`)}`);
   const b = await getBilling(viewer);
   const until = b.until ? new Date(b.until).toLocaleDateString("fr-FR", { day: "numeric", month: "long" }) : null;
   return (
@@ -31,11 +32,21 @@ export default async function PremiumPage() {
             ? `Actif jusqu'au ${until}${b.cancelAt ? "" : ", renouvelé automatiquement"}.`
             : `${premiumPlan.priceLabel} par mois, sans engagement. Rejoindre des Moments reste gratuit, pour tout le monde.`}
         </p>
-        <PremiumActions premium={b.premium} cancelAt={b.cancelAt} source={b.source} />
-        {!b.premium && b.provider !== "stripe" && (
+        {b.provider === "off" && !b.premium ? (
+          <p className="rounded-2xl bg-surface-2/70 px-4 py-3 text-sm text-muted">L&apos;abonnement ouvre bientôt. Tout ce qui est gratuit reste ouvert.</p>
+        ) : (
+          <PremiumActions premium={b.premium} cancelAt={b.cancelAt} source={b.source} returnTo={retour} />
+        )}
+        {!b.premium && b.provider === "simulated" && (
+          <p className="rounded-2xl bg-surface-2/70 px-4 py-3 text-sm text-muted">Mode recette : paiement simulé, aucun débit.</p>
+        )}
+        {!b.premium && b.provider === "stripe-test" && (
           <p className="rounded-2xl bg-surface-2/70 px-4 py-3 text-sm text-muted">
-            Mode test : aucun vrai débit. Carte <span className="font-mono text-ink-2">4242 4242 4242 4242</span>, date future, n&apos;importe quel code.
+            Mode test Stripe : aucun vrai débit. Carte <span className="font-mono text-ink-2">4242 4242 4242 4242</span>, date future, n&apos;importe quel code.
           </p>
+        )}
+        {!b.premium && b.provider !== "off" && (
+          <Link href={retour ?? "/"} className="block text-sm text-muted underline-offset-2 hover:underline">Continuer gratuitement</Link>
         )}
       </section>
 

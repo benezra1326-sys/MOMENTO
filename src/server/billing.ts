@@ -5,12 +5,30 @@ import { isPremium, premiumPlan } from "@/lib/premium";
 import { z } from "zod";
 
 /**
- * Paiement Upclose+.
- * - STRIPE_SECRET_KEY défini : vrai Stripe Checkout (clé de test sk_test_… : carte 4242 4242 4242 4242, aucun débit).
- * - Sinon : paiement simulé dans l'app, pour tester les fonctions payantes sans compte Stripe.
+ * Paiement Upclose+, trois modes explicites (variable BILLING_MODE) :
+ * - « stripe » : Stripe Checkout (clé sk_test_… en test, sk_live_… en réel). Sans clé, les ventes sont fermées.
+ * - « simulated » : boutons « Simuler un succès / un refus », aucun débit. Pour la recette.
+ * - « off » (défaut en production si rien n'est configuré) : ventes fermées.
+ * Jamais de bascule automatique vers le simulateur en production.
  */
+export type BillingMode = "stripe" | "simulated" | "off";
+
+export function billingMode(): BillingMode {
+  const m = process.env.BILLING_MODE;
+  if (m === "stripe") return process.env.STRIPE_SECRET_KEY ? "stripe" : "off";
+  if (m === "simulated") return "simulated";
+  if (m === "off") return "off";
+  if (process.env.STRIPE_SECRET_KEY) return "stripe";
+  return process.env.NODE_ENV === "production" ? "off" : "simulated";
+}
+
 export function stripeConfigured() {
-  return !!process.env.STRIPE_SECRET_KEY;
+  return billingMode() === "stripe";
+}
+
+/** Destination de retour après l'achat : un chemin interne uniquement. */
+export function safeReturn(raw: unknown): string | null {
+  return typeof raw === "string" && /^\/(?!\/)[A-Za-z0-9\-_/]*$/.test(raw) && raw.length < 200 ? raw : null;
 }
 
 export function stripeIsTestMode() {
@@ -29,7 +47,7 @@ function flatten(obj: Record<string, unknown>, prefix = "", out: [string, string
   return out;
 }
 
-async function stripe(method: "GET" | "POST", path: string, params?: Record<string, unknown>): Promise<StripeObj> {
+async function stripe(method: "GET" | "POST" | "DELETE", path: string, params?: Record<string, unknown>): Promise<StripeObj> {
   const key = process.env.STRIPE_SECRET_KEY;
   if (!key) throw new AppError("INTERNAL", "Paiement non configuré.");
   const body = params ? new URLSearchParams(flatten(params)).toString() : undefined;
@@ -95,15 +113,19 @@ export async function getBilling(viewerIn: Viewer | null) {
     until: u.premiumUntil?.toISOString() ?? null,
     source: u.premiumSource,
     cancelAt: u.premiumCancelAt?.toISOString() ?? null,
-    provider: stripeConfigured() ? (stripeIsTestMode() ? "stripe-test" : "stripe") : "simulated",
+    provider: billingMode() === "stripe" ? (stripeIsTestMode() ? "stripe-test" : "stripe") : billingMode(),
   };
 }
 
-export async function startCheckout(viewerIn: Viewer | null, origin: string) {
+export async function startCheckout(viewerIn: Viewer | null, origin: string, raw?: unknown) {
   const viewer = requireActive(viewerIn);
+  const mode = billingMode();
+  if (mode === "off") throw new AppError("FORBIDDEN", "L'abonnement Upclose+ ouvre bientôt.");
+  const retour = safeReturn((raw as { returnTo?: unknown } | undefined)?.returnTo);
+  const back = retour ? `&retour=${encodeURIComponent(retour)}` : "";
   if (viewer.isDemo) throw new AppError("FORBIDDEN", "Les comptes d'exemple ne peuvent pas s'abonner.");
   if (await refreshPremium(viewer)) throw new AppError("CONFLICT", "Tu es déjà membre Upclose+.");
-  if (!stripeConfigured()) return { url: "/premium/paiement-test" };
+  if (mode === "simulated") return { url: `/premium/paiement-test${retour ? `?retour=${encodeURIComponent(retour)}` : ""}` };
   const u = await prisma.user.findUniqueOrThrow({ where: { id: viewer.id }, select: { email: true, stripeCustomerId: true } });
   const session = await stripe("POST", "/checkout/sessions", {
     mode: "subscription",
@@ -123,8 +145,8 @@ export async function startCheckout(viewerIn: Viewer | null, origin: string) {
     },
     metadata: { userId: viewer.id },
     subscription_data: { metadata: { userId: viewer.id } },
-    success_url: `${origin}/premium/merci?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${origin}/premium`,
+    success_url: `${origin}/premium/merci?session_id={CHECKOUT_SESSION_ID}${back}`,
+    cancel_url: `${origin}/premium${retour ? `?retour=${encodeURIComponent(retour)}` : ""}`,
   });
   return { url: session.url as string };
 }
@@ -141,19 +163,28 @@ export async function confirmCheckout(viewerIn: Viewer | null, sessionId: string
   return { premium: sub.status === "active" || sub.status === "trialing" };
 }
 
-const simulateSchema = z.object({ card: z.string().transform((c) => c.replace(/\s+/g, "")) });
+const simulateSchema = z.object({ outcome: z.enum(["success", "failure"]) });
 
-/** Paiement simulé (sans Stripe) : mêmes cartes de test que Stripe, aucun débit. */
+/** Paiement simulé (mode « simulated » uniquement) : aucun débit, succès ou refus au choix. */
 export async function simulatePayment(viewerIn: Viewer | null, raw: unknown) {
   const viewer = requireActive(viewerIn);
-  if (stripeConfigured()) throw new AppError("FORBIDDEN", "Le paiement passe par Stripe.");
+  if (billingMode() !== "simulated") throw new AppError("FORBIDDEN", "Le paiement simulé n'est pas disponible.");
   if (viewer.isDemo) throw new AppError("FORBIDDEN", "Les comptes d'exemple ne peuvent pas s'abonner.");
-  const { card } = simulateSchema.parse(raw ?? {});
-  if (card === "4000000000000002") throw new AppError("VALIDATION", "Carte refusée (carte de test « refus »).", { card: "Carte refusée." });
-  if (!/^\d{16}$/.test(card)) throw new AppError("VALIDATION", "Numéro de carte invalide.", { card: "16 chiffres." });
+  const { outcome } = simulateSchema.parse(raw ?? {});
+  if (outcome === "failure") throw new AppError("VALIDATION", "Paiement refusé (simulation). Ton compte reste en offre gratuite, tu peux réessayer.");
+  if (await refreshPremium(viewer)) return { premium: true, until: viewer.premiumUntil?.toISOString() ?? null };
   const until = new Date(Date.now() + 30 * 86400_000);
   await prisma.user.update({ where: { id: viewer.id }, data: { premiumUntil: until, premiumSource: "test", premiumCancelAt: null } });
   return { premium: true, until: until.toISOString() };
+}
+
+/** Suppression de compte : l'abonnement Stripe est arrêté tout de suite, plus aucun prélèvement. */
+export async function endBillingForDeletedAccount(userId: string) {
+  const u = await prisma.user.findUnique({ where: { id: userId }, select: { stripeSubscriptionId: true, premiumSource: true } });
+  if (u?.stripeSubscriptionId && u.premiumSource === "stripe" && process.env.STRIPE_SECRET_KEY) {
+    await stripe("DELETE", `/subscriptions/${u.stripeSubscriptionId}`);
+  }
+  await prisma.user.update({ where: { id: userId }, data: { premiumUntil: null, premiumCancelAt: null, premiumSource: null } });
 }
 
 /** Résiliation : Stripe garde l'accès jusqu'à la fin du mois payé ; un paiement de test s'arrête tout de suite. */

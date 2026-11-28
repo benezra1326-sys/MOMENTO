@@ -68,6 +68,7 @@ export function toCard(
     isAdult: m.isAdult,
     isDemo: m.isDemo,
     isNew: Date.now() - (m.publishedAt ?? m.createdAt).getTime() < 48 * 3600_000,
+    boosted: !!m.boostedUntil && m.boostedUntil.getTime() > Date.now(),
     host: toPerson(m.host),
     attendeesPreview: attendeesPreview.slice(0, 5),
     viewerMembership: membership,

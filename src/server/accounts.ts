@@ -1,4 +1,5 @@
 import { isPremium } from "@/lib/premium";
+import { endBillingForDeletedAccount } from "./billing";
 import { z } from "zod";
 import { ratedMoments, reputations } from "./ratings";
 import { FEATURED_DEMO } from "./demo-data";
@@ -196,6 +197,7 @@ export async function deleteMyAccount(viewerIn: Viewer | null, confirmUsername: 
     throw new AppError("VALIDATION", "Saisis ton pseudo pour confirmer la suppression.");
   }
   const oldPhoto = (await prisma.user.findUnique({ where: { id: viewer.id }, select: { photoUrl: true } }))?.photoUrl;
+  await endBillingForDeletedAccount(viewer.id);
   await prisma.$transaction(async (tx) => {
     const upcoming = await tx.moment.findMany({
       where: { hostId: viewer.id, status: { in: ["PUBLISHED", "DRAFT"] }, startsAt: { gt: new Date() } },

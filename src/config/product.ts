@@ -120,22 +120,27 @@ export const vibeSuggestions = [
   "en plein air", "intimiste", "networking", "musique", "lent", "spontané",
 ];
 
-export const visibilityInfo: Record<MomentVisibility, { label: string; help: string }> = {
+/** help : texte pour l'hôte ; guestHelp : ce que voit la personne qui découvre le Moment. */
+export const visibilityInfo: Record<MomentVisibility, { label: string; help: string; guestHelp: string }> = {
   REQUEST: {
     label: "Sur demande",
     help: "Visible dans le feed. Chaque personne demande à rejoindre, tu acceptes ou refuses.",
+    guestHelp: "Tu demandes une place, l'hôte répond à ta demande.",
   },
   PUBLIC: {
     label: "Ouvert",
     help: "Visible dans le feed. La place est confirmée tout de suite, tant qu'il en reste.",
+    guestHelp: "Ta place est confirmée tout de suite, tant qu'il en reste.",
   },
   INVITE_ONLY: {
     label: "Sur invitation",
     help: "Absent du feed. Seules les personnes que tu invites le voient et peuvent répondre.",
+    guestHelp: "Seules les personnes invitées par l'hôte peuvent le rejoindre.",
   },
   PRIVATE: {
     label: "Privé (lien)",
     help: "Absent du feed. Visible uniquement avec le lien ; tu acceptes ou refuses chaque demande.",
+    guestHelp: "Visible avec le lien. Tu demandes une place, l'hôte répond à ta demande.",
   },
 };
 

@@ -35,17 +35,19 @@ export function MomentCard({ moment, autoplay = true, priority = false }: { mome
   const title = t(moment.title);
   const tone = statusTone(moment);
   const where = t(moment.area) || moment.city;
-  // Un seul badge par carte, le plus utile : ton statut, sinon « Nouveau », sinon 18+.
+  // Un seul badge par carte, le plus utile : ton statut, puis 18+ (restriction toujours lisible), « Mis en avant » (boost), « Nouveau ».
   const badge = moment.isHost ? (
     <span className="pill bg-violet text-white">{t("Ton Moment")}</span>
   ) : mineTone ? (
     <span className={`pill font-semibold ${stateClass[mineTone]}`}>
       {StateIcon && <StateIcon size={13} strokeWidth={2.6} aria-hidden />} {mine}
     </span>
-  ) : moment.isNew ? (
-    <span className="pill bg-white/90 text-night">{t("Nouveau")}</span>
   ) : moment.isAdult ? (
     <span className="pill bg-night/80 text-white">18+</span>
+  ) : moment.boosted ? (
+    <span className="pill bg-white/90 text-night">{t("Mis en avant")}</span>
+  ) : moment.isNew ? (
+    <span className="pill bg-white/90 text-night">{t("Nouveau")}</span>
   ) : null;
   // Places : affichées seulement quand c'est utile (bientôt complet, complet, terminé).
   const showSpots = tone !== "neutral";

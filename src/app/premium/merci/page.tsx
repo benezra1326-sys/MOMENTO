@@ -10,6 +10,8 @@ function Confirm() {
   const params = useSearchParams();
   const sessionId = params.get("session_id") ?? "";
   const simulated = params.get("test") === "1";
+  const raw = params.get("retour");
+  const retour = raw && /^\/(?!\/)[A-Za-z0-9\-_/]*$/.test(raw) ? raw : null;
   const [state, setState] = useState<"loading" | "ok" | "pending" | "error">(simulated ? "ok" : "loading");
   const [error, setError] = useState("");
   useEffect(() => {
@@ -34,7 +36,11 @@ function Confirm() {
           <CheckCircle2 size={40} className="mx-auto text-success" />
           <h1 className="font-display text-2xl">Bienvenue dans Upclose+</h1>
           <p className="text-ink-2">Moments illimités, assistant sans limite, boost et badge sont activés.</p>
-          <Link href="/creer" className="btn-primary">Créer un Moment</Link>
+          {retour ? (
+            <Link href={retour} className="btn-primary">{retour.startsWith("/moments/") ? "Retrouver mon brouillon" : "Reprendre où j'en étais"}</Link>
+          ) : (
+            <Link href="/creer" className="btn-primary">Créer un Moment</Link>
+          )}
         </>
       )}
       {state === "pending" && <p className="text-ink-2">Le paiement n&apos;est pas encore confirmé. Recharge cette page dans un instant.</p>}

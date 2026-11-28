@@ -7,7 +7,7 @@ import { api } from "@/lib/client";
 import { premiumPlan } from "@/lib/premium";
 
 /** Bouton « Passer à Upclose+ » (ou résiliation si déjà membre). */
-export function PremiumActions({ premium, cancelAt, source }: { premium: boolean; cancelAt: string | null; source: string | null }) {
+export function PremiumActions({ premium, cancelAt, source, returnTo }: { premium: boolean; cancelAt: string | null; source: string | null; returnTo?: string | null }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -15,7 +15,7 @@ export function PremiumActions({ premium, cancelAt, source }: { premium: boolean
   async function subscribe() {
     setBusy(true);
     setError(null);
-    const res = await api<{ url: string }>("/api/billing/checkout", { body: {} });
+    const res = await api<{ url: string }>("/api/billing/checkout", { body: returnTo ? { returnTo } : {} });
     if (!res.ok) {
       setBusy(false);
       setError(res.error.message);

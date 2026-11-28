@@ -94,7 +94,7 @@ export function CreateChooser({ availability }: { availability: boolean }) {
         </div>
         {error && (
           <p role="alert" className="text-sm text-danger">
-            {error} {premiumNeeded && <Link href="/premium" className="font-semibold underline">{t("Voir Upclose+")}</Link>}
+            {error} {premiumNeeded && <Link href="/premium?retour=%2Fcreer" className="font-semibold underline">{t("Voir Upclose+")}</Link>}
           </p>
         )}
         <button type="submit" className="btn-primary w-full sm:w-auto" disabled={busy || text.trim().length < 4}>

@@ -44,6 +44,8 @@ export type MomentCardDTO = {
   isDemo: boolean;
   /** Publié il y a moins de 48 h. */
   isNew?: boolean;
+  /** Boost Upclose+ en cours : affiché « Mis en avant », par transparence. */
+  boosted?: boolean;
   /** Note moyenne de l'hôte (null tant qu'il n'a pas assez d'avis). */
   hostRating?: { avg: number; count: number } | null;
   /** Pourquoi ce Moment est suggéré (radar personnalisé). */

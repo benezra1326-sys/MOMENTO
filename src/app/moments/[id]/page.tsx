@@ -166,7 +166,7 @@ export default async function MomentPage({ params, searchParams }: Props) {
               <div>
                 <dt className="sr-only">{t("Accès")}</dt>
                 <dd className="font-semibold">{t(vis.label)}</dd>
-                <dd className="text-sm text-muted">{t(vis.help)}</dd>
+                <dd className="text-sm text-muted">{t(m.isHost ? vis.help : vis.guestHelp)}</dd>
               </div>
             </div>
           </dl>

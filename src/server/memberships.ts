@@ -290,6 +290,8 @@ const momentWithCard = {
   },
 } satisfies Prisma.MomentInclude;
 
+const isOpenPhase = (p: string) => p === "upcoming" || p === "ongoing";
+
 export async function myInvitations(viewerIn: Viewer | null) {
   const viewer = requireActive(viewerIn);
 
@@ -321,8 +323,9 @@ export async function myInvitations(viewerIn: Viewer | null) {
   return {
     invitationsReceived: asGuest.filter((x) => x.kind === "INVITE"),
     requestsSent: asGuest.filter((x) => x.kind === "REQUEST"),
-    requestsToReview: asHost.filter((x) => x.kind === "REQUEST" && x.status === "PENDING"),
-    hostActivity: asHost.filter((x) => !(x.kind === "REQUEST" && x.status === "PENDING")),
+    // Une demande liée à un Moment terminé ou annulé n'est plus à traiter : elle passe dans l'historique, sans action.
+    requestsToReview: asHost.filter((x) => x.kind === "REQUEST" && x.status === "PENDING" && isOpenPhase(x.moment.phase)),
+    hostActivity: asHost.filter((x) => !(x.kind === "REQUEST" && x.status === "PENDING" && isOpenPhase(x.moment.phase))),
     upcoming: asGuest.filter((x) => x.status === "ACCEPTED" && (x.moment.phase === "upcoming" || x.moment.phase === "ongoing")),
   };
 }

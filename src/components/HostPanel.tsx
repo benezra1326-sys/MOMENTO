@@ -104,11 +104,11 @@ export function HostPanel({ moment }: { moment: MomentDetailDTO }) {
                 const res = await api(`/api/moments/${moment.id}/boost`, { body: {} });
                 setBusy(null);
                 if (!res.ok) {
-                  if (res.error.code === "PREMIUM_REQUIRED") router.push("/premium");
+                  if (res.error.code === "PREMIUM_REQUIRED") router.push(`/premium?retour=${encodeURIComponent(`/moments/${moment.id}`)}`);
                   else setError(res.error.message);
                   return;
                 }
-                setNotice(t("Ton Moment est en tête du feed pendant 24 h."));
+                setNotice(t("Ton Moment est mis en avant dans le feed pendant 24 h."));
                 startTransition(() => router.refresh());
               }}
             >
