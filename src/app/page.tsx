@@ -1,3 +1,5 @@
+import { tierOf } from "@/lib/premium";
+import { PremiumNudge } from "@/components/PremiumNudge";
 import Link from "next/link";
 import { Suspense } from "react";
 import { ArrowRight } from "lucide-react";
@@ -73,6 +75,7 @@ export default async function FeedPage({ searchParams }: { searchParams: SP }) {
       <Suspense>
         <FeedFilters showAdult={canSeeAdult(viewer)} />
       </Suspense>
+      {viewer && tierOf(viewer) !== "black" && feed.source === "database" && <PremiumNudge tier={tierOf(viewer) as "free" | "plus"} />}
       {moments}
     </div>
   );

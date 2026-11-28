@@ -58,6 +58,29 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+/* Thème Black (membres Upclose Black qui l'ont choisi) : noir profond, accents or champagne. */
+html[data-theme="black"] {
+  --color-bg: #000000;
+  --color-surface: #0e0e10;
+  --color-surface-2: #1a1a1d;
+  --color-ink: #f7f3ea;
+  --color-ink-2: #d9d3c7;
+  --color-muted: #a39d92;
+  --color-border: #2a2926;
+  --color-primary: #d4af6a;
+  --color-primary-hover: #c49e58;
+  --color-accent: #e2c486;
+  --color-violet: #8a6d35;
+  --color-lilac: #d4af6a;
+  --gradient-signature: linear-gradient(135deg, #f3dfa2 0%, #d4af6a 50%, #8a6d35 100%);
+}
+html[data-theme="black"] .btn-primary {
+  color: #000;
+}
+html[data-theme="black"] .bg-signature-x {
+  background-image: linear-gradient(90deg, #f3dfa2 0%, #d4af6a 50%, #8a6d35 100%);
+}
+
 body {
   background: var(--color-bg);
   color: var(--color-ink);

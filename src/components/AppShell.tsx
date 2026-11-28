@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Bell, Shield } from "lucide-react";
+import { Bell, Crown, Shield, Sparkles } from "lucide-react";
+import { tierOf } from "@/lib/premium";
 import { emailVerificationRequired, type Viewer } from "@/lib/auth";
 import { demoLabelsVisible, isDemoMode } from "@/lib/env";
 import { Avatar } from "./Avatar";
@@ -11,6 +12,18 @@ import { getT } from "@/lib/i18n/server";
 export async function AppShell({ viewer, unread, children }: { viewer: Viewer | null; unread: number; children: React.ReactNode }) {
   const demo = isDemoMode();
   const t = await getT();
+  const tier = tierOf(viewer);
+  // Accès aux offres toujours visible : « Black » pour les membres gratuits ou Upclose+, couronne pour les membres Black.
+  const offerLink = (cls: string) => (
+    <Link
+      href="/premium"
+      className={`${cls} inline-flex items-center gap-1.5 rounded-full border text-[13px] font-semibold ${tier === "black" ? "border-[#d4af6a]/60 text-[#e2c486]" : "border-[#d4af6a]/50 bg-black text-[#e2c486] hover:border-[#d4af6a]"}`}
+      aria-label={tier === "free" ? t("Voir les offres Upclose+ et Black") : t("Mon abonnement")}
+    >
+      {tier === "black" ? <Crown size={14} aria-hidden /> : <Sparkles size={14} aria-hidden />}
+      {tier === "black" ? "Black" : tier === "plus" ? t("Passer à Black") : t("Offres")}
+    </Link>
+  );
   if (!viewer) {
     // Non connecté : seulement les pages de connexion et d'inscription, sans navigation dans l'app.
     return (
@@ -40,6 +53,7 @@ export async function AppShell({ viewer, unread, children }: { viewer: Viewer | 
         <Link href="/" className="mb-8 px-2"><Logo height={34} /></Link>
         <SideNav signedIn={!!viewer} unread={unread} />
         <div className="mt-auto space-y-3">
+          {viewer && offerLink("h-9 w-full justify-center px-3")}
           {viewer?.role === "ADMIN" && (
             <Link href="/admin" className="flex items-center gap-2 rounded-2xl px-3 py-2 text-sm font-medium text-muted hover:bg-surface-2">
               <Shield size={16} /> {t("Modération")}
@@ -67,6 +81,7 @@ export async function AppShell({ viewer, unread, children }: { viewer: Viewer | 
         <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border/70 bg-bg/85 px-4 backdrop-blur-md lg:hidden">
           <Link href="/" aria-label={t("Upclose, accueil")}><Logo /></Link>
           <div className="flex items-center gap-1">
+            {viewer && offerLink("h-8 px-3")}
             {viewer ? (
               <Link href="/notifications" className="relative inline-flex h-11 w-11 items-center justify-center rounded-full hover:bg-surface-2" aria-label={unread ? t("Notifications, {n} non lues", { n: unread }) : t("Notifications")}>
                 <Bell size={21} />

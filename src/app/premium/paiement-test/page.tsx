@@ -24,7 +24,7 @@ function Simulator() {
     const res = await api("/api/billing/simulate", { body: { outcome, plan, interval } });
     setBusy(null);
     if (!res.ok) setError(res.error.message);
-    else router.push(`/premium/merci?test=1${retour ? `&retour=${encodeURIComponent(retour)}` : ""}`);
+    else router.push(`/premium/merci?test=1&offre=${plan}${retour ? `&retour=${encodeURIComponent(retour)}` : ""}`);
   }
 
   return (
