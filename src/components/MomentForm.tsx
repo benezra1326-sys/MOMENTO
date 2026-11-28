@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { galleryUrl } from "@/lib/gallery";
 import { useEffect, useRef, useState } from "react";
@@ -75,6 +76,7 @@ export function MomentForm({
   const [v, setV] = useState<MomentFormValues>(initial);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
+  const [premiumNeeded, setPremiumNeeded] = useState(false);
   const [busy, setBusy] = useState<"draft" | "publish" | "upload" | null>(null);
   const [progress, setProgress] = useState<number | null>(null);
   const [tagInput, setTagInput] = useState("");
@@ -153,6 +155,7 @@ export function MomentForm({
       setErrors(details);
       if (Object.keys(details).some((k) => ADVANCED_FIELDS.includes(k))) setAdvanced(true);
       setFormError(res.error.message);
+      setPremiumNeeded(res.error.code === "PREMIUM_REQUIRED");
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
@@ -212,7 +215,10 @@ export function MomentForm({
         noValidate
       >
         {formError && (
-          <div role="alert" className="rounded-2xl bg-danger-soft px-4 py-3 text-sm text-danger">{formError}</div>
+          <div role="alert" className="rounded-2xl bg-danger-soft px-4 py-3 text-sm text-danger">
+            {formError}
+            {premiumNeeded && <> <Link href="/premium" className="font-semibold underline">{t("Voir Upclose+")}</Link></>}
+          </div>
         )}
 
         {invitee && (

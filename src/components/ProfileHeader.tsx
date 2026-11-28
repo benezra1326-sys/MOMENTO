@@ -15,6 +15,7 @@ type Profile = {
   interests: string[];
   photoUrl: string | null;
   isDemo: boolean;
+  premium?: boolean;
   memberSince: string;
   hosted: MomentCardDTO[];
   attended: MomentCardDTO[];
@@ -39,6 +40,7 @@ export async function ProfileHeader({ p, children }: { p: Profile; children?: Re
         </div>
         <h1 className="font-display mt-3 flex flex-wrap items-center gap-2 text-3xl">
           {p.name} {p.isDemo && <DemoBadge />}
+          {p.premium && <span className="pill bg-accent/15 font-sans text-xs font-semibold text-ink">Upclose+</span>}
         </h1>
         <p className="text-muted">@{p.username}</p>
         {p.bio && <p className="mt-3 max-w-xl text-ink-2">{t(p.bio)}</p>}

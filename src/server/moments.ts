@@ -11,6 +11,8 @@ import { notifyMany } from "./notifications";
 import { momentPhase, personSelect, toCard, toPerson } from "./mappers";
 import { rankContext, scoreMoment } from "./recommend";
 import type { FeedPage, MemberRow, MomentCardDTO, MomentDetailDTO } from "./types";
+import { refreshPremium } from "./billing";
+import { isPremium, premiumPlan } from "@/lib/premium";
 
 const cardInclude = {
   host: { select: personSelect },
@@ -128,7 +130,12 @@ export async function getFeed(viewer: Viewer | null, rawQuery: unknown): Promise
     const ctx = await rankContext(viewer, pool.map((m) => m.hostId));
     const ranked = pool
       .filter((m) => momentPhase(m, now) !== "ended")
-      .map((m) => ({ m, s: scoreMoment(m, counts.get(m.id) ?? 0, ctx, now) }))
+      .map((m) => {
+        const s = scoreMoment(m, counts.get(m.id) ?? 0, ctx, now);
+        // Boost Upclose+ : en tête du feed de la ville tant qu'il dure.
+        if (m.boostedUntil && m.boostedUntil > now) s.score += 8;
+        return { m, s };
+      })
       .sort((a, b) => b.s.score - a.s.score || a.m.startsAt.getTime() - b.m.startsAt.getTime());
     const slice = ranked.slice(offset, offset + limit);
     const mine = await viewerMemberships(viewer?.id ?? null, slice.map((x) => x.m.id));
@@ -216,9 +223,13 @@ export async function getMomentDetail(viewer: Viewer | null, id: string): Promis
     const rows = await prisma.momentMembership.findMany({
       where: { momentId: id },
       orderBy: [{ status: "asc" }, { createdAt: "asc" }],
-      include: { user: { select: personSelect } },
+      include: { user: { select: { ...personSelect, premiumUntil: true } } },
     });
+    // Upclose+ : les demandes en attente des membres Upclose+ passent en premier.
+    const rank = (r: (typeof rows)[number]) => (r.status === "PENDING" && isPremium(r.user) ? 0 : 1);
+    rows.sort((a, b) => (a.status === b.status ? rank(a) - rank(b) : 0));
     members = rows.map((r) => ({
+      premium: isPremium(r.user),
       id: r.id,
       kind: r.kind,
       status: r.status,
@@ -249,6 +260,7 @@ export async function getMomentDetail(viewer: Viewer | null, id: string): Promis
     attendees,
     members,
     pendingCount,
+    boostedUntil: isHost && m.boostedUntil && m.boostedUntil > new Date() ? m.boostedUntil.toISOString() : null,
   };
 }
 
@@ -297,6 +309,19 @@ function toMomentData(input: ReturnType<typeof momentInputSchema.parse>, viewer:
   };
 }
 
+/** Offre gratuite : quelques Moments à venir publiés en même temps ; Upclose+ : illimité. */
+async function assertCanPublish(viewer: Viewer, exceptId?: string) {
+  const active = await prisma.moment.count({
+    where: { hostId: viewer.id, status: "PUBLISHED", startsAt: { gt: new Date() }, ...(exceptId ? { id: { not: exceptId } } : {}) },
+  });
+  if (active < premiumPlan.freeActiveMoments) return;
+  if (await refreshPremium(viewer)) return;
+  throw new AppError(
+    "PREMIUM_REQUIRED",
+    `Avec l'offre gratuite, tu peux avoir ${premiumPlan.freeActiveMoments} Moments à venir en même temps. Passe à Upclose+ pour en publier autant que tu veux.`,
+  );
+}
+
 export async function createMoment(viewerIn: Viewer | null, raw: unknown) {
   const viewer = requireVerified(viewerIn);
   const input = momentInputSchema.parse(raw);
@@ -304,6 +329,7 @@ export async function createMoment(viewerIn: Viewer | null, raw: unknown) {
   if (input.publish && data.startsAt < new Date()) {
     throw new AppError("VALIDATION", "Choisis une date à venir.", { startsAtLocal: "Choisis une date à venir." });
   }
+  if (input.publish) await assertCanPublish(viewer);
   const m = await prisma.moment.create({
     data: {
       ...data,
@@ -356,6 +382,11 @@ export async function updateMoment(viewerIn: Viewer | null, id: string, raw: unk
   const input = momentInputSchema.parse(raw);
   const data = toMomentData(input, viewer);
 
+  if (input.publish) {
+    // Hors transaction : une seule connexion à la base en production.
+    const current = await prisma.moment.findUnique({ where: { id }, select: { status: true, hostId: true } });
+    if (current?.status === "DRAFT" && current.hostId === viewer.id) await assertCanPublish(viewer, id);
+  }
   const replacedMedia: string[] = [];
   const result = await prisma.$transaction(async (tx) => {
     await tx.$queryRaw`SELECT id FROM "Moment" WHERE id = ${id} FOR UPDATE`;
@@ -415,6 +446,7 @@ export async function publishMoment(viewerIn: Viewer | null, id: string) {
   const m = await loadOwnMoment(viewer, id);
   if (m.status !== "DRAFT") throw new AppError("CONFLICT", "Ce Moment est déjà publié ou annulé.");
   if (m.startsAt < new Date()) throw new AppError("VALIDATION", "La date de ce brouillon est passée : modifie-la avant de publier.");
+  await assertCanPublish(viewer, id);
   await prisma.moment.update({ where: { id }, data: { status: "PUBLISHED", publishedAt: new Date() } });
   return { id, status: "PUBLISHED" as const };
 }

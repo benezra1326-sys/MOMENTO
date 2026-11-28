@@ -36,6 +36,7 @@ export function CreateChooser({ availability }: { availability: boolean }) {
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [premiumNeeded, setPremiumNeeded] = useState(false);
 
   async function prepare(e: React.FormEvent) {
     e.preventDefault();
@@ -44,6 +45,7 @@ export function CreateChooser({ availability }: { availability: boolean }) {
     const res = await api<Draft>("/api/ai/draft", { body: { text, kind: availability ? "auto" : "moment" } });
     if (!res.ok) {
       setBusy(false);
+      setPremiumNeeded(res.error.code === "PREMIUM_REQUIRED");
       return setError(res.error.message);
     }
     const d = res.data;
@@ -90,7 +92,11 @@ export function CreateChooser({ availability }: { availability: boolean }) {
             <button key={x.label} type="button" className="chip" onClick={() => setText(t(x.text))}>{t(x.label)}</button>
           ))}
         </div>
-        {error && <p role="alert" className="text-sm text-danger">{error}</p>}
+        {error && (
+          <p role="alert" className="text-sm text-danger">
+            {error} {premiumNeeded && <Link href="/premium" className="font-semibold underline">{t("Voir Upclose+")}</Link>}
+          </p>
+        )}
         <button type="submit" className="btn-primary w-full sm:w-auto" disabled={busy || text.trim().length < 4}>
           {busy ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />} {t("Préparer mon brouillon")}
         </button>

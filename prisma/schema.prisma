@@ -79,44 +79,51 @@ enum ReportStatus {
 }
 
 model User {
-  id               String        @id @default(cuid())
+  id                   String        @id @default(cuid())
   /// Peut être vide pour un compte créé avec un numéro de téléphone.
-  email            String?       @unique
-  passwordHash     String?
+  email                String?       @unique
+  passwordHash         String?
   /// Identifiant Google (claim « sub ») si le compte utilise la connexion Google.
-  googleId         String?       @unique
+  googleId             String?       @unique
   /// Identifiant Facebook (propre à l'app Upclose) si le compte utilise la connexion Facebook.
-  facebookId       String?       @unique
+  facebookId           String?       @unique
   /// Numéro de téléphone au format international (+33612345678), confirmé par un code SMS.
-  phone            String?       @unique
-  phoneVerifiedAt  DateTime?
+  phone                String?       @unique
+  phoneVerifiedAt      DateTime?
   /// Date de confirmation de l'adresse e-mail (lien reçu par e-mail, ou e-mail vérifié par Google).
-  emailVerifiedAt  DateTime?
-  name             String
-  username         String        @unique
-  bio              String        @default("")
-  photoUrl         String?
-  city             String        @default("")
-  interests        String[]      @default([])
-  role             UserRole      @default(USER)
-  status           AccountStatus @default(ACTIVE)
+  emailVerifiedAt      DateTime?
+  name                 String
+  username             String        @unique
+  bio                  String        @default("")
+  photoUrl             String?
+  city                 String        @default("")
+  interests            String[]      @default([])
+  role                 UserRole      @default(USER)
+  status               AccountStatus @default(ACTIVE)
   /// Compte de démonstration : fictif, jamais présenté comme réel.
-  isDemo           Boolean       @default(false)
+  isDemo               Boolean       @default(false)
   /// L'utilisateur choisit si ses Moments vécus apparaissent sur son profil public.
-  showPastMoments  Boolean       @default(true)
+  showPastMoments      Boolean       @default(true)
   /// Lecture automatique (muette) des vidéos du feed.
-  autoplayVideos   Boolean       @default(true)
+  autoplayVideos       Boolean       @default(true)
   /// Majorité confirmée par la personne (case à cocher « j'ai 18 ans ou plus »), requise pour l'espace adulte.
-  adultConfirmedAt DateTime?
+  adultConfirmedAt     DateTime?
   /// Opt-in volontaire : voir et créer des Moments de l'espace adulte. Désactivé par défaut.
-  showAdult        Boolean       @default(false)
+  showAdult            Boolean       @default(false)
   /// Compte Instagram déclaré par la personne (sans @), affiché sur son profil comme repère de confiance.
   /// Déclaratif : signalé « non vérifié » tant qu'aucune connexion Instagram ne le confirme.
-  instagram        String?
+  instagram            String?
   /// Quelques photos choisies par la personne pour son profil (6 maximum), envoyées depuis Upclose.
-  gallery          String[]      @default([])
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+  gallery              String[]      @default([])
+  /// Upclose+ actif jusqu'à cette date (abonnement Stripe ou paiement de test). null : offre gratuite.
+  premiumUntil         DateTime?
+  /// « stripe » ou « test » (paiement simulé, aucun débit).
+  premiumSource        String?
+  premiumCancelAt      DateTime?
+  stripeCustomerId     String?       @unique
+  stripeSubscriptionId String?       @unique
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
 
   sessions       Session[]
   hostedMoments  Moment[]           @relation("MomentHost")
@@ -175,6 +182,8 @@ model Moment {
   showAttendees      Boolean          @default(true)
   /// Espace adulte (18+) : jamais montré aux personnes qui ne l'ont pas activé.
   isAdult            Boolean          @default(false)
+  /// Boost Upclose+ : le Moment passe en tête du feed de sa ville jusqu'à cette date.
+  boostedUntil       DateTime?
   isDemo             Boolean          @default(false)
   cancelReason       String?
   createdAt          DateTime         @default(now())

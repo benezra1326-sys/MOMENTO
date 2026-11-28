@@ -1,3 +1,4 @@
+import { isPremium } from "@/lib/premium";
 import { z } from "zod";
 import { ratedMoments, reputations } from "./ratings";
 import { FEATURED_DEMO } from "./demo-data";
@@ -168,6 +169,7 @@ export async function getPublicProfile(viewer: Viewer | null, username: string) 
     interests: u.interests,
     photoUrl: u.photoUrl,
     isDemo: u.isDemo,
+    premium: !suspended && isPremium(u),
     suspended,
     isSelf,
     viewerBlocked,

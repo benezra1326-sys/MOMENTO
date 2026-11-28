@@ -12,7 +12,7 @@ export async function resetDb() {
   );
 }
 
-export async function makeUser(name = "User", extra: Partial<{ role: "USER" | "ADMIN"; status: "ACTIVE" | "SUSPENDED"; verified: boolean; adult: boolean }> = {}): Promise<Viewer> {
+export async function makeUser(name = "User", extra: Partial<{ role: "USER" | "ADMIN"; status: "ACTIVE" | "SUSPENDED"; verified: boolean; adult: boolean; premium: boolean }> = {}): Promise<Viewer> {
   n++;
   const u = await prisma.user.create({
     data: {
@@ -23,9 +23,10 @@ export async function makeUser(name = "User", extra: Partial<{ role: "USER" | "A
       status: extra.status ?? "ACTIVE",
       emailVerifiedAt: extra.verified === false ? null : new Date(),
       ...(extra.adult ? { showAdult: true, adultConfirmedAt: new Date() } : {}),
+      ...(extra.premium ? { premiumUntil: new Date(Date.now() + 30 * 86400_000), premiumSource: "test" } : {}),
     },
   });
-  return { id: u.id, role: u.role, status: u.status, name: u.name, username: u.username, photoUrl: null, isDemo: false, city: "", emailVerifiedAt: u.emailVerifiedAt, phoneVerifiedAt: null, showAdult: u.showAdult, adultConfirmedAt: u.adultConfirmedAt };
+  return { id: u.id, role: u.role, status: u.status, name: u.name, username: u.username, photoUrl: null, isDemo: false, city: "", emailVerifiedAt: u.emailVerifiedAt, phoneVerifiedAt: null, showAdult: u.showAdult, adultConfirmedAt: u.adultConfirmedAt, premiumUntil: u.premiumUntil };
 }
 
 export function localIn(days: number, tz = "Europe/Madrid") {

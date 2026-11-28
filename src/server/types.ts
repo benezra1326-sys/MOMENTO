@@ -62,6 +62,8 @@ export type MemberRow = {
   message: string | null;
   createdAt: string;
   user: PersonSummary;
+  /** Membre Upclose+ (sa demande passe en premier). */
+  premium?: boolean;
 };
 
 export type MomentDetailDTO = MomentCardDTO & {
@@ -75,6 +77,8 @@ export type MomentDetailDTO = MomentCardDTO & {
   /** Liste complète des demandes et invitations : uniquement pour l'hôte. */
   members: MemberRow[] | null;
   pendingCount: number;
+  /** Hôte uniquement : fin du boost Upclose+ en cours. */
+  boostedUntil?: string | null;
 };
 
 export type FeedPage = { items: MomentCardDTO[]; nextCursor: string | null; source: "database" | "demo-fallback" };

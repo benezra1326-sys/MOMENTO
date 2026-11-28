@@ -6,6 +6,8 @@ import { requireActive, type Viewer } from "@/lib/auth";
 import { ADULT_CATEGORY, availabilitySlots, categories, productConfig, vibeSuggestions } from "@/config/product";
 import { utcToZonedLocal } from "@/lib/time";
 import { canSeeAdult } from "./moments";
+import { refreshPremium } from "./billing";
+import { premiumPlan } from "@/lib/premium";
 
 /**
  * Assistant de création : une phrase (« dîner chic samedi soir à Marbella, on est 4 ») devient
@@ -285,6 +287,10 @@ export async function draftFromSentence(viewerIn: Viewer | null, raw: unknown): 
   const { text, kind } = inputSchema.parse(raw ?? {});
   const recent = await prisma.auditEvent.count({ where: { actorId: viewer.id, action: "ai.draft", createdAt: { gt: new Date(Date.now() - 3600_000) } } });
   if (recent >= productConfig.limits.aiPerHour) throw new AppError("RATE_LIMITED", "L'assistant a beaucoup servi cette heure-ci. Réessaie un peu plus tard.");
+  const month = await prisma.auditEvent.count({ where: { actorId: viewer.id, action: "ai.draft", createdAt: { gt: new Date(Date.now() - 30 * 86400_000) } } });
+  if (month >= premiumPlan.freeAiPerMonth && !(await refreshPremium(viewer))) {
+    throw new AppError("PREMIUM_REQUIRED", `L'assistant est offert ${premiumPlan.freeAiPerMonth} fois par mois. Passe à Upclose+ pour l'utiliser sans limite, ou remplis le formulaire toi-même.`);
+  }
   await prisma.auditEvent.create({ data: { actorId: viewer.id, action: "ai.draft", targetType: "user", targetId: viewer.id } });
 
   const tz = productConfig.defaultTimezone;

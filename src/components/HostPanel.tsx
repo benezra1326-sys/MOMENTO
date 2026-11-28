@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { startTransition, useEffect, useState } from "react";
-import { Ban, Loader2, Pencil, Send, UserPlus } from "lucide-react";
+import { Ban, Loader2, Pencil, Rocket, Send, UserPlus } from "lucide-react";
 import type { MemberRow, MomentDetailDTO } from "@/server/types";
 import { api } from "@/lib/client";
 import { formatRelative } from "@/lib/time";
@@ -72,7 +72,10 @@ export function HostPanel({ moment }: { moment: MomentDetailDTO }) {
     <li key={m.id} className="flex items-center gap-3 py-3">
       <Link href={`/u/${m.user.username}`}><Avatar person={m.user} size="md" /></Link>
       <div className="min-w-0 flex-1">
-        <Link href={`/u/${m.user.username}`} className="block truncate font-semibold hover:underline">{m.user.name}</Link>
+        <Link href={`/u/${m.user.username}`} className="flex items-center gap-1.5 truncate font-semibold hover:underline">
+          {m.user.name}
+          {m.premium && <span className="pill bg-accent/15 !py-0 text-[11px] text-ink">Upclose+</span>}
+        </Link>
         {m.message ? <p className="line-clamp-2 text-sm text-ink-2">« {t(m.message)} »</p> : <p className="text-xs text-muted">{m.kind === "INVITE" ? t("Invité·e") : t("Demande")} {formatRelative(m.createdAt, locale)}</p>}
       </div>
       {actions ?? <span className="pill bg-lilac/10 text-ink-2">{t(statusText[m.status])}</span>}
@@ -86,6 +89,32 @@ export function HostPanel({ moment }: { moment: MomentDetailDTO }) {
           <button type="button" className="btn-primary" disabled={!!busy} onClick={() => run("publish", `/api/moments/${moment.id}/publish`, {}, t("Moment publié."))}>
             {busy === "publish" && <Loader2 size={16} className="animate-spin" />} {t("Publier")}
           </button>
+        )}
+        {moment.phase === "upcoming" && moment.status === "PUBLISHED" && (
+          moment.boostedUntil ? (
+            <span className="pill bg-accent/15 text-ink"><Rocket size={14} /> {t("Boosté jusqu'à {time}", { time: new Date(moment.boostedUntil).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", weekday: "short" }) })}</span>
+          ) : (
+            <button
+              type="button"
+              className="btn-secondary"
+              disabled={!!busy}
+              onClick={async () => {
+                setBusy("boost");
+                setError(null);
+                const res = await api(`/api/moments/${moment.id}/boost`, { body: {} });
+                setBusy(null);
+                if (!res.ok) {
+                  if (res.error.code === "PREMIUM_REQUIRED") router.push("/premium");
+                  else setError(res.error.message);
+                  return;
+                }
+                setNotice(t("Ton Moment est en tête du feed pendant 24 h."));
+                startTransition(() => router.refresh());
+              }}
+            >
+              {busy === "boost" ? <Loader2 size={16} className="animate-spin" /> : <Rocket size={16} />} {t("Booster")}
+            </button>
+          )
         )}
         {(open || moment.phase === "draft") && (
           <Link href={`/moments/${moment.id}/modifier`} className="btn-secondary"><Pencil size={16} /> {t("Modifier")}</Link>

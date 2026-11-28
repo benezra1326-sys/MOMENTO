@@ -45,7 +45,7 @@ describe("création et feed", () => {
   });
 
   it("pagine avec un curseur sans doublon ni trou", async () => {
-    const host = await makeUser();
+    const host = await makeUser("Hôte", { premium: true });
     for (let i = 1; i <= 5; i++) await makeMoment(host, { title: `Moment ${i}`, startsAtLocal: localIn(i) });
     const p1 = await getFeed(null, { limit: 2 });
     const p2 = await getFeed(null, { limit: 2, cursor: p1.nextCursor! });
