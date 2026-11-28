@@ -3,14 +3,13 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { startTransition, useCallback, useEffect, useRef, useState } from "react";
-import { Camera, Heart, ImagePlus, Loader2, MessageCircle, Send, Sparkles, Star, Trash2, UserPlus, Video } from "lucide-react";
+import { Camera, Heart, ImagePlus, Loader2, MessageCircle, Send, Sparkles, Trash2, UserPlus, Video } from "lucide-react";
 import { api } from "@/lib/client";
 import { shrinkForUpload } from "@/lib/image-client";
 import { uploadMomentVideo } from "@/lib/video-client";
 import { formatRelative } from "@/lib/time";
 import type { MessageDTO } from "@/server/messages";
 import type { SouvenirDTO } from "@/server/souvenirs";
-import type { RateTarget } from "@/server/ratings";
 import type { InviteeSuggestion } from "@/server/matching";
 import { Avatar } from "./Avatar";
 import { useLocale, useT } from "./I18nProvider";
@@ -267,125 +266,6 @@ export function Souvenirs({ momentId, canAdd, initial }: { momentId: string; can
       ) : (
         <p className="card p-4 text-sm text-muted">{t("Le Moment est passé : partage la première photo ou un mot pour le groupe.")}</p>
       )}
-    </section>
-  );
-}
-
-// ——— Notes après le Moment ———
-
-const criteria = [
-  { id: "punctuality", label: "Ponctualité", hostOnly: false },
-  { id: "ambiance", label: "Ambiance", hostOnly: false },
-  { id: "respect", label: "Respect", hostOnly: false },
-  { id: "organisation", label: "Organisation", hostOnly: true },
-  { id: "accuracy", label: "Fidèle à l'annonce", hostOnly: true },
-] as const;
-
-type Draft = { noShow: boolean; comment: string } & Partial<Record<(typeof criteria)[number]["id"], number>>;
-
-function Stars({ value, onChange, label }: { value?: number; onChange: (n: number) => void; label: string }) {
-  const t = useT();
-  return (
-    <div className="flex items-center justify-between gap-3">
-      <span className="text-sm text-ink-2">{t(label)}</span>
-      <div role="radiogroup" aria-label={t(label)} className="flex gap-0.5">
-        {[1, 2, 3, 4, 5].map((n) => (
-          <button
-            key={n}
-            type="button"
-            role="radio"
-            aria-checked={value === n}
-            aria-label={`${n}/5`}
-            onClick={() => onChange(n)}
-            className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-surface-2"
-          >
-            <Star size={22} className={value && n <= value ? "fill-warn text-warn" : "text-muted"} />
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-export function RateMoment({ momentId }: { momentId: string }) {
-  const t = useT();
-  const [targets, setTargets] = useState<RateTarget[] | null>(null);
-  const [drafts, setDrafts] = useState<Record<string, Draft>>({});
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState(false);
-
-  useEffect(() => {
-    api<{ open: boolean; targets: RateTarget[] }>(`/api/moments/${momentId}/ratings`).then((r) => {
-      if (r.ok && r.data.open) setTargets(r.data.targets);
-      else setTargets([]);
-    });
-  }, [momentId]);
-
-  const pending = (targets ?? []).filter((p) => !p.alreadyRated);
-  if (targets === null || (pending.length === 0 && !done)) return null;
-
-  const set = (id: string, patch: Partial<Draft>) => setDrafts((d) => ({ ...d, [id]: { ...{ noShow: false, comment: "" }, ...d[id], ...patch } }));
-  const ready = pending.filter((p) => {
-    const d = drafts[p.id];
-    return d && (d.noShow || (d.punctuality && d.ambiance && d.respect));
-  });
-
-  async function submit() {
-    setBusy(true);
-    setError(null);
-    const res = await api(`/api/moments/${momentId}/ratings`, { body: { ratings: ready.map((p) => ({ userId: p.id, ...drafts[p.id] })) } });
-    setBusy(false);
-    if (!res.ok) return setError(res.error.message);
-    setDone(true);
-    setTargets((ts) => (ts ?? []).map((p) => (ready.some((r) => r.id === p.id) ? { ...p, alreadyRated: true } : p)));
-  }
-
-  if (done && pending.length === 0) {
-    return (
-      <section className="card flex items-center gap-3 p-5 text-sm">
-        <Sparkles size={20} className="shrink-0 text-accent" aria-hidden />
-        {t("Merci ! Tes notes sont privées : elles aident à mettre en avant les membres fiables et bienveillants.")}
-      </section>
-    );
-  }
-
-  return (
-    <section className="card space-y-4 p-5" aria-labelledby="rate-title">
-      <div>
-        <h2 id="rate-title" className="flex items-center gap-2 font-display text-xl"><Star size={19} className="text-warn" aria-hidden /> {t("Comment c'était ?")}</h2>
-        <p className="mt-1 text-sm text-muted">{t("Tes notes sont privées et anonymes. Personne ne voit qui a noté quoi : seules des moyennes apparaissent, à partir de 3 avis.")}</p>
-      </div>
-      <ul className="space-y-4">
-        {pending.map((p) => {
-          const d = drafts[p.id];
-          return (
-            <li key={p.id} className="space-y-2 rounded-2xl border border-border p-4">
-              <div className="flex items-center gap-3">
-                <Avatar person={p} size="md" />
-                <div className="min-w-0 flex-1">
-                  <p className="font-semibold">{p.name}</p>
-                  <p className="text-xs text-muted">{p.isHost ? t("Hôte") : t("Participant·e")}</p>
-                </div>
-                <label className="flex items-center gap-2 text-xs text-muted">
-                  <input type="checkbox" checked={!!d?.noShow} onChange={(e) => set(p.id, { noShow: e.target.checked })} />
-                  {t("Pas venu·e")}
-                </label>
-              </div>
-              {!d?.noShow &&
-                criteria
-                  .filter((c) => !c.hostOnly || p.isHost)
-                  .map((c) => <Stars key={c.id} label={c.label} value={d?.[c.id]} onChange={(n) => set(p.id, { [c.id]: n })} />)}
-              <label className="sr-only" htmlFor={`c-${p.id}`}>{t("Commentaire privé")}</label>
-              <input id={`c-${p.id}`} className="input" maxLength={500} placeholder={t("Commentaire privé, lu seulement par la modération (facultatif)")} value={d?.comment ?? ""} onChange={(e) => set(p.id, { comment: e.target.value })} />
-            </li>
-          );
-        })}
-      </ul>
-      {error && <p role="alert" className="field-error">{t(error)}</p>}
-      <button type="button" className="btn-primary w-full" disabled={busy || ready.length === 0} onClick={submit}>
-        {busy ? <Loader2 size={18} className="animate-spin" /> : <Star size={18} />} {t("Envoyer mes notes")}
-      </button>
     </section>
   );
 }

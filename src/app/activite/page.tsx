@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ChevronRight, Eye, Star, Users } from "lucide-react";
+import { ChevronRight, Eye, Users } from "lucide-react";
 import { getViewerSafe } from "@/lib/auth";
 import { myInvitations } from "@/server/memberships";
 import { momentsToRate } from "@/server/ratings";
+import { RatePrompt } from "@/components/RateFlow";
 import { InvitationsView, type InvitationsData } from "@/components/InvitationsView";
 import { PageTitle } from "@/components/States";
 import { getT, pageTitle } from "@/lib/i18n/server";
@@ -24,16 +25,7 @@ export default async function ActivityPage({ searchParams }: { searchParams: Pro
     <>
       <PageTitle eyebrow={t("Ton agenda")} title={t("Activité")} />
       {toRate.length > 0 && <div className="mb-6 space-y-3">
-        {toRate.map((m) => (
-          <Link key={m.id} href={`/moments/${m.id}#noter`} className="card flex items-center gap-3 border-accent/30 px-4 py-3">
-            <Star size={18} className="text-amber-400" />
-            <span className="min-w-0 flex-1">
-              <span className="block truncate font-medium">{t("Note « {x} »", { x: m.title })}</span>
-              <span className="text-sm text-muted">{t("Privé, ça prend 30 secondes.")}</span>
-            </span>
-            <ChevronRight size={18} className="text-muted" />
-          </Link>
-        ))}
+        {toRate.map((m) => <RatePrompt key={m.id} item={m} compact />)}
       </div>}
       <div className="mb-6 grid gap-2 sm:grid-cols-2">
         <Link href="/vues" className="card flex items-center gap-3 px-4 py-3 text-sm">

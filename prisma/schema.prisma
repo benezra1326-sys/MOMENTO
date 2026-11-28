@@ -70,6 +70,7 @@ enum NotificationType {
   REMINDER
   RATE_MOMENT
   NEW_SOUVENIR
+  PHOTO_VERIFIED
 }
 
 enum ReportStatus {
@@ -126,6 +127,8 @@ model User {
   premiumInterval      String?
   stripeCustomerId     String?       @unique
   stripeSubscriptionId String?       @unique
+  /// Photo de profil certifiée (selfie pris en direct avec la caméra, comparé à la photo). null : non certifiée.
+  photoVerifiedAt      DateTime?
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @updatedAt
 
@@ -146,6 +149,30 @@ model User {
   ratingsGot     Rating[]           @relation("RatingRatee")
   viewsMade      ProfileView[]      @relation("ViewViewer")
   viewsGot       ProfileView[]      @relation("ViewOwner")
+  verifications  PhotoVerification[]
+}
+
+/// Demande de certification : selfie pris en direct (caméra, pas la galerie) avec un geste demandé au hasard.
+model PhotoVerification {
+  id         String   @id @default(cuid())
+  userId     String
+  /// Selfie privé, jamais affiché ailleurs que dans l'espace de modération.
+  selfieUrl  String
+  /// Le geste demandé (ex. « pouce levé »), pour prouver que la photo est prise à l'instant.
+  gesture    String
+  /// La photo de profil au moment de la demande (comparée au selfie).
+  photoUrl   String
+  /// PENDING, APPROVED ou REJECTED.
+  status     String   @default("PENDING")
+  /// « auto » (vérification automatique) ou id de la personne de l'équipe qui a validé.
+  reviewedBy String?
+  reason     String   @default("")
+  createdAt  DateTime @default(now())
+  reviewedAt DateTime?
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([status])
 }
 
 /// Visite d'un profil ou d'un Moment (une par personne, cible et jour). Visible par le propriétaire avec Upclose Black.
@@ -434,6 +461,12 @@ model Rating {
   comment      String   @default("")
   /// La personne signale ne pas être venue (no-show).
   noShow       Boolean  @default(false)
+  /// Note générale en étoiles (1 à 5). null pour les anciens avis notés critère par critère.
+  stars        Int?
+  /// Qualités et remarques choisies en un geste (ex. « sympa », « ponctuel », « retard »).
+  tags         String[] @default([])
+  /// « Tu referais un Moment avec elle/lui ? »
+  again        Boolean?
   createdAt    DateTime @default(now())
 
   moment Moment @relation(fields: [momentId], references: [id], onDelete: Cascade)

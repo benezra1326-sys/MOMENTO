@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AtSign, MapPin, Star } from "lucide-react";
+import { AtSign, Camera, MapPin, Star } from "lucide-react";
 import type { MomentCardDTO } from "@/server/types";
 import { Avatar } from "./Avatar";
 import { DemoBadge } from "./DemoBadge";
@@ -23,7 +23,12 @@ type Profile = {
   isSelf: boolean;
   instagram?: string | null;
   gallery?: string[];
-  reputation?: { avg: number | null; count: number; hostAvg: number | null; hostCount: number; badges: string[] } | null;
+  verified?: boolean;
+  reputation?: {
+    avg: number | null; count: number; hostAvg: number | null; hostCount: number; badges: string[];
+    qualities?: { id: string; label: string; icon: string; count: number; share: number }[];
+    againPct?: number | null;
+  } | null;
 };
 
 export async function ProfileHeader({ p, children }: { p: Profile; children?: React.ReactNode }) {
@@ -42,6 +47,12 @@ export async function ProfileHeader({ p, children }: { p: Profile; children?: Re
           {p.name} {p.isDemo && <DemoBadge />}
           {p.tier === "plus" && <span className="pill bg-accent/15 font-sans text-xs font-semibold text-ink">Upclose+</span>}
           {p.tier === "black" && <span className="pill border border-white/25 bg-night font-sans text-xs font-semibold text-white">Black</span>}
+          {p.verified && (
+            <span className="pill gap-1.5 bg-white/90 font-sans text-xs font-semibold text-[#1a1530]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/brand/upclose-symbol.svg" alt="" width={13} height={15} /> {t("Photo certifiée")}
+            </span>
+          )}
         </h1>
         <p className="text-muted">@{p.username}</p>
         {p.bio && <p className="mt-3 max-w-xl text-ink-2">{t(p.bio)}</p>}
@@ -55,6 +66,28 @@ export async function ProfileHeader({ p, children }: { p: Profile; children?: Re
             </Link>
           )}
         </div>
+        {p.isSelf && !p.verified && (
+          <Link href="/moi/certification" className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-3 py-1.5 text-sm font-medium text-ink hover:bg-accent/20">
+            <Camera size={15} /> {t("Certifier ma photo")} <span className="text-xs text-muted">· {t("gratuit, 20 secondes")}</span>
+          </Link>
+        )}
+        {p.reputation?.qualities && p.reputation.qualities.length > 0 && (
+          <Link href={`/u/${p.username}/avis`} className="mt-4 block max-w-xl rounded-2xl bg-surface-2/60 p-3 hover:bg-surface-2">
+            <span className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
+              <span className="whitespace-nowrap text-xs font-semibold uppercase tracking-wide text-muted">{t("Ses points forts")}</span>
+              {typeof p.reputation.againPct === "number" && (
+                <span className="text-xs text-ink-2">{t("{n} % referaient un Moment ensemble", { n: p.reputation.againPct })}</span>
+              )}
+            </span>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {p.reputation.qualities.slice(0, 5).map((q) => (
+                <span key={q.id} className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-surface px-2.5 py-1 text-sm font-semibold text-ink">
+                  <span aria-hidden>{q.icon}</span> {t(q.label)} <span className="text-xs font-normal text-muted">×{q.count}</span>
+                </span>
+              ))}
+            </div>
+          </Link>
+        )}
         {p.instagram && (
           <a
             href={`https://instagram.com/${p.instagram}`}

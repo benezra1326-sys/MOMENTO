@@ -40,6 +40,28 @@ export default async function ProfileReviewsPage({ params }: { params: Promise<{
             <p className="flex items-center gap-2 text-3xl font-semibold">
               <Star size={26} className="fill-current text-amber-400" /> {fmt(avg)}<span className="text-base font-normal text-muted">/5 · {t("{n} avis", { n: rep.hostAvg !== null ? rep.hostCount : rep.count })}</span>
             </p>
+            {rep.qualities.length > 0 && (
+              <div className="space-y-2">
+                <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{t("Points forts")}</h2>
+                <ul className="space-y-2">
+                  {rep.qualities.map((q) => (
+                    <li key={q.id} className="flex items-center gap-3 text-sm">
+                      <span className="w-6 text-center text-lg" aria-hidden>{q.icon}</span>
+                      <span className="w-36 shrink-0 text-ink-2">{t(q.label)}</span>
+                      <span className="h-2 flex-1 overflow-hidden rounded-full bg-surface-2">
+                        <span className="block h-full rounded-full bg-signature" style={{ width: `${Math.max(6, q.share)}%` }} />
+                      </span>
+                      <span className="w-10 text-right font-semibold">{q.count}</span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="text-xs text-muted">{t("Nombre de personnes qui ont cité cette qualité après un Moment.")}</p>
+              </div>
+            )}
+            {rep.againPct !== null && (
+              <p className="rounded-2xl bg-surface-2/60 px-3 py-2 text-sm"><span className="font-semibold">{rep.againPct} %</span> <span className="text-ink-2">{t("des personnes présentes referaient un Moment ensemble")}</span></p>
+            )}
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{t("Détail des notes")}</h2>
             <ul className="grid gap-2 sm:grid-cols-2">
               {ratingCriteria.map((c) => {
                 const v = rep.criteria[c.id];

@@ -19,9 +19,10 @@ import { SafetyActions } from "@/components/SafetyActions";
 import { EmptyState, OfflineDemoNotice } from "@/components/States";
 import { spotsLabel } from "@/components/moment-labels";
 import { getLocale, getT } from "@/lib/i18n/server";
-import { HostMatches, MomentChat, RateMoment, Souvenirs } from "@/components/MomentCircle";
+import { HostMatches, MomentChat, Souvenirs } from "@/components/MomentCircle";
+import { RatePrompt, type RatePromptItem } from "@/components/RateFlow";
 import { listSouvenirs, type SouvenirDTO } from "@/server/souvenirs";
-import { reputations } from "@/server/ratings";
+import { rateTargets, reputations } from "@/server/ratings";
 import { dispoContextsFor } from "@/server/memberships";
 import { DispoQuote } from "@/components/DispoQuote";
 
@@ -94,6 +95,17 @@ export default async function MomentPage({ params, searchParams }: Props) {
   const invitation = sp.invitation === "envoyee" ? "sent" : sp.invitation === "echec" ? "failed" : null;
   // Le cercle du Moment : l'hôte et les participants confirmés (discussion, souvenirs, notes).
   const inCircle = source === "database" && !!viewer && (m.isHost || m.viewerMembership?.status === "ACCEPTED");
+  let ratePrompt: RatePromptItem | null = null;
+  if (inCircle && m.phase === "ended" && productConfig.features.ratings) {
+    const { targets } = await rateTargets(viewer, m.id).catch(() => ({ targets: [] as Awaited<ReturnType<typeof rateTargets>>["targets"] }));
+    const pending = targets.filter((p) => !p.alreadyRated);
+    if (pending.length) {
+      ratePrompt = {
+        id: m.id, title: m.title, left: pending.length, people: pending.slice(0, 4),
+        mediaUrl: m.mediaType === "IMAGE" ? m.mediaUrl : m.posterUrl, textTheme: m.textTheme,
+      };
+    }
+  }
   const past = m.phase === "ended" || m.phase === "ongoing";
   const souvenirs: SouvenirDTO[] =
     source === "database" && viewer && productConfig.features.posts && past ? await listSouvenirs(viewer, m.id).catch(() => []) : [];
@@ -206,7 +218,7 @@ export default async function MomentPage({ params, searchParams }: Props) {
             )}
           </section>
 
-          {inCircle && m.phase === "ended" && productConfig.features.ratings && <div id="noter" className="scroll-mt-20"><RateMoment momentId={m.id} /></div>}
+          {ratePrompt && <div id="noter" className="scroll-mt-20"><RatePrompt item={ratePrompt} /></div>}
 
           {inCircle && productConfig.features.messaging && m.phase !== "ended" && <MomentChat
               momentId={m.id}

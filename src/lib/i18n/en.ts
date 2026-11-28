@@ -12,8 +12,8 @@ export const en: Record<string, string> = {
   "En télétravail, je découvre la ville.": "Working remotely, getting to know the city.",
   "Étudiant, curieux de tout.": "Student, curious about everything.",
   // ——— Général, navigation
-  "Upclose — La vie est plus belle de près.": "Upclose — Life looks better up close.",
-  "La vie est plus belle de près.": "Life looks better up close.",
+  "Upclose — Des gens comme toi. En vrai.": "Upclose — People like you. For real.",
+  "Des gens comme toi. En vrai.": "People like you. For real.",
   "Découvre un Moment près de toi, demande à le rejoindre ou crée le tien, puis rencontre les participants en vrai.":
     "Find a Moment near you, ask to join or create your own, then meet the people in real life.",
   "Moins de scroll. Plus de moments vécus.": "Less scrolling. More moments lived.",

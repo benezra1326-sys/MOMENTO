@@ -6,6 +6,8 @@ export type PersonSummary = {
   username: string;
   photoUrl: string | null;
   isDemo: boolean;
+  /** Photo certifiée par selfie en direct : le logo Upclose s'affiche sur l'avatar. */
+  verified?: boolean;
 };
 
 /** Phase calculée côté serveur, pour des libellés cohérents partout. */

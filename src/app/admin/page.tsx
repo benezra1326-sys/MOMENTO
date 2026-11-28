@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { getViewerSafe } from "@/lib/auth";
 import { listReports } from "@/server/safety";
 import { AdminReports } from "@/components/AdminReports";
+import { AdminVerifications } from "@/components/AdminVerifications";
+import { pendingVerifications } from "@/server/verification";
 import { EmptyState, PageTitle } from "@/components/States";
 import { getT, pageTitle } from "@/lib/i18n/server";
 
@@ -16,8 +18,13 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   const { statut } = await searchParams;
   const status = statut === "traites" ? "RESOLVED" : "OPEN";
   const reports = await listReports(viewer, status);
+  const verifications = await pendingVerifications(viewer);
   return (
     <>
+      <section className="mb-10 space-y-3">
+        <h2 className="font-display text-2xl">{t("Photos à certifier")} {verifications.length > 0 && <span className="pill bg-accent/15 align-middle text-sm">{verifications.length}</span>}</h2>
+        <AdminVerifications items={verifications} />
+      </section>
       <PageTitle eyebrow={t("Modération")} title={t("Signalements")} />
       <AdminReports reports={reports} status={status} />
     </>

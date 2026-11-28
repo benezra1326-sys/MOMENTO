@@ -12,6 +12,8 @@ import { FeedList } from "@/components/FeedList";
 import { OfflineDemoNotice } from "@/components/States";
 import { getT } from "@/lib/i18n/server";
 import { canSeeAdult } from "@/server/moments";
+import { momentsToRate } from "@/server/ratings";
+import { RatePrompt } from "@/components/RateFlow";
 
 export const dynamic = "force-dynamic";
 
@@ -28,6 +30,8 @@ export default async function FeedPage({ searchParams }: { searchParams: SP }) {
   const t = await getT();
   const query = flat(await searchParams);
   delete query.cursor;
+  // Requête séquentielle (une seule connexion en production) : un Moment vécu à noter, en tête du fil.
+  const toRate = viewer ? await momentsToRate(viewer).catch(() => []) : [];
 
   const feed = await loadFeed(viewer, query);
   const autoplay = viewer
@@ -71,6 +75,7 @@ export default async function FeedPage({ searchParams }: { searchParams: SP }) {
       )}
 
       {feed.source === "demo-fallback" && <OfflineDemoNotice />}
+      {toRate[0] && <RatePrompt item={toRate[0]} />}
 
       <Suspense>
         <FeedFilters showAdult={canSeeAdult(viewer)} />

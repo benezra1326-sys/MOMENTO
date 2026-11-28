@@ -3,7 +3,40 @@ import type { PersonSummary } from "@/server/types";
 
 const sizes = { xs: 24, sm: 32, md: 40, lg: 56, xl: 96 } as const;
 
-export function Avatar({ person, size = "md", ring = false }: { person: Pick<PersonSummary, "name" | "photoUrl">; size?: keyof typeof sizes; ring?: boolean }) {
+/**
+ * Badge « photo certifiée » : le symbole Upclose posé en bas à droite de l'avatar.
+ * La photo a été comparée à un selfie pris en direct avec la caméra.
+ */
+export function VerifiedMark({ px, title = "Photo certifiée" }: { px: number; title?: string }) {
+  const d = Math.max(14, Math.round(px * 0.34));
+  return (
+    <span
+      className="absolute -bottom-0.5 -right-0.5 inline-flex items-center justify-center rounded-full bg-white shadow-[0_1px_4px_rgba(0,0,0,.35)] ring-2 ring-surface"
+      style={{ width: d, height: d }}
+      title={title}
+      aria-label={title}
+      role="img"
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/brand/upclose-symbol.svg" alt="" style={{ width: Math.round(d * 0.62), height: Math.round(d * 0.62) }} />
+    </span>
+  );
+}
+
+export function Avatar({ person, size = "md", ring = false }: { person: Pick<PersonSummary, "name" | "photoUrl"> & { verified?: boolean }; size?: keyof typeof sizes; ring?: boolean }) {
+  const px = sizes[size];
+  if (person.verified && person.photoUrl && size !== "xs") {
+    return (
+      <span className="relative inline-flex shrink-0" style={{ width: px, height: px }}>
+        <AvatarCore person={person} size={size} ring={ring} />
+        <VerifiedMark px={px} />
+      </span>
+    );
+  }
+  return <AvatarCore person={person} size={size} ring={ring} />;
+}
+
+function AvatarCore({ person, size = "md", ring = false }: { person: Pick<PersonSummary, "name" | "photoUrl">; size?: keyof typeof sizes; ring?: boolean }) {
   const px = sizes[size];
   const initials = person.name
     .split(/\s+/)

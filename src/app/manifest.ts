@@ -9,7 +9,7 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     return {
       name: "Upclose Black",
       short_name: "Upclose",
-      description: "Life looks better up close.",
+      description: "Des gens comme toi. En vrai.",
       start_url: "/",
       display: "standalone",
       background_color: "#000000",
@@ -23,7 +23,7 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
   return {
     name: "Upclose",
     short_name: "Upclose",
-    description: "Life looks better up close.",
+    description: "Des gens comme toi. En vrai.",
     start_url: "/",
     display: "standalone",
     background_color: "#1D1626",

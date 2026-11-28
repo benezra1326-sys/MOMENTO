@@ -13,7 +13,7 @@ function flag(name: string, fallback: boolean): boolean {
 
 export const productConfig = {
   appName: "Upclose",
-  tagline: "La vie est plus belle de près.",
+  tagline: "Des gens comme toi. En vrai.",
   mantra: "Life looks better up close.",
 
   /** Décision ouverte n°1 : ville pilote. Marbella n'est qu'un exemple historique. */

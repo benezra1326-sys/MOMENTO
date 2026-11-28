@@ -30,7 +30,7 @@ export async function listNotifications(viewerIn: Viewer | null, limit = 40) {
   // Requête séquentielle (une seule connexion en production) : la personne à l'origine de chaque notification.
   const actorIds = [...new Set(rows.map((r) => r.actorId).filter((x): x is string => !!x))];
   const actors = actorIds.length
-    ? await prisma.user.findMany({ where: { id: { in: actorIds } }, select: { id: true, name: true, username: true, photoUrl: true } })
+    ? await prisma.user.findMany({ where: { id: { in: actorIds } }, select: { id: true, name: true, username: true, photoUrl: true, photoVerifiedAt: true } })
     : [];
   const byId = new Map(actors.map((a) => [a.id, a]));
   return rows.map((r) => ({
@@ -38,7 +38,7 @@ export async function listNotifications(viewerIn: Viewer | null, limit = 40) {
     type: r.type,
     body: r.body,
     momentId: r.momentId,
-    actor: r.actorId ? (byId.get(r.actorId) ?? null) : null,
+    actor: r.actorId && byId.get(r.actorId) ? { ...byId.get(r.actorId)!, verified: !!byId.get(r.actorId)!.photoVerifiedAt } : null,
     read: !!r.readAt,
     createdAt: r.createdAt.toISOString(),
   }));

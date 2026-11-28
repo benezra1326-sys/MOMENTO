@@ -2,10 +2,10 @@ import type { Moment, MomentMembership, User } from "@prisma/client";
 import { momentEnd } from "@/lib/time";
 import type { MomentCardDTO, MomentPhase, PersonSummary, ViewerMembership } from "./types";
 
-export const personSelect = { id: true, name: true, username: true, photoUrl: true, isDemo: true } as const;
+export const personSelect = { id: true, name: true, username: true, photoUrl: true, isDemo: true, photoVerifiedAt: true } as const;
 
-export function toPerson(u: Pick<User, "id" | "name" | "username" | "photoUrl" | "isDemo">): PersonSummary {
-  return { id: u.id, name: u.name, username: u.username, photoUrl: u.photoUrl, isDemo: u.isDemo };
+export function toPerson(u: Pick<User, "id" | "name" | "username" | "photoUrl" | "isDemo"> & { photoVerifiedAt?: Date | null }): PersonSummary {
+  return { id: u.id, name: u.name, username: u.username, photoUrl: u.photoUrl, isDemo: u.isDemo, verified: !!u.photoVerifiedAt && !!u.photoUrl };
 }
 
 export function momentPhase(m: Pick<Moment, "status" | "startsAt" | "endsAt">, now = new Date()): MomentPhase {

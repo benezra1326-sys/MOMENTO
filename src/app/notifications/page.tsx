@@ -42,7 +42,7 @@ export default async function NotificationsPage() {
                 </div>
               </div>
             );
-            return <li key={n.id}>{n.momentId ? <Link href={`/moments/${n.momentId}`} className="block hover:bg-surface-2/40">{body}</Link> : body}</li>;
+            return <li key={n.id}>{n.momentId ? <Link href={n.type === "RATE_MOMENT" ? `/moments/${n.momentId}/noter` : `/moments/${n.momentId}`} className="block hover:bg-surface-2/40">{body}</Link> : body}</li>;
           })}
         </ul>
       )}

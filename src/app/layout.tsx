@@ -19,7 +19,7 @@ const SITE_URL = (process.env.APP_URL || "https://upclose.world").replace(/\/$/,
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();
   const black = await blackThemeOn(await getViewerSafe()).catch(() => false);
-  const title = t("Upclose — La vie est plus belle de près.");
+  const title = t("Upclose — Des gens comme toi. En vrai.");
   const description = t("Découvre un Moment près de toi, demande à le rejoindre ou crée le tien, puis rencontre les participants en vrai.");
   return {
     metadataBase: new URL(SITE_URL),

@@ -1,4 +1,5 @@
 import { tierOf } from "@/lib/premium";
+import { onProfilePhotoChanged } from "./verification";
 import { endBillingForDeletedAccount } from "./billing";
 import { recordView } from "./black";
 import { z } from "zod";
@@ -105,6 +106,7 @@ export async function getMyProfile(viewerIn: Viewer | null) {
     adultConfirmedAt: u.adultConfirmedAt ? u.adultConfirmedAt.toISOString() : null,
     isDemo: u.isDemo,
     role: u.role,
+    verified: !!u.photoVerifiedAt && !!u.photoUrl,
   };
 }
 
@@ -140,6 +142,7 @@ export async function updateMyProfile(viewerIn: Viewer | null, raw: unknown) {
       ...(gallery !== undefined ? { gallery: [...new Set(gallery)] } : {}),
     },
   });
+  if (input.photoUrl !== undefined && (before?.photoUrl ?? null) !== (input.photoUrl ?? null)) await onProfilePhotoChanged(viewer.id, input.photoUrl ?? null);
   if (before?.photoUrl && input.photoUrl !== undefined && before.photoUrl !== input.photoUrl) await deleteStoredFile(before.photoUrl);
   if (gallery !== undefined) for (const url of before?.gallery ?? []) if (!gallery.includes(url)) await deleteStoredFile(url);
   return getMyProfile(viewer);
@@ -172,6 +175,7 @@ export async function getPublicProfile(viewer: Viewer | null, username: string) 
     interests: u.interests,
     photoUrl: u.photoUrl,
     isDemo: u.isDemo,
+    verified: !!u.photoVerifiedAt && !!u.photoUrl && !suspended,
     tier: suspended ? ("free" as const) : tierOf(u),
     suspended,
     isSelf,
@@ -180,7 +184,7 @@ export async function getPublicProfile(viewer: Viewer | null, username: string) 
     showPastMoments: u.showPastMoments,
     instagram: suspended ? null : u.instagram,
     gallery: suspended ? [] : u.gallery,
-    reputation: rep ? { avg: rep.avg, count: rep.count, hostAvg: rep.hostAvg, hostCount: rep.hostCount, criteria: rep.criteria, badges: rep.badges } : null,
+    reputation: rep ? { avg: rep.avg, count: rep.count, hostAvg: rep.hostAvg, hostCount: rep.hostCount, criteria: rep.criteria, badges: rep.badges, qualities: rep.qualities, againPct: rep.againPct } : null,
     hosted,
     attended,
   };
@@ -199,6 +203,7 @@ export async function deleteMyAccount(viewerIn: Viewer | null, confirmUsername: 
     throw new AppError("VALIDATION", "Saisis ton pseudo pour confirmer la suppression.");
   }
   const oldPhoto = (await prisma.user.findUnique({ where: { id: viewer.id }, select: { photoUrl: true } }))?.photoUrl;
+  const selfies = (await prisma.photoVerification.findMany({ where: { userId: viewer.id }, select: { selfieUrl: true } })).map((v) => v.selfieUrl).filter(Boolean);
   await endBillingForDeletedAccount(viewer.id);
   await prisma.$transaction(async (tx) => {
     const upcoming = await tx.moment.findMany({
@@ -224,6 +229,7 @@ export async function deleteMyAccount(viewerIn: Viewer | null, confirmUsername: 
       where: { userId: viewer.id, status: { in: ["PENDING", "ACCEPTED"] } },
       data: { status: "CANCELLED", respondedAt: new Date() },
     });
+    await tx.photoVerification.deleteMany({ where: { userId: viewer.id } });
     await tx.notification.deleteMany({ where: { userId: viewer.id } });
     await tx.session.deleteMany({ where: { userId: viewer.id } });
     await tx.user.update({
@@ -242,10 +248,12 @@ export async function deleteMyAccount(viewerIn: Viewer | null, confirmUsername: 
         facebookId: null,
         phone: null,
         phoneVerifiedAt: null,
+        photoVerifiedAt: null,
       },
     });
   });
   await deleteStoredFile(oldPhoto);
+  for (const url of new Set(selfies)) await deleteStoredFile(url);
   await destroySession();
   return { deleted: true };
 }
