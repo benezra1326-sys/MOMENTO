@@ -1,3 +1,4 @@
+import { isAdminEmail } from "@/lib/env";
 /**
  * Briques communes aux connexions « Continuer avec Google / Facebook ».
  */
@@ -84,7 +85,7 @@ export async function upsertOAuthUser(provider: OAuthProvider, profile: OAuthPro
     }
     await prisma.user.update({
       where: { id: byEmail.id },
-      data: { [field]: profile.id, emailVerifiedAt: byEmail.emailVerifiedAt ?? new Date() },
+      data: { [field]: profile.id, emailVerifiedAt: byEmail.emailVerifiedAt ?? new Date(), ...(isAdminEmail(email) ? { role: "ADMIN" as const } : {}) },
     });
     return { id: byEmail.id, isNew: false };
   }
@@ -95,6 +96,7 @@ export async function upsertOAuthUser(provider: OAuthProvider, profile: OAuthPro
         email,
         [field]: profile.id,
         emailVerifiedAt: new Date(),
+        ...(isAdminEmail(email) ? { role: "ADMIN" as const } : {}),
         name: name.length >= 2 ? name : "Membre",
         username,
         // Photo non importée automatiquement : la personne choisit sa photo dans son profil.

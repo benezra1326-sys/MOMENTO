@@ -1,3 +1,4 @@
+import { isAdminEmail } from "@/lib/env";
 import { randomBytes } from "node:crypto";
 import { z } from "zod";
 import type { AuthTokenKind } from "@prisma/client";
@@ -83,7 +84,10 @@ export async function resendVerification(viewerIn: Viewer | null) {
 export async function confirmEmail(raw: unknown) {
   const { token } = z.object({ token: z.string() }).parse(raw);
   const user = await consumeToken(token, "VERIFY_EMAIL");
-  if (!user.emailVerifiedAt) await prisma.user.update({ where: { id: user.id }, data: { emailVerifiedAt: new Date() } });
+  const admin = isAdminEmail(user.email) && user.role !== "ADMIN" ? { role: "ADMIN" as const } : {};
+  if (!user.emailVerifiedAt || admin.role) {
+    await prisma.user.update({ where: { id: user.id }, data: { emailVerifiedAt: user.emailVerifiedAt ?? new Date(), ...admin } });
+  }
   return { verified: true };
 }
 

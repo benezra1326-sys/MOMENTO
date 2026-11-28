@@ -15,3 +15,13 @@ export function isDemoMode(): boolean {
  * ni bandeau dans l'app. Les comptes fictifs restent marqués isDemo en base (supprimables avant le lancement).
  */
 export const demoLabelsVisible = process.env.NEXT_PUBLIC_DEMO_LABELS !== "false";
+
+/**
+ * ADMIN_EMAILS (séparées par des virgules) : ces adresses deviennent administrateur
+ * dès qu'elles sont vérifiées (connexion Google/Facebook, ou lien de confirmation par e-mail).
+ */
+export function isAdminEmail(email: string | null | undefined): boolean {
+  if (!email) return false;
+  const list = (process.env.ADMIN_EMAILS ?? "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
+  return list.includes(email.toLowerCase());
+}
